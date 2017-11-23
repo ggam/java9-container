@@ -49,13 +49,24 @@
                                     <outputDirectory>${project.build.directory}/modules</outputDirectory>
                                     <destFileName>classloaders-api.jar</destFileName>
                                 </artifactItem>
+                                
                                 <artifactItem>
                                     <groupId>es.guillermogonzalezdeaguero</groupId>
                                     <artifactId>container-example-plugin</artifactId>
                                     <version>1.0-SNAPSHOT</version>
+                                    <classifier>jar-with-dependencies</classifier>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/modules/plugins</outputDirectory>
-                                    <destFileName>example-module.jar</destFileName>
+                                    <destFileName>example.plugin.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>es.guillermogonzalezdeaguero</groupId>
+                                    <artifactId>container-conflictive-plugin</artifactId>
+                                    <version>1.0-SNAPSHOT</version>
+                                    <classifier>jar-with-dependencies</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/modules/plugins</outputDirectory>
+                                    <destFileName>conflictive.plugin.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
