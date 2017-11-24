@@ -1,1 +1,1 @@
-`mvn clean install && ./run.sh`
+`./run.sh`

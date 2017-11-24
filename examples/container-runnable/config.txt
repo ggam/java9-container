@@ -1,0 +1,2 @@
+#Fri Nov 24 20:54:11 CET 2017
+--module-path ./target/output:/usr/java/jdk-9.0.1/jmods --add-modules es.guillermogonzalezdeaguero.container.Impl,es.guillermogonzalezdeaguero.container.Api --compress 2 --launcher launch=es.guillermogonzalezdeaguero.container.Impl/es.guillermogonzalezdeaguero.container.impl.Launcher --vm=server --save-opts=config.txt --output target/jre-dist 
