@@ -12,5 +12,6 @@
         <module>container-examplelibrary</module>
         <module>example-plugin</module>
         <module>conflictive-plugin</module>
+        <module>container-runnable</module>
     </modules>
 </project>

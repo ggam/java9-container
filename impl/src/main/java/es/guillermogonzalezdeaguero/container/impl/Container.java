@@ -3,11 +3,11 @@ package es.guillermogonzalezdeaguero.container.impl;
 import es.guillermogonzalezdeaguero.container.api.Plugin;
 import java.io.IOException;
 import java.lang.module.Configuration;
+import java.lang.module.ModuleDescriptor;
 import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReference;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -25,38 +25,30 @@ public class Container {
     public Container(ModuleLayer parentLayer, Path pluginPath) {
 
         resolvedPlugins = new HashMap<>();
-        
+
         try {
-            Set<ModuleFinder> collect = Files.find(pluginPath, 1, (path, attributes) -> path.toString().endsWith(".jar")).
-                    map(ModuleFinder::of).
-                    collect(toSet());
-            
-            for(ModuleFinder moduleFinder:  collect) {
-                System.out.println("ModuleFinder: " + moduleFinder);
-                for(ModuleReference moduleReference : moduleFinder.findAll()) {
-                    System.out.println("ModuleFinder: " + moduleReference);
-                    Path get = Paths.get(moduleReference.location().get());
-                    String name = moduleReference.descriptor().name();
-                    
-                    resolvedPlugins.put(name, getLayer(parentLayer, moduleFinder, name));
-                }
+            Set<Path> detectedPlugins = Files.list(pluginPath).filter(Files::isDirectory).collect(toSet());
+
+            for (Path detectedPlugin : detectedPlugins) {
+                ModuleFinder pluginModuleFinder = ModuleFinder.of(detectedPlugin);
+                Set<String> pluginNames = pluginModuleFinder.findAll().
+                        stream().
+                        map(ModuleReference::descriptor).
+                        map(ModuleDescriptor::name).
+                        collect(toSet()); // Modules of the plugin
+
+                System.out.println(pluginNames);
+
+                Configuration cf = parentLayer.configuration().
+                        resolve(pluginModuleFinder, ModuleFinder.of(), pluginNames);
+
+                System.out.println("layering: " + detectedPlugin.getName(detectedPlugin.getNameCount() - 1).toString());
+                resolvedPlugins.put(detectedPlugin.getName(detectedPlugin.getNameCount() - 1).toString(), parentLayer.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader()));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        ModuleFinder pluginFinder = ModuleFinder.of(pluginPath);
-
-    }
-
-    private ModuleLayer getLayer(ModuleLayer parentLayer, ModuleFinder moduleFinder, String pluginName) {
-
-        Configuration cf = parentLayer.configuration().
-                resolve(moduleFinder, ModuleFinder.of(), Set.of(pluginName));
-
-        System.out.println("Processed " + pluginName);
-
-        return parentLayer.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
+        System.out.println("plugins: " + resolvedPlugins);
     }
 
     public void runAllPlugins() {
