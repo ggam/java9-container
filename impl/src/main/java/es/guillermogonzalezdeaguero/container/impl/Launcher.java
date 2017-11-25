@@ -10,7 +10,6 @@ import java.nio.file.Paths;
 public class Launcher {
 
     public static void main(String[] args) throws IOException {
-        new Container(ModuleLayer.boot(), Paths.get("plugins")).
-                startServer();
+        new Container(ModuleLayer.boot(), Paths.get("plugins")).startServer();
     }
 }
