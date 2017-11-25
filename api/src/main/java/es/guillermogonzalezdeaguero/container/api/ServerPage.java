@@ -4,7 +4,9 @@ package es.guillermogonzalezdeaguero.container.api;
  *
  * @author guillermo
  */
-public interface Plugin {
+public interface ServerPage {
 
-    void run();
+    String getUrl();
+
+    String process();
 }

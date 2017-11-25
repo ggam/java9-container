@@ -1,5 +1,6 @@
 package es.guillermogonzalezdeaguero.container.impl;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 
 /**
@@ -8,8 +9,8 @@ import java.nio.file.Paths;
  */
 public class Launcher {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         new Container(ModuleLayer.boot(), Paths.get("plugins")).
-                runAllPlugins();        
+                startServer();
     }
 }
