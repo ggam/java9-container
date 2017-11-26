@@ -1,26 +1,24 @@
-package es.guillermogonzalezdeaguero.container.impl;
+package es.guillermogonzalezdeaguero.container.impl.server;
 
 import es.guillermogonzalezdeaguero.container.impl.internal.HttpWorkerThreadFactory;
-import es.guillermogonzalezdeaguero.container.impl.internal.WebApplication;
+import es.guillermogonzalezdeaguero.container.impl.server.deployment.WebApplication;
 import es.guillermogonzalezdeaguero.container.impl.servlet.HttpServletRequestImpl;
 import es.guillermogonzalezdeaguero.container.impl.servlet.HttpServletResponseImpl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.UncheckedIOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toSet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
@@ -28,37 +26,43 @@ import javax.servlet.http.HttpServlet;
  *
  * @author guillermo
  */
-public class Container {
+public class Server {
 
-    private static final Logger LOGGER = Logger.getLogger(Container.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
+    private static final Path WEBAPPS_PATH = Paths.get("..", "webapps");
 
-    private static final int PORT = 8282;
-    private final Set<WebApplication> webApps;
+    private ServerState state = ServerState.STOPPED;
+    private final int port;
+    private final DeploymentScanner deploymentScanner;
 
-    public Container(ModuleLayer parentLayer, Path pluginPath) {
-        try {
-            webApps = Files.list(pluginPath).
-                    filter(Files::isDirectory).
-                    map(p -> new WebApplication(parentLayer, p)).
-                    collect(toSet());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    private Set<WebApplication> webApps = new HashSet<>();
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n=============");
-        sb.append("Available applications:\n");
-        sb.append(webApps.stream().map(WebApplication::getContextPath).collect(joining("\n")));
-        sb.append("\n=============\n");
-
-        LOGGER.info(sb.toString());
+    public Server(int port) {
+        this.port = port;
+        this.deploymentScanner = new DeploymentScanner(WEBAPPS_PATH);
     }
 
-    public void startServer() throws IOException {
+    private synchronized void changeState(ServerState newState) {
+        LOGGER.log(Level.INFO, "Server state changed from {0} to {1}", new Object[]{this.state, newState});
+        this.state = newState;
+    }
+
+    public void start() throws IOException {
+        changeState(ServerState.STARTING);
+
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-        ServerSocket serverSocket = new ServerSocket(PORT);
-        System.out.println("Started server at port " + PORT);
+        ServerSocket serverSocket = new ServerSocket(port);
+
+        LOGGER.log(Level.INFO, "Listening on port {0}", String.valueOf(port));
+
+        deploymentScanner.startScanning(webApps::add);
+
+        webApps.forEach(WebApplication::deploy);
+
+        changeState(ServerState.RUNNING);
+        LOGGER.log(Level.INFO, "\n============================\nServer is running on port {0}", String.valueOf(port));
+
         while (true) {
             Socket request = serverSocket.accept();
             executor.submit(() -> handleRequest(request), new HttpWorkerThreadFactory());

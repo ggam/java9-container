@@ -1,6 +1,6 @@
-package es.guillermogonzalezdeaguero.container.impl.internal;
+package es.guillermogonzalezdeaguero.container.impl.server.deployment;
 
-import es.guillermogonzalezdeaguero.container.impl.internal.webxml.WebXmlParser;
+import es.guillermogonzalezdeaguero.container.impl.server.deployment.webxml.WebXmlParser;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleDescriptor;
 import java.lang.module.ModuleFinder;
@@ -26,20 +26,34 @@ public class WebApplication {
     private static final Path RELATIVE_CLASSES_PATH = Paths.get("WEB-INF", "classes");
     private static final Path RELATIVE_LIBS_PATH = Paths.get("WEB-INF", "lib");
 
+    private String warModuleName;
+    private Map<String, String> servletMappings;
+    private ModuleLayer moduleLayer;
+    private final ModuleLayer parentLayer;
+
     private final String contextPath;
-    private final String warModuleName;
-    private final Map<String, String> servletMappings;
-    private final ModuleLayer moduleLayer;
+    private final Path appPath;
+    private DeploymentState state = DeploymentState.UNDEPLOYED;
 
     public WebApplication(ModuleLayer parentLayer, Path appPath) {
+        this.parentLayer = parentLayer;
+        this.appPath = appPath;
+        contextPath = "/" + appPath.getFileName().toString();
+    }
 
+    private synchronized void changeState(DeploymentState newState) {
+        LOGGER.log(Level.INFO, "\"{0}\" context state changed from {1} to {2}", new Object[]{contextPath, this.state, newState});
+        this.state = newState;
+    }
+
+    public void deploy() {
+        changeState(DeploymentState.DEPLOYING);
         ModuleFinder warModuleFinder = ModuleFinder.of(appPath.resolve(RELATIVE_CLASSES_PATH));
         warModuleName = warModuleFinder.findAll().
                 stream().
                 map(ModuleReference::descriptor).
                 map(ModuleDescriptor::name).
                 findAny().get();
-        LOGGER.log(Level.INFO, "War module: {0}", warModuleName);
 
         ModuleFinder libsModuleFinder = ModuleFinder.of(appPath.resolve(RELATIVE_LIBS_PATH));
         Set<String> moduleNames = libsModuleFinder.findAll().
@@ -54,11 +68,24 @@ public class WebApplication {
                 resolve(ModuleFinder.compose(warModuleFinder, libsModuleFinder), ModuleFinder.of(), moduleNames);
 
         moduleLayer = parentLayer.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
-        contextPath = "/" + appPath.getFileName().toString();
-        LOGGER.log(Level.INFO, "Deployed {0}", contextPath);
 
         servletMappings = WebXmlParser.getServletMappings(contextPath, appPath.resolve(Paths.get("WEB-INF", "web.xml")));
-        LOGGER.log(Level.INFO, "{0} Servlet mappings: {1}", new Object[]{contextPath, servletMappings});
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Deployed {0}. Servlet mappings:\n");
+        for (Map.Entry<String, String> entry : servletMappings.entrySet()) {
+            String urlPattern = entry.getKey();
+            String servletClass = entry.getValue();
+            sb.append("- ").append(urlPattern).append(" : ").append(servletClass).append("\n");
+        }
+
+        LOGGER.log(Level.INFO, sb.toString(), new Object[]{contextPath});
+
+        changeState(DeploymentState.DEPLOYED);
+    }
+
+    public synchronized DeploymentState getState() {
+        return state;
     }
 
     public String getContextPath() {
@@ -66,6 +93,10 @@ public class WebApplication {
     }
 
     public HttpServlet getServlet(String path) {
+        if (state != DeploymentState.DEPLOYED) {
+            throw new IllegalStateException(contextPath + " is not deployed");
+        }
+
         String servletClass = servletMappings.get(path);
 
         if (servletClass == null) {
