@@ -1,1 +1,0 @@
---module-path ./target/output:/usr/java/jdk-9.0.1/jmods --add-modules es.guillermogonzalezdeaguero.container.Impl,java.servlet --compress 2 --launcher launch=es.guillermogonzalezdeaguero.container.Impl/es.guillermogonzalezdeaguero.container.impl.Launcher --vm=server --output target/jre-dist 

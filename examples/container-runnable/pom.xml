@@ -7,7 +7,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>container-runnable</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     
     <build>
         <plugins>
@@ -17,10 +17,10 @@
                 <version>3.0.2</version>
                 <executions>
                     <execution>
-                        <id>copy</id>
-                        <phase>package</phase>
+                        <id>unpack</id>
+                        <phase>install</phase>
                         <goals>
-                            <goal>copy</goal>
+                            <goal>unpack</goal>
                         </goals>
                         <configuration>
                             <artifactItems>
@@ -28,27 +28,11 @@
                                     <groupId>es.guillermogonzalezdeaguero</groupId>
                                     <artifactId>container-impl</artifactId>
                                     <version>1.0-SNAPSHOT</version>
+                                    <classifier>resources</classifier>
+                                    <type>zip</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/output</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>es.guillermogonzalezdeaguero</groupId>
-                                    <artifactId>servlet-api</artifactId>
-                                    <version>2.5</version>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/output</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>                         
+                                    <outputDirectory>${project.build.directory}/jre-dist/</outputDirectory>
+                                </artifactItem>                  
                                 <artifactItem>
                                     <groupId>es.guillermogonzalezdeaguero</groupId>
                                     <artifactId>container-example-plugin</artifactId>
@@ -66,24 +50,6 @@
                                     <outputDirectory>${project.build.directory}/jre-dist/bin/plugins/conflictive-plugin</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <groupId>org.codehaus.mojo</groupId>
-                <executions>
-                    <execution>
-                        <id>Create Jlink</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>jlink</executable>
-                            <commandlineArgs>@src/main/jlink/jlink-config.txt</commandlineArgs>
                         </configuration>
                     </execution>
                 </executions>
