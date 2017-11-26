@@ -19,14 +19,28 @@ import javax.servlet.http.HttpSession;
  */
 public class HttpServletRequestImpl implements HttpServletRequest {
 
+    private String authType;
+    private Cookie[] cookies;
+    private String method = "GET";
+    private String pathInfo;
+    private String contextPath;
+    private String queryString;
+    private String remoteUser;
+    private Principal userPrincipal;
+    private String requestedSessionId;
+    private String requestURI;
+    private StringBuffer requestURL;
+    private String servletPath;
+    private HttpSession httpSession;
+
     @Override
     public String getAuthType() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return authType;
     }
 
     @Override
     public Cookie[] getCookies() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return cookies;
     }
 
     @Override
@@ -56,92 +70,92 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
     @Override
     public String getMethod() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return method;
     }
 
     @Override
     public String getPathInfo() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return pathInfo;
     }
 
     @Override
     public String getPathTranslated() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return null;
     }
 
     @Override
     public String getContextPath() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return contextPath;
     }
 
     @Override
     public String getQueryString() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return queryString;
     }
 
     @Override
     public String getRemoteUser() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return remoteUser;
     }
 
     @Override
     public boolean isUserInRole(String role) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return false;
     }
 
     @Override
     public Principal getUserPrincipal() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return userPrincipal;
     }
 
     @Override
     public String getRequestedSessionId() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return requestedSessionId;
     }
 
     @Override
     public String getRequestURI() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return requestURI;
     }
 
     @Override
     public StringBuffer getRequestURL() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return requestURL;
     }
 
     @Override
     public String getServletPath() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return servletPath;
     }
 
     @Override
     public HttpSession getSession(boolean create) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return httpSession;
     }
 
     @Override
     public HttpSession getSession() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return getSession(false);
     }
 
     @Override
     public boolean isRequestedSessionIdValid() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return false;
     }
 
     @Override
     public boolean isRequestedSessionIdFromCookie() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return false;
     }
 
     @Override
     public boolean isRequestedSessionIdFromURL() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return false;
     }
 
     @Override
     public boolean isRequestedSessionIdFromUrl() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return false;
     }
 
     @Override

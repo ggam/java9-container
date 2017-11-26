@@ -64,7 +64,6 @@ public class Container {
                 PrintWriter out = new PrintWriter(request.getOutputStream(), true)) {
 
             String url = in.readLine().split("GET ")[1].split(" HTTP")[0];
-            System.out.println("Requested URL " + url);
 
             Optional<HttpServlet> findAny = webApps.stream().
                     map(webApp -> webApp.getServlet(url)).
@@ -73,8 +72,11 @@ public class Container {
 
             if (!findAny.isPresent()) {
                 out.print(createResponse(404, "404 - Not found"));
+                System.out.println("Requested URL " + url + " - Status: 404");
             } else {
-                findAny.get().service(new HttpServletRequestImpl(), new HttpServletResponseImpl());
+                HttpServletResponseImpl response = new HttpServletResponseImpl(out);
+                findAny.get().service(new HttpServletRequestImpl(), response);
+                System.out.println("Requested URL " + url + " - Status: " + response.getStatus());
             }
 
         } catch (IOException | ServletException e) {

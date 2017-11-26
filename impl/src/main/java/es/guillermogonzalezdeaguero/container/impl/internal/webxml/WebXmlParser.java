@@ -17,7 +17,7 @@ import org.xml.sax.SAXException;
  */
 public class WebXmlParser {
 
-    public static Map<String, String> getServletMappings(Path webXmlPath) {
+    public static Map<String, String> getServletMappings(String contextPath, Path webXmlPath) {
         try {
             Document doc = DocumentBuilderFactory.newInstance().
                     newDocumentBuilder().
@@ -51,7 +51,7 @@ public class WebXmlParser {
                     }
 
                     String urlPattern = urlPatterns.item(j).getTextContent();
-                    servletMappings.put(urlPattern, servletClass);
+                    servletMappings.put(contextPath + urlPattern, servletClass);
                 }
 
             }

@@ -13,6 +13,14 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class HttpServletResponseImpl implements HttpServletResponse {
 
+    private final PrintWriter printWriter;
+    private int status;
+
+    public HttpServletResponseImpl(PrintWriter printWriter) {
+        this.printWriter = printWriter;
+        this.status = SC_OK;
+    }
+
     @Override
     public void addCookie(Cookie cookie) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -90,12 +98,16 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
     @Override
     public void setStatus(int sc) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.status = sc;
     }
 
     @Override
     public void setStatus(int sc, String sm) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int getStatus() {
+        return status;
     }
 
     @Override
@@ -115,7 +127,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
     @Override
     public PrintWriter getWriter() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return printWriter;
     }
 
     @Override

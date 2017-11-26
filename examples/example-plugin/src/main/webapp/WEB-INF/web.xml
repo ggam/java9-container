@@ -7,5 +7,6 @@
     <servlet-mapping>
         <servlet-name>ExampleServlet</servlet-name>
         <url-pattern>/example-servlet</url-pattern>
+        <url-pattern>/alternative-url</url-pattern>
     </servlet-mapping>
 </web-app>

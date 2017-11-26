@@ -51,8 +51,9 @@ public class WebApplication {
 
         moduleLayer = parentLayer.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
         contextPath = "/" + appPath.getFileName().toString();
+        System.out.println("Deployed " + contextPath);
 
-        servletMappings = WebXmlParser.getServletMappings(appPath.resolve(Paths.get("WEB-INF", "web.xml")));
+        servletMappings = WebXmlParser.getServletMappings(contextPath, appPath.resolve(Paths.get("WEB-INF", "web.xml")));
         System.out.println(contextPath + " Servlet mappings: " + servletMappings);
     }
 
@@ -61,9 +62,6 @@ public class WebApplication {
     }
 
     public HttpServlet getServlet(String path) {
-        path = "/example-servlet"; // TODO:
-        System.out.println("Requested path " + path);
-
         String servletClass = servletMappings.get(path);
 
         if (servletClass == null) {
@@ -71,15 +69,8 @@ public class WebApplication {
         }
 
         try {
-            System.out.println("00000000000000000");
-            System.out.println(servletMappings);
-            System.out.println(Class.forName(moduleLayer.findModule(warModuleName).get(), servletClass));
-            System.out.println("1111111111111111");
 
             HttpServlet servletInstance = (HttpServlet) Class.forName(moduleLayer.findModule(warModuleName).get(), servletClass).getDeclaredConstructor().newInstance();
-
-            System.out.println(servletClass);
-            System.out.println(servletInstance);
             return servletInstance;
         } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             ex.printStackTrace();
