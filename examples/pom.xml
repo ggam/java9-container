@@ -10,8 +10,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>container-examplelibrary</module>
-        <module>example-plugin</module>
-        <module>conflictive-plugin</module>
+        <module>example-webapp</module>
+        <module>conflictive-webapp</module>
         <module>container-runnable</module>
     </modules>
 </project>

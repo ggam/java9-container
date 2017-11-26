@@ -1,0 +1,3 @@
+/home/guillermo/NetBeansProjects/container/examples/conflictive-webapp/src/main/java/es/guillermogonzalezdeaguero/container/DuplicatedClass.java
+/home/guillermo/NetBeansProjects/container/examples/conflictive-webapp/src/main/java/module-info.java
+/home/guillermo/NetBeansProjects/container/examples/conflictive-webapp/src/main/java/es/guillermogonzalezdeaguero/container/conflictiveplugin/ConflictiveServlet.java
