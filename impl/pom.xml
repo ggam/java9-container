@@ -25,7 +25,8 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.0.2</version>
                 <configuration>
-                    <outputDirectory>${project.build.directory}/modules</outputDirectory>
+                    <finalName>impl</finalName>
+                    <outputDirectory>${project.build.directory}/tmp-mod</outputDirectory>
                 </configuration>
             </plugin>
             
@@ -59,6 +60,17 @@
                 <version>1.6.0</version>
                 <groupId>org.codehaus.mojo</groupId>
                 <executions>
+                    <execution>
+                        <id>Create JMod</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>jmod</executable>
+                            <commandlineArgs>@src/main/jlink/jmod-config.txt</commandlineArgs>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>Create Jlink</id>
                         <phase>package</phase>
