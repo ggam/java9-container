@@ -1,5 +1,6 @@
 package es.guillermogonzalezdeaguero.container.impl;
 
+import es.guillermogonzalezdeaguero.container.impl.internal.HttpWorkerThreadFactory;
 import es.guillermogonzalezdeaguero.container.impl.internal.WebApplication;
 import es.guillermogonzalezdeaguero.container.impl.servlet.HttpServletRequestImpl;
 import es.guillermogonzalezdeaguero.container.impl.servlet.HttpServletResponseImpl;
@@ -7,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.UncheckedIOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
@@ -15,6 +17,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -25,9 +30,10 @@ import javax.servlet.http.HttpServlet;
  */
 public class Container {
 
+    private static final Logger LOGGER = Logger.getLogger(Container.class.getName());
+
     private static final int PORT = 8282;
     private final Set<WebApplication> webApps;
-    //private final Map<String, ServerPage> pages;
 
     public Container(ModuleLayer parentLayer, Path pluginPath) {
         try {
@@ -36,15 +42,16 @@ public class Container {
                     map(p -> new WebApplication(parentLayer, p)).
                     collect(toSet());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
 
-        System.out.println("\n=============");
-        System.out.println("Available applications:");
-        webApps.stream().map(WebApplication::getContextPath).forEach(System.out::println);
-        System.out.println("=============\n");
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n=============");
+        sb.append("Available applications:\n");
+        sb.append(webApps.stream().map(WebApplication::getContextPath).collect(joining("\n")));
+        sb.append("\n=============\n");
 
-        //pages = resolvePages(wars.values());
+        LOGGER.info(sb.toString());
     }
 
     public void startServer() throws IOException {
@@ -54,7 +61,7 @@ public class Container {
         System.out.println("Started server at port " + PORT);
         while (true) {
             Socket request = serverSocket.accept();
-            handleRequest(request);
+            executor.submit(() -> handleRequest(request), new HttpWorkerThreadFactory());
         }
     }
 
@@ -72,16 +79,14 @@ public class Container {
 
             if (!findAny.isPresent()) {
                 out.print(createResponse(404, "404 - Not found"));
-                System.out.println("Requested URL " + url + " - Status: 404");
+                LOGGER.log(Level.INFO, "Requested URL {0} - Status: 404", url);
             } else {
                 HttpServletResponseImpl response = new HttpServletResponseImpl(out);
                 findAny.get().service(new HttpServletRequestImpl(), response);
-                System.out.println("Requested URL " + url + " - Status: " + response.getStatus());
+                LOGGER.log(Level.INFO, "Requested URL {0} - Status: {1}", new Object[]{url, response.getStatus()});
             }
-
         } catch (IOException | ServletException e) {
-            System.err.println("Error responding to request");
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Error responding to request: ", e);
         }
     }
 

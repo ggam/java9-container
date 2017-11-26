@@ -10,6 +10,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static java.util.stream.Collectors.toSet;
 import javax.servlet.http.HttpServlet;
 
@@ -18,6 +20,8 @@ import javax.servlet.http.HttpServlet;
  * @author guillermo
  */
 public class WebApplication {
+
+    private static final Logger LOGGER = Logger.getLogger(WebApplication.class.getName());
 
     private static final Path RELATIVE_CLASSES_PATH = Paths.get("WEB-INF", "classes");
     private static final Path RELATIVE_LIBS_PATH = Paths.get("WEB-INF", "lib");
@@ -35,7 +39,7 @@ public class WebApplication {
                 map(ModuleReference::descriptor).
                 map(ModuleDescriptor::name).
                 findAny().get();
-        System.out.println("War module: " + warModuleName);
+        LOGGER.log(Level.INFO, "War module: {0}", warModuleName);
 
         ModuleFinder libsModuleFinder = ModuleFinder.of(appPath.resolve(RELATIVE_LIBS_PATH));
         Set<String> moduleNames = libsModuleFinder.findAll().
@@ -51,10 +55,10 @@ public class WebApplication {
 
         moduleLayer = parentLayer.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
         contextPath = "/" + appPath.getFileName().toString();
-        System.out.println("Deployed " + contextPath);
+        LOGGER.log(Level.INFO, "Deployed {0}", contextPath);
 
         servletMappings = WebXmlParser.getServletMappings(contextPath, appPath.resolve(Paths.get("WEB-INF", "web.xml")));
-        System.out.println(contextPath + " Servlet mappings: " + servletMappings);
+        LOGGER.log(Level.INFO, "{0} Servlet mappings: {1}", new Object[]{contextPath, servletMappings});
     }
 
     public String getContextPath() {
@@ -69,11 +73,9 @@ public class WebApplication {
         }
 
         try {
-
             HttpServlet servletInstance = (HttpServlet) Class.forName(moduleLayer.findModule(warModuleName).get(), servletClass).getDeclaredConstructor().newInstance();
             return servletInstance;
         } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-            ex.printStackTrace();
             throw new RuntimeException(ex);
         }
     }

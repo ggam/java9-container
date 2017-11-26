@@ -7,6 +7,13 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>webapps</outputDirectory>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
             <directory>${project.build.directory}/jre-dist</directory>
             <outputDirectory></outputDirectory>
         </fileSet>
