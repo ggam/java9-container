@@ -19,8 +19,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 
 /**
  *
@@ -35,7 +35,9 @@ public class Server {
     private final int port;
     private final DeploymentScanner deploymentScanner;
 
+    // Server already running
     private Set<WebApplication> webApps = new HashSet<>();
+    private UrlMatcher urlMatcher;
 
     public Server(int port) {
         this.port = port;
@@ -63,6 +65,8 @@ public class Server {
         changeState(ServerState.RUNNING);
         LOGGER.log(Level.INFO, "\n============================\nServer is running on port {0}", String.valueOf(port));
 
+        urlMatcher = new UrlMatcher(webApps);
+
         while (true) {
             Socket request = serverSocket.accept();
             executor.submit(() -> handleRequest(request), new HttpWorkerThreadFactory());
@@ -76,17 +80,14 @@ public class Server {
 
             String url = in.readLine().split("GET ")[1].split(" HTTP")[0];
 
-            Optional<HttpServlet> findAny = webApps.stream().
-                    map(webApp -> webApp.getServlet(url)).
-                    filter(servlet -> servlet != null).
-                    findAny();
+            Optional<FilterChain> filterChain = urlMatcher.match(url);
 
-            if (!findAny.isPresent()) {
+            if (!filterChain.isPresent()) {
                 out.print(createResponse(404, "404 - Not found"));
                 LOGGER.log(Level.INFO, "Requested URL {0} - Status: 404", url);
             } else {
                 HttpServletResponseImpl response = new HttpServletResponseImpl(out);
-                findAny.get().service(new HttpServletRequestImpl(), response);
+                filterChain.get().doFilter(new HttpServletRequestImpl(), response);
                 LOGGER.log(Level.INFO, "Requested URL {0} - Status: {1}", new Object[]{url, response.getStatus()});
             }
         } catch (IOException | ServletException e) {

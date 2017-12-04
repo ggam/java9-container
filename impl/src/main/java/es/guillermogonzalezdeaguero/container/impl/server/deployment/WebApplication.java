@@ -1,19 +1,17 @@
 package es.guillermogonzalezdeaguero.container.impl.server.deployment;
 
+import es.guillermogonzalezdeaguero.container.impl.server.deployment.webxml.EffectiveWebXml;
 import es.guillermogonzalezdeaguero.container.impl.server.deployment.webxml.WebXmlParser;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleDescriptor;
 import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReference;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static java.util.stream.Collectors.toSet;
-import javax.servlet.http.HttpServlet;
 
 /**
  *
@@ -27,13 +25,14 @@ public class WebApplication {
     private static final Path RELATIVE_LIBS_PATH = Paths.get("WEB-INF", "lib");
 
     private String warModuleName;
-    private Map<String, String> servletMappings;
     private ModuleLayer moduleLayer;
     private final ModuleLayer parentLayer;
 
     private final String contextPath;
     private final Path appPath;
     private DeploymentState state = DeploymentState.UNDEPLOYED;
+    private EffectiveWebXml effectiveWebXml;
+    private Module warModule;
 
     public WebApplication(ModuleLayer parentLayer, Path appPath) {
         this.parentLayer = parentLayer;
@@ -68,18 +67,9 @@ public class WebApplication {
                 resolve(ModuleFinder.compose(warModuleFinder, libsModuleFinder), ModuleFinder.of(), moduleNames);
 
         moduleLayer = parentLayer.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
+        warModule = moduleLayer.findModule(warModuleName).get();
 
-        servletMappings = WebXmlParser.getServletMappings(contextPath, appPath.resolve(Paths.get("WEB-INF", "web.xml")));
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Deployed {0}. Servlet mappings:\n");
-        for (Map.Entry<String, String> entry : servletMappings.entrySet()) {
-            String urlPattern = entry.getKey();
-            String servletClass = entry.getValue();
-            sb.append("- ").append(urlPattern).append(" : ").append(servletClass).append("\n");
-        }
-
-        LOGGER.log(Level.INFO, sb.toString(), new Object[]{contextPath});
+        effectiveWebXml = WebXmlParser.parse(appPath.resolve(Paths.get("WEB-INF", "web.xml")));
 
         changeState(DeploymentState.DEPLOYED);
     }
@@ -92,22 +82,12 @@ public class WebApplication {
         return contextPath;
     }
 
-    public HttpServlet getServlet(String path) {
-        if (state != DeploymentState.DEPLOYED) {
-            throw new IllegalStateException(contextPath + " is not deployed");
-        }
-
-        String servletClass = servletMappings.get(path);
-
-        if (servletClass == null) {
-            return null;
-        }
-
-        try {
-            HttpServlet servletInstance = (HttpServlet) Class.forName(moduleLayer.findModule(warModuleName).get(), servletClass).getDeclaredConstructor().newInstance();
-            return servletInstance;
-        } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-            throw new RuntimeException(ex);
-        }
+    public EffectiveWebXml getEffectiveWebXml() {
+        return effectiveWebXml;
     }
+
+    public Module getWarModule() {
+        return warModule;
+    }
+
 }
