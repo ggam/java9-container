@@ -1,1 +1,1 @@
-create --class-path ./target/tmp-mod/impl.jar --config=./src/main/conf ./target/modules/impl.jmod
+create --class-path ./target/tmp-mod/impl.jar --config=./src/main/conf --libs=./src/main/lib ./target/modules/impl.jmod
