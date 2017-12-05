@@ -29,32 +29,6 @@
                     <outputDirectory>${project.build.directory}/tmp-mod</outputDirectory>
                 </configuration>
             </plugin>
-            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.0.2</version>
-                <executions>
-                    <execution>
-                        <id>copy</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>es.guillermogonzalezdeaguero</groupId>
-                                    <artifactId>servlet-api</artifactId>
-                                    <version>2.5</version>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/modules</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
@@ -80,6 +54,50 @@
                         <configuration>
                             <executable>jlink</executable>
                             <commandlineArgs>@src/main/jlink/jlink-config.txt</commandlineArgs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>es.guillermogonzalezdeaguero</groupId>
+                                    <artifactId>servlet-api</artifactId>
+                                    <version>2.5</version>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/modules</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-root</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>es.guillermogonzalezdeaguero</groupId>
+                                    <artifactId>container-root-webapp</artifactId>
+                                    <version>1.0-SNAPSHOT</version>
+                                    <overWrite>true</overWrite>
+                                    <type>war</type>
+                                    <outputDirectory>${project.build.directory}/jre-dist/webapps/root.war</outputDirectory>
+                                </artifactItem> 
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>

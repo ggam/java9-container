@@ -25,6 +25,13 @@ public class FilterChainImpl implements FilterChain {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
+        Filter filter = filters.poll();
+
+        if (filter != null) {
+            filter.doFilter(request, response, this);
+            return;
+        }
+
         servlet.service(request, response);
     }
 

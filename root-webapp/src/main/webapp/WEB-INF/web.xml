@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+    <filter>
+        <filter-name>UncaughtExceptionFIlter</filter-name>
+        <filter-class>es.guillermogonzalezdeaguero.container.systemwebapplib.UncaughtExceptionFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>SecurityFilter</filter-name>
+        <filter-class>es.guillermogonzalezdeaguero.container.systemwebapplib.SecurityFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>UncaughtExceptionFIlter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>SecurityFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <servlet>
+        <servlet-name>FileServlet</servlet-name>
+        <servlet-class>es.guillermogonzalezdeaguero.container.systemwebapplib.FileServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>FileServlet</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+</web-app>

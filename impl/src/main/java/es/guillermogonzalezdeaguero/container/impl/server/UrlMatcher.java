@@ -13,8 +13,6 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.Servlet;
@@ -62,18 +60,22 @@ public class UrlMatcher {
         Servlet servletInstance = null;
         if (servletMatch != null) {
             try {
-                servletInstance = (Servlet) Class.forName(webApp.getWarModule(), servletMatch.getClassName()).getDeclaredConstructor().newInstance();
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
-                Logger.getLogger(UrlMatcher.class.getName()).log(Level.SEVERE, null, ex);
+                Class<?> servletClass = Class.forName(servletMatch.getClassName(), true, webApp.getWarModule().getClassLoader());
+
+                servletInstance = (Servlet) Class.forName(servletClass.getModule(), servletClass.getName()).getDeclaredConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
+                throw new RuntimeException(ex);
             }
         }
 
         Queue<Filter> matchedFilterInstances = new ArrayDeque<>();
         for (FilterDescriptor matchedFilter : matchedFilters) {
             try {
-                matchedFilterInstances.add((Filter) Class.forName(webApp.getWarModule(), matchedFilter.getClassName()).getDeclaredConstructor().newInstance());
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
-                Logger.getLogger(UrlMatcher.class.getName()).log(Level.SEVERE, null, ex);
+                Class<?> filterClass = Class.forName(matchedFilter.getClassName(), true, webApp.getWarModule().getClassLoader());
+
+                matchedFilterInstances.add((Filter) Class.forName(filterClass.getModule(), filterClass.getName()).getDeclaredConstructor().newInstance());
+            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
+                throw new RuntimeException(ex);
             }
         }
 
@@ -89,7 +91,10 @@ public class UrlMatcher {
             }
 
             for (String prefixPattern : servletDescriptor.getPrefixPatterns()) {
-
+                String prefix = prefixPattern.substring(0, prefixPattern.length() - 1);
+                if (pathInfo.startsWith(prefix)) {
+                    return servletDescriptor;
+                }
             }
 
             if (pathInfo == null) {
@@ -117,7 +122,10 @@ public class UrlMatcher {
             }
 
             for (String prefixPattern : filterDescriptor.getPrefixPatterns()) {
-
+                String prefix = prefixPattern.substring(0, prefixPattern.length() - 1);
+                if (pathInfo.startsWith(prefix)) {
+                    matchedFilters.add(filterDescriptor);
+                }
             }
 
             if (pathInfo == null) {
