@@ -29,10 +29,11 @@ public class FilterChainImpl implements FilterChain {
 
         if (filter != null) {
             filter.doFilter(request, response, this);
-            return;
+        } else {
+            // No more filters, go for the Servlet
+            servlet.service(request, response);
         }
 
-        servlet.service(request, response);
     }
 
 }

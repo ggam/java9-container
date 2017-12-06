@@ -8,11 +8,9 @@ import es.guillermogonzalezdeaguero.container.impl.servlet.FilterChainImpl;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.Servlet;
@@ -21,15 +19,12 @@ import javax.servlet.Servlet;
  *
  * @author guillermo
  */
-public class UrlMatcher {
+public class UriMatcher {
 
     private final Set<WebApplication> webApps;
 
-    private final Map<String, Object> filtersAndServlets;
-
-    public UrlMatcher(Set<WebApplication> webApps) {
+    public UriMatcher(Set<WebApplication> webApps) {
         this.webApps = new HashSet<>(webApps);
-        this.filtersAndServlets = new ConcurrentHashMap<>();
     }
 
     public Optional<FilterChain> match(String url) {
@@ -92,7 +87,7 @@ public class UrlMatcher {
 
             for (String prefixPattern : servletDescriptor.getPrefixPatterns()) {
                 String prefix = prefixPattern.substring(0, prefixPattern.length() - 1);
-                if (pathInfo.startsWith(prefix)) {
+                if (pathInfo != null && pathInfo.startsWith(prefix)) {
                     return servletDescriptor;
                 }
             }
@@ -123,7 +118,7 @@ public class UrlMatcher {
 
             for (String prefixPattern : filterDescriptor.getPrefixPatterns()) {
                 String prefix = prefixPattern.substring(0, prefixPattern.length() - 1);
-                if (pathInfo.startsWith(prefix)) {
+                if (pathInfo != null && pathInfo.startsWith(prefix)) {
                     matchedFilters.add(filterDescriptor);
                 }
             }
@@ -135,7 +130,7 @@ public class UrlMatcher {
 
             for (String extensionPattern : filterDescriptor.getExtensionPatterns()) {
                 String extension = extensionPattern.split(".")[1];
-                if (pathInfo.endsWith(extension)) {
+                if (pathInfo != null && pathInfo.endsWith(extension)) {
                     matchedFilters.add(filterDescriptor);
                 }
             }

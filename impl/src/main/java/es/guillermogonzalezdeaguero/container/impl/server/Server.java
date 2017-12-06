@@ -2,7 +2,6 @@ package es.guillermogonzalezdeaguero.container.impl.server;
 
 import es.guillermogonzalezdeaguero.container.impl.internal.HttpWorkerThreadFactory;
 import es.guillermogonzalezdeaguero.container.impl.server.deployment.WebApplication;
-import es.guillermogonzalezdeaguero.container.impl.servlet.HttpServletRequestImpl;
 import es.guillermogonzalezdeaguero.container.impl.servlet.HttpServletResponseImpl;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -37,7 +37,7 @@ public class Server {
 
     // Server already running
     private Set<WebApplication> webApps = new HashSet<>();
-    private UrlMatcher urlMatcher;
+    private UriMatcher uriMatcher;
 
     public Server(int port) {
         this.port = port;
@@ -65,7 +65,7 @@ public class Server {
         changeState(ServerState.RUNNING);
         LOGGER.log(Level.INFO, "\n============================\nServer is running on port {0}", String.valueOf(port));
 
-        urlMatcher = new UrlMatcher(webApps);
+        uriMatcher = new UriMatcher(webApps);
 
         while (true) {
             Socket request = serverSocket.accept();
@@ -78,17 +78,21 @@ public class Server {
                 BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
                 PrintWriter out = new PrintWriter(request.getOutputStream(), true)) {
 
-            String url = in.readLine().split("GET ")[1].split(" HTTP")[0];
+            HttpServletRequest servletRequest = SocketToServletRequest.convert(in);
 
-            Optional<FilterChain> filterChain = urlMatcher.match(url);
+            Optional<FilterChain> filterChain = uriMatcher.match(servletRequest.getRequestURI());
 
             if (!filterChain.isPresent()) {
-                out.print(createResponse(404, "404 - Not found"));
-                LOGGER.log(Level.INFO, "Requested URL {0} - Status: 404", url);
+                out.write(createResponse(404, "404 - Not found"));
+                LOGGER.log(Level.INFO, "Requested URL {0} - Status: 404", servletRequest);
             } else {
-                HttpServletResponseImpl response = new HttpServletResponseImpl(out);
-                filterChain.get().doFilter(new HttpServletRequestImpl(), response);
-                LOGGER.log(Level.INFO, "Requested URL {0} - Status: {1}", new Object[]{url, response.getStatus()});
+                HttpServletResponseImpl servletResponse = new HttpServletResponseImpl();
+
+                filterChain.get().doFilter(servletRequest, servletResponse);
+
+                ServletResponseToSocket.convert(servletResponse, out);
+
+                LOGGER.log(Level.INFO, "Requested URL {0} - Status: {1}", new Object[]{servletRequest.getRequestURI(), servletResponse.getStatus()});
             }
         } catch (IOException | ServletException e) {
             LOGGER.log(Level.SEVERE, "Error responding to request: ", e);

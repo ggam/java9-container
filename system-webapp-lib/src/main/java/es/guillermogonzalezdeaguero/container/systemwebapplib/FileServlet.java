@@ -14,7 +14,7 @@ public class FileServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.getWriter().print("Not found");
+        resp.sendError(HttpServletResponse.SC_NOT_FOUND, "File not found");
     }
 
 }

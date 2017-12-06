@@ -33,6 +33,10 @@ public class HttpServletRequestImpl implements HttpServletRequest {
     private String servletPath;
     private HttpSession httpSession;
 
+    public HttpServletRequestImpl(String requestURI) {
+        this.requestURI = requestURI;
+    }
+
     @Override
     public String getAuthType() {
         return authType;

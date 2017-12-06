@@ -2,7 +2,13 @@ package es.guillermogonzalezdeaguero.container.impl.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -14,21 +20,38 @@ import javax.servlet.http.HttpServletResponse;
 public class HttpServletResponseImpl implements HttpServletResponse {
 
     private final PrintWriter printWriter;
-    private int status;
+    private final StringWriter stringWriter;
 
-    public HttpServletResponseImpl(PrintWriter printWriter) {
-        this.printWriter = printWriter;
+    private int status;
+    private String statusMessage;
+    private final String contentType;
+    private final String characterEncoding;
+
+    private final Map<String, String> headers;
+    private final List<Cookie> cookies;
+
+    private boolean errorSent;
+
+    public HttpServletResponseImpl() {
+        this.stringWriter = new StringWriter();
+        this.printWriter = new PrintWriter(stringWriter);
         this.status = SC_OK;
+        this.cookies = new ArrayList<>();
+        this.headers = new HashMap<>();
+
+        this.contentType = "text/html";
+        this.characterEncoding = StandardCharsets.ISO_8859_1.name();
+        this.errorSent = false;
     }
 
     @Override
     public void addCookie(Cookie cookie) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.cookies.add(cookie);
     }
 
     @Override
     public boolean containsHeader(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return headers.containsKey(name);
     }
 
     @Override
@@ -53,12 +76,15 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
     @Override
     public void sendError(int sc, String msg) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.status = sc;
+        this.statusMessage = msg;
+        this.errorSent = true;
     }
 
     @Override
     public void sendError(int sc) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.status = sc;
+        this.errorSent = true;
     }
 
     @Override
@@ -78,7 +104,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
     @Override
     public void setHeader(String name, String value) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        headers.put(name, value);
     }
 
     @Override
@@ -103,7 +129,8 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
     @Override
     public void setStatus(int sc, String sm) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.status = sc;
+        this.statusMessage = sm;
     }
 
     public int getStatus() {
@@ -183,6 +210,23 @@ public class HttpServletResponseImpl implements HttpServletResponse {
     @Override
     public Locale getLocale() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    /*
+     **********************
+     * PROPIETARY METHODS *
+     **********************
+     */
+    public boolean isErrorSent() {
+        return errorSent;
+    }
+
+    public String getStatusMessage() {
+        return statusMessage;
+    }
+
+    public StringWriter getStringWriter() {
+        return stringWriter;
     }
 
 }
