@@ -1,1 +1,0 @@
---module-path ./target/modules:/usr/java/jdk-9.0.1/jmods --add-modules es.guillermogonzalezdeaguero.container.Impl,java.servlet --compress 2 --vm=server --output target/jre-dist 

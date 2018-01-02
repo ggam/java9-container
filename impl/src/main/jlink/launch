@@ -1,5 +1,4 @@
 #!/bin/sh
-JLINK_VM_OPTIONS=
 DIR=`dirname $0`
 BASEDIR=`pwd $0`
-$DIR/java $JLINK_VM_OPTIONS -agentpath:/usr/java/jdk-9.0.1/lib/libjdwp.so=transport=dt_socket,address=6006,server=y,suspend=n -Dserver.basedir=$BASEDIR/.. -m es.guillermogonzalezdeaguero.container.Impl/es.guillermogonzalezdeaguero.container.impl.Launcher $@
+java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006 -Dserver.basedir=$BASEDIR/.. -p ../modules -m es.guillermogonzalezdeaguero.container.Impl/es.guillermogonzalezdeaguero.container.impl.Launcher $@
