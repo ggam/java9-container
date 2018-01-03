@@ -1,5 +1,6 @@
 package es.guillermogonzalezdeaguero.container.impl.internal;
 
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,7 +15,8 @@ public class HttpWorkerThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable r) {
-        Thread thread = new Thread(r, "http-worker");
+        Thread thread = Executors.defaultThreadFactory().newThread(r);
+        thread.setName("http-worker");
         thread.setUncaughtExceptionHandler((Thread t, Throwable e) -> LOGGER.log(Level.SEVERE, "Error on thread thread {0}: {1}", new Object[]{t, e}));
 
         return thread;

@@ -67,9 +67,10 @@ public class Server {
 
         uriMatcher = new UriMatcher(webApps);
 
+        HttpWorkerThreadFactory httpWorkerThreadFactory = new HttpWorkerThreadFactory();
         while (true) {
             Socket request = serverSocket.accept();
-            executor.submit(() -> handleRequest(request), new HttpWorkerThreadFactory());
+            executor.submit(() -> handleRequest(request), httpWorkerThreadFactory);
         }
     }
 

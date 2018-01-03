@@ -4,7 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import javax.servlet.RequestDispatcher;
@@ -21,20 +27,23 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
     private String authType;
     private Cookie[] cookies;
-    private String method = "GET";
+    private final String method;
     private String pathInfo;
     private String contextPath;
     private String queryString;
     private String remoteUser;
     private Principal userPrincipal;
     private String requestedSessionId;
-    private String requestURI;
+    private final String requestURI;
     private StringBuffer requestURL;
     private String servletPath;
     private HttpSession httpSession;
+    private final Map<String, List<String>> headers;
 
-    public HttpServletRequestImpl(String requestURI) {
+    public HttpServletRequestImpl(String method, String requestURI, Map<String, List<String>> headers) {
+        this.method = method;
         this.requestURI = requestURI;
+        this.headers = new HashMap<>(headers);
     }
 
     @Override
@@ -49,27 +58,47 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
     @Override
     public long getDateHeader(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return ZonedDateTime.parse(getHeader(name), DateTimeFormatter.RFC_1123_DATE_TIME).toEpochSecond();
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("\"" + name + "\" header could not be parsed as date", e);
+        }
     }
 
     @Override
     public String getHeader(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<String> values = headers.get(name);
+        if (values == null || values.isEmpty()) {
+            return null;
+        }
+
+        return values.get(0);
     }
 
     @Override
     public Enumeration getHeaders(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<String> values = headers.get(name);
+        if (values == null || values.isEmpty()) {
+            return Collections.emptyEnumeration();
+        }
+
+        return Collections.enumeration(values);
     }
 
     @Override
     public Enumeration getHeaderNames() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Collections.enumeration(headers.keySet());
     }
 
     @Override
     public int getIntHeader(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String value = getHeader(name);
+
+        if (value == null) {
+            return -1;
+        }
+
+        return Integer.valueOf(value);
     }
 
     @Override
