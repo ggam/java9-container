@@ -96,9 +96,6 @@ public class Server {
             }
         } catch (IOException | ServletException e) {
             LOGGER.log(Level.SEVERE, "Error responding to request: ", e);
-        } catch(NullPointerException e) {
-            System.out.println("Aquí se queda todo" + Thread.currentThread().getUncaughtExceptionHandler());
-            throw e;
         }
     }
 
