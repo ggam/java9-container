@@ -23,7 +23,7 @@ import javax.servlet.http.HttpSession;
  *
  * @author guillermo
  */
-public class HttpServletRequestImpl implements HttpServletRequest {
+public class PreMatchingHttpServletRequestImpl implements HttpServletRequest {
 
     private String authType;
     private Cookie[] cookies;
@@ -40,7 +40,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
     private HttpSession httpSession;
     private final Map<String, List<String>> headers;
 
-    public HttpServletRequestImpl(String method, String requestURI, Map<String, List<String>> headers) {
+    public PreMatchingHttpServletRequestImpl(String method, String requestURI, Map<String, List<String>> headers) {
         this.method = method;
         this.requestURI = requestURI;
         this.headers = new HashMap<>(headers);
@@ -118,7 +118,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
     @Override
     public String getContextPath() {
-        return contextPath;
+        throw new UnsupportedOperationException("This is a pre-matching request implementation. Context path is still not detected.");
     }
 
     @Override

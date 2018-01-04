@@ -3,6 +3,7 @@ package es.guillermogonzalezdeaguero.container.impl.server;
 import es.guillermogonzalezdeaguero.container.impl.internal.HttpWorkerThreadFactory;
 import es.guillermogonzalezdeaguero.container.impl.server.deployment.WebApplication;
 import es.guillermogonzalezdeaguero.container.impl.servlet.HttpServletResponseImpl;
+import es.guillermogonzalezdeaguero.container.impl.servlet.PreMatchingHttpServletRequestImpl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,7 +13,6 @@ import java.net.Socket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,7 +20,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -37,7 +36,7 @@ public class Server {
 
     // Server already running
     private Set<WebApplication> webApps = new HashSet<>();
-    private UriMatcher uriMatcher;
+    private FilterChainFactory uriMatcher;
 
     public Server(int port) {
         this.port = port;
@@ -65,7 +64,7 @@ public class Server {
         changeState(ServerState.RUNNING);
         LOGGER.log(Level.INFO, "\n============================\nServer is running on port {0}", String.valueOf(port));
 
-        uriMatcher = new UriMatcher(webApps);
+        uriMatcher = new FilterChainFactory(webApps);
 
         while (true) {
             Socket request = serverSocket.accept();
@@ -75,25 +74,19 @@ public class Server {
 
     private void handleRequest(Socket request) {
         try (request;
-                BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
-                PrintWriter out = new PrintWriter(request.getOutputStream(), true)) {
+                 BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));  PrintWriter out = new PrintWriter(request.getOutputStream(), true)) {
 
-            HttpServletRequest servletRequest = SocketToServletRequest.convert(in);
+            // Request without
+            PreMatchingHttpServletRequestImpl servletRequest = SocketToServletRequest.convert(in);
 
-            Optional<FilterChain> filterChain = uriMatcher.match(servletRequest.getRequestURI());
+            FilterChain filterChain = uriMatcher.match(servletRequest.getRequestURI());
 
-            if (!filterChain.isPresent()) {
-                out.write(createResponse(404, "404 - Not found"));
-                LOGGER.log(Level.INFO, "Requested URL {0} - Status: 404", servletRequest);
-            } else {
-                HttpServletResponseImpl servletResponse = new HttpServletResponseImpl();
+            HttpServletResponseImpl servletResponse = new HttpServletResponseImpl();
+            filterChain.doFilter(servletRequest, servletResponse);
 
-                filterChain.get().doFilter(servletRequest, servletResponse);
+            ServletResponseToSocket.convert(servletResponse, out);
+            LOGGER.log(Level.INFO, "Requested URL {0} - Status: {1}", new Object[]{servletRequest.getRequestURI(), servletResponse.getStatus()});
 
-                ServletResponseToSocket.convert(servletResponse, out);
-
-                LOGGER.log(Level.INFO, "Requested URL {0} - Status: {1}", new Object[]{servletRequest.getRequestURI(), servletResponse.getStatus()});
-            }
         } catch (IOException | ServletException e) {
             LOGGER.log(Level.SEVERE, "Error responding to request: ", e);
         }

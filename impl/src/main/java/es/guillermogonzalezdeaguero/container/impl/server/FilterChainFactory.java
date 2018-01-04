@@ -5,10 +5,11 @@ import es.guillermogonzalezdeaguero.container.impl.server.deployment.webxml.Effe
 import es.guillermogonzalezdeaguero.container.impl.server.deployment.webxml.descriptor.FilterDescriptor;
 import es.guillermogonzalezdeaguero.container.impl.server.deployment.webxml.descriptor.ServletDescriptor;
 import es.guillermogonzalezdeaguero.container.impl.servlet.FilterChainImpl;
+import es.guillermogonzalezdeaguero.container.impl.servlet.RequestCompletionFilter;
+import es.guillermogonzalezdeaguero.container.systemwebapplib.FileServlet;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import javax.servlet.Filter;
@@ -19,51 +20,46 @@ import javax.servlet.Servlet;
  *
  * @author guillermo
  */
-public class UriMatcher {
+public class FilterChainFactory {
 
     private final Set<WebApplication> webApps;
 
-    public UriMatcher(Set<WebApplication> webApps) {
+    public FilterChainFactory(Set<WebApplication> webApps) {
         this.webApps = new HashSet<>(webApps);
     }
 
-    public Optional<FilterChain> match(String url) {
-        System.out.println("matching url " + url);
+    public FilterChain match(String url) {
+        // There will always be at least a root application
+        WebApplication webApp = webApps.stream().
+                filter(app -> url.startsWith(app.getContextPath())).
+                findAny().
+                get();
 
-        Optional<WebApplication> optionalWebApp = webApps.stream().
-                filter(webApp -> url.startsWith(webApp.getContextPath())).
-                findAny();
-
-        if (!optionalWebApp.isPresent()) {
-            // No application matches the context path
-            return Optional.empty();
-        }
-
-        WebApplication webApp = optionalWebApp.get();
         EffectiveWebXml effectiveWebXml = webApp.getEffectiveWebXml();
 
         String pathInfo = url.substring(webApp.getContextPath().length(), url.length()); // TODO: pathInfo may be null?
-        System.out.println("pathInfo" + pathInfo);
 
         ServletDescriptor servletMatch = findServletMatch(effectiveWebXml.getServletDescriptors(), pathInfo);
         Queue<FilterDescriptor> matchedFilters = findFilterMatches(effectiveWebXml.getFilterDescriptors(), pathInfo);
 
-        if (servletMatch == null && matchedFilters.isEmpty()) {
-            return Optional.empty();
+        String servletClassName;
+        if (servletMatch != null) {
+            servletClassName=servletMatch.getClassName();
+        } else {
+            // Fallback to FileServlet when no match is found
+            servletClassName = FileServlet.class.getName();
         }
 
         Servlet servletInstance = null;
-        if (servletMatch != null) {
-            try {
-                Class<?> servletClass = Class.forName(servletMatch.getClassName(), true, webApp.getWarModule().getClassLoader());
+        try {
+            Class<?> servletClass = Class.forName(servletClassName, true, webApp.getWarModule().getClassLoader());
 
-                servletInstance = (Servlet) Class.forName(servletClass.getModule(), servletClass.getName()).getDeclaredConstructor().newInstance();
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
-                throw new RuntimeException(ex);
-            }
+            servletInstance = (Servlet) Class.forName(servletClass.getModule(), servletClass.getName()).getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
+            throw new RuntimeException(ex);
         }
 
-        Queue<Filter> matchedFilterInstances = new ArrayDeque<>();
+        ArrayDeque<Filter> matchedFilterInstances = new ArrayDeque<>();
         for (FilterDescriptor matchedFilter : matchedFilters) {
             try {
                 Class<?> filterClass = Class.forName(matchedFilter.getClassName(), true, webApp.getWarModule().getClassLoader());
@@ -73,8 +69,9 @@ public class UriMatcher {
                 throw new RuntimeException(ex);
             }
         }
+        matchedFilterInstances.addFirst(new RequestCompletionFilter(webApp.getContextPath()));
 
-        return Optional.of(new FilterChainImpl(matchedFilterInstances, servletInstance));
+        return new FilterChainImpl(matchedFilterInstances, servletInstance);
     }
 
     public ServletDescriptor findServletMatch(Set<ServletDescriptor> servletDescriptors, String pathInfo) {

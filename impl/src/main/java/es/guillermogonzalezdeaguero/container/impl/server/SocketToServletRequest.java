@@ -1,6 +1,6 @@
 package es.guillermogonzalezdeaguero.container.impl.server;
 
-import es.guillermogonzalezdeaguero.container.impl.servlet.HttpServletRequestImpl;
+import es.guillermogonzalezdeaguero.container.impl.servlet.PreMatchingHttpServletRequestImpl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -16,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class SocketToServletRequest {
 
-    public static HttpServletRequest convert(BufferedReader reader) {
+    public static PreMatchingHttpServletRequestImpl convert(BufferedReader reader) {
         try {
             String[] requestLine = reader.readLine().split(" ");
 
@@ -47,7 +46,7 @@ public class SocketToServletRequest {
             
             // TODO: process entity body
 
-            return new HttpServletRequestImpl(method, uri, headers);
+            return new PreMatchingHttpServletRequestImpl(method, uri, headers);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }

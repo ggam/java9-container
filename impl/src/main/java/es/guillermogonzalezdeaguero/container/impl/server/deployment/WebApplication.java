@@ -37,7 +37,11 @@ public class WebApplication {
     public WebApplication(ModuleLayer parentLayer, Path appPath) {
         this.parentLayer = parentLayer;
         this.appPath = appPath;
-        contextPath = "/" + appPath.getFileName().toString();
+        
+        String fileName = appPath.getFileName().toString();
+        
+        // ROOT = /
+        this.contextPath = "/" + ("ROOT".equals(fileName) ? "" : fileName);
     }
 
     private synchronized void changeState(DeploymentState newState) {
