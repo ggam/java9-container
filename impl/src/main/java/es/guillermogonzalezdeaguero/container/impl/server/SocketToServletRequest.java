@@ -41,7 +41,7 @@ public class SocketToServletRequest {
 
                 String[] header = line.split(":");
                 List<String> headerValues = headers.computeIfAbsent(header[0], k -> new ArrayList<>());
-                System.out.println(line);
+                //System.out.println(line);
                 headerValues.add(header[1]);
             }
             

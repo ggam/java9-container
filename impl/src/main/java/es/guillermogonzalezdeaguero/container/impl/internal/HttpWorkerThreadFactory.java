@@ -1,7 +1,7 @@
 package es.guillermogonzalezdeaguero.container.impl.internal;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,15 +11,27 @@ import java.util.logging.Logger;
  */
 public class HttpWorkerThreadFactory implements ThreadFactory {
 
-    private static final Logger LOGGER = Logger.getLogger(HttpWorkerThreadFactory.class.getName());
+    private static final Thread.UncaughtExceptionHandler EXCEPTION_HANDLER = new UncaughtExceptionHandler();
+    
+    private static final ThreadGroup THREAD_GROUP = new ThreadGroup("http-worker");
+    private static final AtomicInteger THREAD_COUNT= new AtomicInteger();
 
     @Override
     public Thread newThread(Runnable r) {
-        Thread thread = Executors.defaultThreadFactory().newThread(r);
-        thread.setName("http-worker");
-        thread.setUncaughtExceptionHandler((Thread t, Throwable e) -> LOGGER.log(Level.SEVERE, "Error on thread thread {0}: {1}", new Object[]{t, e}));
+        Thread thread = new Thread(THREAD_GROUP, r, "http-worker-" + THREAD_COUNT.incrementAndGet());
+        thread.setUncaughtExceptionHandler(EXCEPTION_HANDLER);
 
         return thread;
+    }
+
+    public static class UncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
+
+        private static final Logger LOGGER = Logger.getLogger(UncaughtExceptionHandler.class.getName());
+
+        @Override
+        public void uncaughtException(Thread t, Throwable e) {
+            LOGGER.log(Level.SEVERE, String.format("Error on thread thread %s", t.getName()), e);
+        }
     }
 
 }

@@ -52,7 +52,7 @@ public class Server {
     public void start() throws IOException {
         changeState(ServerState.STARTING);
 
-        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new HttpWorkerThreadFactory());
 
         ServerSocket serverSocket = new ServerSocket(port);
 
@@ -67,10 +67,9 @@ public class Server {
 
         uriMatcher = new UriMatcher(webApps);
 
-        HttpWorkerThreadFactory httpWorkerThreadFactory = new HttpWorkerThreadFactory();
         while (true) {
             Socket request = serverSocket.accept();
-            executor.submit(() -> handleRequest(request), httpWorkerThreadFactory);
+            executor.execute(() -> handleRequest(request));
         }
     }
 
@@ -97,6 +96,9 @@ public class Server {
             }
         } catch (IOException | ServletException e) {
             LOGGER.log(Level.SEVERE, "Error responding to request: ", e);
+        } catch(NullPointerException e) {
+            System.out.println("Aquí se queda todo" + Thread.currentThread().getUncaughtExceptionHandler());
+            throw e;
         }
     }
 
