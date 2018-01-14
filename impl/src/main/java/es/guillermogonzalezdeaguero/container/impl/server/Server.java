@@ -1,7 +1,12 @@
 package es.guillermogonzalezdeaguero.container.impl.server;
 
+import es.guillermogonzalezdeaguero.container.api.ServletDeployment;
+import es.guillermogonzalezdeaguero.container.api.event.ServerLifeCycleListener;
+import es.guillermogonzalezdeaguero.container.api.event.ServerStartedEvent;
+import es.guillermogonzalezdeaguero.container.api.event.ServerStartingEvent;
 import es.guillermogonzalezdeaguero.container.impl.internal.HttpWorkerThreadFactory;
-import es.guillermogonzalezdeaguero.container.impl.server.deployment.WebApplication;
+import es.guillermogonzalezdeaguero.container.impl.server.event.ServerStartedEventImpl;
+import es.guillermogonzalezdeaguero.container.impl.server.event.ServerStartingEventImpl;
 import es.guillermogonzalezdeaguero.container.impl.servlet.HttpServletResponseImpl;
 import es.guillermogonzalezdeaguero.container.impl.servlet.PreMatchingHttpServletRequestImpl;
 import java.io.BufferedReader;
@@ -10,10 +15,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
+import java.util.ServiceLoader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -28,24 +33,39 @@ import javax.servlet.ServletException;
 public class Server {
 
     private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
-    private static final Path WEBAPPS_PATH = Paths.get("..", "webapps");
 
     private ServerState state = ServerState.STOPPED;
     private final int port;
-    private final DeploymentScanner deploymentScanner;
+    private final List<ServerLifeCycleListener> lifeCycleListeners;
 
     // Server already running
-    private Set<WebApplication> webApps = new HashSet<>();
+    private final HashSet<ServletDeployment> deployments = new HashSet<>();
     private FilterChainFactory uriMatcher;
 
     public Server(int port) {
         this.port = port;
-        this.deploymentScanner = new DeploymentScanner(WEBAPPS_PATH);
+
+        this.lifeCycleListeners = new ArrayList<>();
+        ServiceLoader.load(ServerLifeCycleListener.class).
+                iterator().
+                forEachRemaining(lifeCycleListeners::add);
     }
 
     private synchronized void changeState(ServerState newState) {
-        LOGGER.log(Level.INFO, "Server state changed from {0} to {1}", new Object[]{this.state, newState});
         this.state = newState;
+
+        switch (newState) {
+            case STARTING:
+                ServerStartingEvent startingEvent = new ServerStartingEventImpl(this, deployments);
+                lifeCycleListeners.forEach(listener -> listener.serverStarting(startingEvent));
+                break;
+            case RUNNING:
+                ServerStartedEvent startedEvent = new ServerStartedEventImpl(this);
+                lifeCycleListeners.forEach(listener -> listener.serverStarted(startedEvent));
+                break;
+        }
+
+        LOGGER.log(Level.INFO, "Server state changed from {0} to {1}", new Object[]{this.state, newState});
     }
 
     public void start() throws IOException {
@@ -57,14 +77,12 @@ public class Server {
 
         LOGGER.log(Level.INFO, "Listening on port {0}", String.valueOf(port));
 
-        deploymentScanner.startScanning(webApps::add);
-
-        webApps.forEach(WebApplication::deploy);
+        deployments.forEach(ServletDeployment::deploy);
 
         changeState(ServerState.RUNNING);
         LOGGER.log(Level.INFO, "\n============================\nServer is running on port {0}", String.valueOf(port));
 
-        uriMatcher = new FilterChainFactory(webApps);
+        uriMatcher = new FilterChainFactory(deployments);
 
         while (true) {
             Socket request = serverSocket.accept();

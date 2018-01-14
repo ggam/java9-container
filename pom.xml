@@ -9,8 +9,10 @@
         <module>servlet-repackage</module>
         <module>system-webapp-lib</module>
         <module>root-webapp</module>
+        <module>container-api</module>
         <module>impl</module>
         <module>examples</module>
+        <module>servlet-impl</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
