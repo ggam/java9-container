@@ -7,11 +7,6 @@ import es.guillermogonzalezdeaguero.container.impl.deployment.DeploymentRegistry
 import es.guillermogonzalezdeaguero.container.impl.internal.HttpWorkerThreadFactory;
 import es.guillermogonzalezdeaguero.container.impl.server.event.ServerStartedEventImpl;
 import es.guillermogonzalezdeaguero.container.impl.server.event.ServerStartingEventImpl;
-import es.guillermogonzalezdeaguero.container.impl.servlet.FilterChainFactory;
-import es.guillermogonzalezdeaguero.container.impl.servlet.HttpServletResponseImpl;
-import es.guillermogonzalezdeaguero.container.impl.servlet.PreMatchingHttpServletRequestImpl;
-import es.guillermogonzalezdeaguero.container.impl.servlet.ServletResponseToSocket;
-import es.guillermogonzalezdeaguero.container.impl.servlet.SocketToServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,7 +20,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 
 /**
@@ -42,7 +36,7 @@ public class Server {
 
     // Server already running
     private final DeploymentRegistry deploymentRegistry = new DeploymentRegistry();
-    private FilterChainFactory uriMatcher;
+    private RequestProcessor requestProcessor;
 
     public Server(int port) {
         this.port = port;
@@ -84,7 +78,7 @@ public class Server {
         changeState(ServerState.RUNNING);
         LOGGER.log(Level.INFO, "\n============================\nServer is running on port {0}", String.valueOf(port));
 
-        uriMatcher = new FilterChainFactory(deploymentRegistry);
+        requestProcessor = new RequestProcessor(deploymentRegistry);
 
         while (true) {
             Socket request = serverSocket.accept();
@@ -96,19 +90,9 @@ public class Server {
         try (request;
                  BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));  PrintWriter out = new PrintWriter(request.getOutputStream(), true)) {
 
-            // Request without
-            PreMatchingHttpServletRequestImpl servletRequest = SocketToServletRequest.convert(in);
-
-            FilterChain filterChain = uriMatcher.match(servletRequest.getRequestURI());
-
-            HttpServletResponseImpl servletResponse = new HttpServletResponseImpl();
-            filterChain.doFilter(servletRequest, servletResponse);
-
-            ServletResponseToSocket.convert(servletResponse, out);
-            LOGGER.log(Level.INFO, "Requested URL {0} - Status: {1}", new Object[]{servletRequest.getRequestURI(), servletResponse.getStatus()});
-
+            requestProcessor.process(in, out);
         } catch (IOException | ServletException e) {
-            LOGGER.log(Level.SEVERE, "Error responding to request: ", e);
+            LOGGER.log(Level.SEVERE, "Error processing request: ", e);
         }
     }
 
