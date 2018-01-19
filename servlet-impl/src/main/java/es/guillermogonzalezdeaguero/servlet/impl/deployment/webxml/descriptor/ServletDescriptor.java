@@ -38,18 +38,17 @@ public class ServletDescriptor {
             // Exact match
             if (!pattern.contains("*")) {
                 exactPatterns.add(pattern);
-                break;
-            }
-
-            // Prefix
-            if (pattern.startsWith("/")) {
-                prefixPatterns.add(pattern);
-                break;
-            }
-
-            // Extension
-            if (pattern.contains("*")) {
-                extensionPatterns.add(pattern);
+            } else {
+                // Prefix
+                if (pattern.startsWith("/")) {
+                    prefixPatterns.add(pattern);
+                    break;
+                } else {
+                    // Extension
+                    if (pattern.contains("*")) {
+                        extensionPatterns.add(pattern);
+                    }
+                }
             }
         }
     }

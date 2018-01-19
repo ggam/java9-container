@@ -22,14 +22,15 @@ import static java.util.stream.Collectors.toSet;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
 
 /**
  *
  * @author guillermo
  */
-public class WebApplication implements ServletDeployment {
+public class ServletDeploymentImpl implements ServletDeployment {
 
-    private static final Logger LOGGER = Logger.getLogger(WebApplication.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ServletDeploymentImpl.class.getName());
 
     private static final Path RELATIVE_CLASSES_PATH = Paths.get("WEB-INF", "classes");
     private static final Path RELATIVE_LIBS_PATH = Paths.get("WEB-INF", "lib");
@@ -44,12 +45,14 @@ public class WebApplication implements ServletDeployment {
     private EffectiveWebXml effectiveWebXml;
     private Module warModule;
 
-    public WebApplication(ModuleLayer parentLayer, Path appPath) {
+    private ServletContext servletContext;
+
+    public ServletDeploymentImpl(ModuleLayer parentLayer, Path appPath) {
         this.parentLayer = parentLayer;
         this.appPath = appPath;
-        
+
         String fileName = appPath.getFileName().toString();
-        
+
         // ROOT = /
         this.contextPath = "/" + ("ROOT".equals(fileName) ? "" : fileName);
     }
@@ -86,6 +89,8 @@ public class WebApplication implements ServletDeployment {
 
         effectiveWebXml = WebXmlParser.parse(appPath.resolve(Paths.get("WEB-INF", "web.xml")));
 
+        servletContext = new ServletContextImpl(contextPath);
+
         changeState(DeploymentState.DEPLOYED);
     }
 
@@ -96,10 +101,10 @@ public class WebApplication implements ServletDeployment {
 
     @Override
     public FilterChain createFilterChain(String url) {
-        if(!matches(url)) {
+        if (!matches(url)) {
             throw new IllegalArgumentException("Url cannot be matched to this application");
         }
-        
+
         String pathInfo = url.substring(getContextPath().length(), url.length()); // TODO: pathInfo may be null?
 
         ServletDescriptor servletMatch = findServletMatch(effectiveWebXml.getServletDescriptors(), pathInfo);
@@ -107,7 +112,7 @@ public class WebApplication implements ServletDeployment {
 
         String servletClassName;
         if (servletMatch != null) {
-            servletClassName=servletMatch.getClassName();
+            servletClassName = servletMatch.getClassName();
         } else {
             // Fallback to FileServlet when no match is found
             servletClassName = FileServlet.class.getName();
@@ -115,7 +120,7 @@ public class WebApplication implements ServletDeployment {
 
         Servlet servletInstance = null;
         try {
-            Class<?> servletClass = Class.forName(servletClassName, true, getWarModule().getClassLoader());
+            Class<?> servletClass = Class.forName(servletClassName, true, warModule.getClassLoader());
 
             servletInstance = (Servlet) Class.forName(servletClass.getModule(), servletClass.getName()).getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
@@ -125,18 +130,17 @@ public class WebApplication implements ServletDeployment {
         ArrayDeque<Filter> matchedFilterInstances = new ArrayDeque<>();
         for (FilterDescriptor matchedFilter : matchedFilters) {
             try {
-                Class<?> filterClass = Class.forName(matchedFilter.getClassName(), true, getWarModule().getClassLoader());
+                Class<?> filterClass = Class.forName(matchedFilter.getClassName(), true, warModule.getClassLoader());
 
                 matchedFilterInstances.add((Filter) Class.forName(filterClass.getModule(), filterClass.getName()).getDeclaredConstructor().newInstance());
             } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
                 throw new RuntimeException(ex);
             }
         }
-        matchedFilterInstances.addFirst(new RequestCompletionFilter(getContextPath()));
 
         return new FilterChainImpl(matchedFilterInstances, servletInstance);
     }
-    
+
     public ServletDescriptor findServletMatch(Set<ServletDescriptor> servletDescriptors, String pathInfo) {
         for (ServletDescriptor servletDescriptor : servletDescriptors) {
             for (String exactPattern : servletDescriptor.getExactPatterns()) {
@@ -198,7 +202,7 @@ public class WebApplication implements ServletDeployment {
         }
         return matchedFilters;
     }
-    
+
     public synchronized DeploymentState getState() {
         return state;
     }
@@ -207,12 +211,13 @@ public class WebApplication implements ServletDeployment {
         return contextPath;
     }
 
-    public EffectiveWebXml getEffectiveWebXml() {
-        return effectiveWebXml;
-    }
+    @Override
+    public ServletContext getServletContext() {
+        if (getState() != DeploymentState.DEPLOYED) {
+            throw new IllegalStateException("Only deployed applications have an associated ServletContext");
+        }
 
-    public Module getWarModule() {
-        return warModule;
+        return servletContext;
     }
 
 }

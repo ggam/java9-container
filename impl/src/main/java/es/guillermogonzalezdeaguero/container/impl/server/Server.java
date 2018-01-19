@@ -1,9 +1,10 @@
 package es.guillermogonzalezdeaguero.container.impl.server;
 
+import es.guillermogonzalezdeaguero.container.api.RequestProcessor;
 import es.guillermogonzalezdeaguero.container.api.event.ServerLifeCycleListener;
 import es.guillermogonzalezdeaguero.container.api.event.ServerStartedEvent;
 import es.guillermogonzalezdeaguero.container.api.event.ServerStartingEvent;
-import es.guillermogonzalezdeaguero.container.impl.deployment.DeploymentRegistry;
+import es.guillermogonzalezdeaguero.container.impl.deployment.DeploymentRegistryImpl;
 import es.guillermogonzalezdeaguero.container.impl.internal.HttpWorkerThreadFactory;
 import es.guillermogonzalezdeaguero.container.impl.server.event.ServerStartedEventImpl;
 import es.guillermogonzalezdeaguero.container.impl.server.event.ServerStartingEventImpl;
@@ -14,6 +15,7 @@ import java.io.UncheckedIOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutorService;
@@ -35,7 +37,7 @@ public class Server {
     private final List<ServerLifeCycleListener> lifeCycleListeners;
 
     // Server already running
-    private final DeploymentRegistry deploymentRegistry = new DeploymentRegistry();
+    private final DeploymentRegistryImpl deploymentRegistry = new DeploymentRegistryImpl();
     private RequestProcessor requestProcessor;
 
     public Server(int port) {
@@ -78,17 +80,24 @@ public class Server {
         changeState(ServerState.RUNNING);
         LOGGER.log(Level.INFO, "\n============================\nServer is running on port {0}", String.valueOf(port));
 
-        requestProcessor = new RequestProcessor(deploymentRegistry);
+        Iterator<RequestProcessor> iterator = ServiceLoader.load(RequestProcessor.class).iterator();
+
+        requestProcessor = iterator.next();
+
+        if (iterator.hasNext()) {
+            throw new IllegalStateException("Only one processor at a time is allowed");
+        }
+
+        requestProcessor.setDeploymentRegistry(deploymentRegistry);
 
         while (true) {
-            try ( Socket request = serverSocket.accept()) {
-                executor.execute(() -> handleRequest(request));
-            }
+            Socket request = serverSocket.accept();
+            executor.execute(() -> handleRequest(request));
         }
     }
 
     private void handleRequest(Socket request) {
-        try {
+        try(request) {
             requestProcessor.process(request.getInputStream(), request.getOutputStream());
         } catch (IOException | ServletException e) {
             try {

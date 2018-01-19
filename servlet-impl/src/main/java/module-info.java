@@ -10,4 +10,6 @@ module es.guillermogonzalezdeaguero.container.servlet.Impl {
 
     provides es.guillermogonzalezdeaguero.container.api.event.ServerLifeCycleListener
             with es.guillermogonzalezdeaguero.servlet.impl.deployment.deployment.DeploymentScanner;
+    provides es.guillermogonzalezdeaguero.container.api.RequestProcessor
+            with es.guillermogonzalezdeaguero.servlet.impl.deployment.RequestProcessorImpl;
 }

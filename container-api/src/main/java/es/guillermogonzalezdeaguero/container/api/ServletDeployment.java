@@ -1,6 +1,7 @@
 package es.guillermogonzalezdeaguero.container.api;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletContext;
 
 /**
  *
@@ -13,4 +14,6 @@ public interface ServletDeployment {
     boolean matches(String url);
     
     FilterChain createFilterChain(String url);
+    
+    ServletContext getServletContext();
 }

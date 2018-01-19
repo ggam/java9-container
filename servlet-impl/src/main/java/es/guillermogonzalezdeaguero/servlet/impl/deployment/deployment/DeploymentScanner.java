@@ -2,7 +2,7 @@ package es.guillermogonzalezdeaguero.servlet.impl.deployment.deployment;
 
 import es.guillermogonzalezdeaguero.container.api.event.ServerLifeCycleListener;
 import es.guillermogonzalezdeaguero.container.api.event.ServerStartingEvent;
-import es.guillermogonzalezdeaguero.servlet.impl.deployment.WebApplication;
+import es.guillermogonzalezdeaguero.servlet.impl.deployment.ServletDeploymentImpl;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -26,7 +26,7 @@ public class DeploymentScanner implements ServerLifeCycleListener {
         try {
             Files.list(WEBAPPS_PATH).
                     filter(Files::isDirectory).
-                    map(p -> new WebApplication(ModuleLayer.boot(), p)).
+                    map(p -> new ServletDeploymentImpl(ModuleLayer.boot(), p)).
                     peek(deployment -> LOGGER.log(Level.FINE, "Registered deployment for path: {0}", deployment.getContextPath())).
                     forEach(serverStartingEvent::registerDeployment);
         } catch (IOException e) {

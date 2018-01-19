@@ -1,5 +1,6 @@
-package es.guillermogonzalezdeaguero.container.impl.servlet;
+package es.guillermogonzalezdeaguero.servlet.impl.deployment;
 
+import es.guillermogonzalezdeaguero.container.api.ServletDeployment;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -23,13 +24,13 @@ import javax.servlet.http.HttpSession;
  *
  * @author guillermo
  */
-public class PreMatchingHttpServletRequestImpl implements HttpServletRequest {
+public class HttpServletRequestImpl implements HttpServletRequest {
 
+    private final ServletDeployment servletDeployment;
     private String authType;
     private Cookie[] cookies;
     private final String method;
     private String pathInfo;
-    private String contextPath;
     private String queryString;
     private String remoteUser;
     private Principal userPrincipal;
@@ -40,7 +41,8 @@ public class PreMatchingHttpServletRequestImpl implements HttpServletRequest {
     private HttpSession httpSession;
     private final Map<String, List<String>> headers;
 
-    public PreMatchingHttpServletRequestImpl(String method, String requestURI, Map<String, List<String>> headers) {
+    public HttpServletRequestImpl(ServletDeployment servletDeployment, String method, String requestURI, Map<String, List<String>> headers) {
+        this.servletDeployment = servletDeployment;
         this.method = method;
         this.requestURI = requestURI;
         this.headers = new HashMap<>(headers);
@@ -118,7 +120,7 @@ public class PreMatchingHttpServletRequestImpl implements HttpServletRequest {
 
     @Override
     public String getContextPath() {
-        throw new UnsupportedOperationException("This is a pre-matching request implementation. Context path is still not detected.");
+        return servletDeployment.getServletContext().getContextPath();
     }
 
     @Override
@@ -334,6 +336,10 @@ public class PreMatchingHttpServletRequestImpl implements HttpServletRequest {
     @Override
     public int getLocalPort() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public ServletDeployment getServletDeployment() {
+        return servletDeployment;
     }
 
 }

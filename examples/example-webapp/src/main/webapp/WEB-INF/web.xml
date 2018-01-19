@@ -9,4 +9,12 @@
         <url-pattern>/example-servlet</url-pattern>
         <url-pattern>/alternative-url</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>TestServlet</servlet-name>
+        <servlet-class>es.guillermogonzalezdeaguero.container.exampleplugin.TestServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TestServlet</servlet-name>
+        <url-pattern>/test/*</url-pattern>
+    </servlet-mapping>
 </web-app>

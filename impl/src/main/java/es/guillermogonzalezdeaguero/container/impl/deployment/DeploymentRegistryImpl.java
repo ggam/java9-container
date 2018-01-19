@@ -1,6 +1,7 @@
 package es.guillermogonzalezdeaguero.container.impl.deployment;
 
 import es.guillermogonzalezdeaguero.container.api.ServletDeployment;
+import es.guillermogonzalezdeaguero.container.api.deployment.DeploymentRegistry;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,7 +9,7 @@ import java.util.Set;
  *
  * @author guillermo
  */
-public class DeploymentRegistry {
+public class DeploymentRegistryImpl implements DeploymentRegistry {
 
     private final Set<ServletDeployment> deployments = new HashSet<>();
 
