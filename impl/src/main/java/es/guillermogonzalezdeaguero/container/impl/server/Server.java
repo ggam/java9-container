@@ -1,17 +1,17 @@
 package es.guillermogonzalezdeaguero.container.impl.server;
 
-import es.guillermogonzalezdeaguero.container.impl.servlet.FilterChainFactory;
-import es.guillermogonzalezdeaguero.container.impl.servlet.ServletResponseToSocket;
-import es.guillermogonzalezdeaguero.container.impl.servlet.SocketToServletRequest;
-import es.guillermogonzalezdeaguero.container.api.ServletDeployment;
 import es.guillermogonzalezdeaguero.container.api.event.ServerLifeCycleListener;
 import es.guillermogonzalezdeaguero.container.api.event.ServerStartedEvent;
 import es.guillermogonzalezdeaguero.container.api.event.ServerStartingEvent;
+import es.guillermogonzalezdeaguero.container.impl.deployment.DeploymentRegistry;
 import es.guillermogonzalezdeaguero.container.impl.internal.HttpWorkerThreadFactory;
 import es.guillermogonzalezdeaguero.container.impl.server.event.ServerStartedEventImpl;
 import es.guillermogonzalezdeaguero.container.impl.server.event.ServerStartingEventImpl;
+import es.guillermogonzalezdeaguero.container.impl.servlet.FilterChainFactory;
 import es.guillermogonzalezdeaguero.container.impl.servlet.HttpServletResponseImpl;
 import es.guillermogonzalezdeaguero.container.impl.servlet.PreMatchingHttpServletRequestImpl;
+import es.guillermogonzalezdeaguero.container.impl.servlet.ServletResponseToSocket;
+import es.guillermogonzalezdeaguero.container.impl.servlet.SocketToServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,7 +19,6 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutorService;
@@ -42,7 +41,7 @@ public class Server {
     private final List<ServerLifeCycleListener> lifeCycleListeners;
 
     // Server already running
-    private final HashSet<ServletDeployment> deployments = new HashSet<>();
+    private final DeploymentRegistry deploymentRegistry = new DeploymentRegistry();
     private FilterChainFactory uriMatcher;
 
     public Server(int port) {
@@ -59,7 +58,7 @@ public class Server {
 
         switch (newState) {
             case STARTING:
-                ServerStartingEvent startingEvent = new ServerStartingEventImpl(this, deployments);
+                ServerStartingEvent startingEvent = new ServerStartingEventImpl(this, deploymentRegistry);
                 lifeCycleListeners.forEach(listener -> listener.serverStarting(startingEvent));
                 break;
             case RUNNING:
@@ -80,12 +79,12 @@ public class Server {
 
         LOGGER.log(Level.INFO, "Listening on port {0}", String.valueOf(port));
 
-        deployments.forEach(ServletDeployment::deploy);
+        deploymentRegistry.deployAll();
 
         changeState(ServerState.RUNNING);
         LOGGER.log(Level.INFO, "\n============================\nServer is running on port {0}", String.valueOf(port));
 
-        uriMatcher = new FilterChainFactory(deployments);
+        uriMatcher = new FilterChainFactory(deploymentRegistry);
 
         while (true) {
             Socket request = serverSocket.accept();

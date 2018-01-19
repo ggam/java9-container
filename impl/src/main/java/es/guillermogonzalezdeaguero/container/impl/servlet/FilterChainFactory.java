@@ -1,8 +1,6 @@
 package es.guillermogonzalezdeaguero.container.impl.servlet;
 
-import es.guillermogonzalezdeaguero.container.api.ServletDeployment;
-import java.util.HashSet;
-import java.util.Set;
+import es.guillermogonzalezdeaguero.container.impl.deployment.DeploymentRegistry;
 import javax.servlet.FilterChain;
 
 /**
@@ -11,15 +9,16 @@ import javax.servlet.FilterChain;
  */
 public class FilterChainFactory {
 
-    private final Set<ServletDeployment> webApps;
+    private final DeploymentRegistry deploymentRegistry;
 
-    public FilterChainFactory(Set<ServletDeployment> webApps) {
-        this.webApps = new HashSet<>(webApps);
+    public FilterChainFactory(DeploymentRegistry deploymentRegistry) {
+        this.deploymentRegistry = deploymentRegistry;
     }
 
     public FilterChain match(String url) {
         // There will always be at least a root application
-        return webApps.stream().
+        return deploymentRegistry.getDeployments().
+                stream().
                 filter(app -> app.matches(url)).
                 findAny().
                 get().createFilterChain(url);
