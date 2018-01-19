@@ -7,10 +7,10 @@ import es.guillermogonzalezdeaguero.container.impl.deployment.DeploymentRegistry
 import es.guillermogonzalezdeaguero.container.impl.internal.HttpWorkerThreadFactory;
 import es.guillermogonzalezdeaguero.container.impl.server.event.ServerStartedEventImpl;
 import es.guillermogonzalezdeaguero.container.impl.server.event.ServerStartingEventImpl;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -81,27 +81,31 @@ public class Server {
         requestProcessor = new RequestProcessor(deploymentRegistry);
 
         while (true) {
-            Socket request = serverSocket.accept();
-            executor.execute(() -> handleRequest(request));
+            try ( Socket request = serverSocket.accept()) {
+                executor.execute(() -> handleRequest(request));
+            }
         }
     }
 
     private void handleRequest(Socket request) {
-        try (request;
-                 BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));  PrintWriter out = new PrintWriter(request.getOutputStream(), true)) {
-
-            requestProcessor.process(in, out);
+        try {
+            requestProcessor.process(request.getInputStream(), request.getOutputStream());
         } catch (IOException | ServletException e) {
+            try {
+                PrintWriter stackTrace = new PrintWriter(new StringWriter());
+                e.printStackTrace(stackTrace);
+
+                new PrintWriter(request.getOutputStream()).write(
+                        "HTTP/1.1 500\n"
+                        + "Content-type: text/html\n"
+                        + "Server-name: localhost\n"
+                        + "\n"
+                        + "Error processing request: " + stackTrace.toString());
+            } catch (IOException ex) {
+                throw new UncheckedIOException(ex);
+            }
+
             LOGGER.log(Level.SEVERE, "Error processing request: ", e);
         }
-    }
-
-    private String createResponse(int statusCode, String responseBody) {
-        return "HTTP/1.1 " + statusCode + "\n"
-                + "Content-type: text/html\n"
-                + "Server-name: localhost\n"
-                + "Content-length: " + responseBody.length() + "\n"
-                + "\n"
-                + responseBody;
     }
 }
