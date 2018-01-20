@@ -10,3 +10,6 @@
 /container-api/target/
 /servlet-impl/target/
 /api/target/
+/servlet/api/target/
+/servlet/impl/target/
+/servlet/root-webapp/target/
