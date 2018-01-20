@@ -6,12 +6,10 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>servlet-repackage</module>
-        <module>root-webapp</module>
-        <module>container-api</module>
+        <module>api</module>
         <module>impl</module>
+        <module>servlet</module>
         <module>examples</module>
-        <module>servlet-impl</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
