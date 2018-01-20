@@ -1,9 +1,9 @@
 package es.guillermogonzalezdeaguero.container.impl.deployment;
 
-import es.guillermogonzalezdeaguero.container.api.ServletDeployment;
 import es.guillermogonzalezdeaguero.container.api.deployment.DeploymentRegistry;
 import java.util.HashSet;
 import java.util.Set;
+import es.guillermogonzalezdeaguero.container.api.Deployment;
 
 /**
  *
@@ -11,11 +11,11 @@ import java.util.Set;
  */
 public class DeploymentRegistryImpl implements DeploymentRegistry {
 
-    private final Set<ServletDeployment> deployments = new HashSet<>();
+    private final Set<Deployment> deployments = new HashSet<>();
 
     private boolean deployed = false;
 
-    public void registerDeployment(ServletDeployment deployment) {
+    public void registerDeployment(Deployment deployment) {
         deployments.add(deployment);
     }
 
@@ -25,10 +25,10 @@ public class DeploymentRegistryImpl implements DeploymentRegistry {
         }
 
         deployed = true;
-        deployments.forEach(ServletDeployment::deploy);
+        deployments.forEach(Deployment::deploy);
     }
 
-    public Set<ServletDeployment> getDeployments() {
+    public Set<Deployment> getDeployments() {
         return new HashSet<>(deployments);
     }
 

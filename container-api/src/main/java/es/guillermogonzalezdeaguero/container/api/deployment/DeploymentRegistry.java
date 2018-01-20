@@ -1,7 +1,7 @@
 package es.guillermogonzalezdeaguero.container.api.deployment;
 
-import es.guillermogonzalezdeaguero.container.api.ServletDeployment;
 import java.util.Set;
+import es.guillermogonzalezdeaguero.container.api.Deployment;
 
 /**
  *
@@ -9,5 +9,5 @@ import java.util.Set;
  */
 public interface DeploymentRegistry {
 
-    public Set<ServletDeployment> getDeployments();
+    public Set<Deployment> getDeployments();
 }

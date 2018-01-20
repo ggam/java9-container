@@ -1,6 +1,5 @@
 package es.guillermogonzalezdeaguero.servlet.impl.deployment;
 
-import es.guillermogonzalezdeaguero.container.api.ServletDeployment;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +26,7 @@ import javax.servlet.http.HttpSession;
  */
 public class HttpServletRequestImpl implements HttpServletRequest {
 
-    private final ServletDeployment servletDeployment;
+    private final ServletContext servletContext;
     private String authType;
     private Cookie[] cookies;
     private final String method;
@@ -41,8 +41,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
     private HttpSession httpSession;
     private final Map<String, List<String>> headers;
 
-    public HttpServletRequestImpl(ServletDeployment servletDeployment, String method, String requestURI, Map<String, List<String>> headers) {
-        this.servletDeployment = servletDeployment;
+    public HttpServletRequestImpl(ServletContext servletContext, String method, String requestURI, Map<String, List<String>> headers) {
+        this.servletContext = servletContext;
         this.method = method;
         this.requestURI = requestURI;
         this.headers = new HashMap<>(headers);
@@ -120,7 +120,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
     @Override
     public String getContextPath() {
-        return servletDeployment.getServletContext().getContextPath();
+        return servletContext.getContextPath();
     }
 
     @Override
@@ -336,10 +336,6 @@ public class HttpServletRequestImpl implements HttpServletRequest {
     @Override
     public int getLocalPort() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public ServletDeployment getServletDeployment() {
-        return servletDeployment;
     }
 
 }

@@ -1,7 +1,7 @@
 package es.guillermogonzalezdeaguero.container.api.event;
 
-import es.guillermogonzalezdeaguero.container.api.ServletDeployment;
 import java.util.EventObject;
+import es.guillermogonzalezdeaguero.container.api.Deployment;
 
 /**
  *
@@ -13,5 +13,5 @@ public abstract class ServerStartingEvent extends EventObject {
         super(source);
     }
     
-    public abstract void registerDeployment(ServletDeployment deployment);
+    public abstract void registerDeployment(Deployment deployment);
 }

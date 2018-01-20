@@ -1,9 +1,9 @@
 package es.guillermogonzalezdeaguero.container.impl.server.event;
 
-import es.guillermogonzalezdeaguero.container.api.ServletDeployment;
 import es.guillermogonzalezdeaguero.container.api.event.ServerStartingEvent;
 import es.guillermogonzalezdeaguero.container.impl.deployment.DeploymentRegistryImpl;
 import es.guillermogonzalezdeaguero.container.impl.server.Server;
+import es.guillermogonzalezdeaguero.container.api.Deployment;
 
 /**
  *
@@ -23,7 +23,7 @@ public class ServerStartingEventImpl extends ServerStartingEvent {
     }
 
     @Override
-    public void registerDeployment(ServletDeployment deployment) {
+    public void registerDeployment(Deployment deployment) {
         deploymentRegistry.registerDeployment(deployment);
     }
 

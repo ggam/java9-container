@@ -1,6 +1,6 @@
 package es.guillermogonzalezdeaguero.container.impl.server;
 
-import es.guillermogonzalezdeaguero.container.api.RequestProcessor;
+import es.guillermogonzalezdeaguero.container.api.Deployment;
 import es.guillermogonzalezdeaguero.container.api.event.ServerLifeCycleListener;
 import es.guillermogonzalezdeaguero.container.api.event.ServerStartedEvent;
 import es.guillermogonzalezdeaguero.container.api.event.ServerStartingEvent;
@@ -9,20 +9,21 @@ import es.guillermogonzalezdeaguero.container.impl.internal.HttpWorkerThreadFact
 import es.guillermogonzalezdeaguero.container.impl.server.event.ServerStartedEventImpl;
 import es.guillermogonzalezdeaguero.container.impl.server.event.ServerStartingEventImpl;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.PushbackInputStream;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletException;
 
 /**
  *
@@ -38,7 +39,6 @@ public class Server {
 
     // Server already running
     private final DeploymentRegistryImpl deploymentRegistry = new DeploymentRegistryImpl();
-    private RequestProcessor requestProcessor;
 
     public Server(int port) {
         this.port = port;
@@ -80,41 +80,54 @@ public class Server {
         changeState(ServerState.RUNNING);
         LOGGER.log(Level.INFO, "\n============================\nServer is running on port {0}", String.valueOf(port));
 
-        Iterator<RequestProcessor> iterator = ServiceLoader.load(RequestProcessor.class).iterator();
-
-        requestProcessor = iterator.next();
-
-        if (iterator.hasNext()) {
-            throw new IllegalStateException("Only one processor at a time is allowed");
-        }
-
-        requestProcessor.setDeploymentRegistry(deploymentRegistry);
-
         while (true) {
             Socket request = serverSocket.accept();
-            executor.execute(() -> handleRequest(request));
+            executor.execute(() -> {
+                try (request) {
+                    handleRequest(request);
+                } catch (IOException ex) {
+                    throw new UncheckedIOException(ex);
+                }
+            });
         }
     }
 
-    private void handleRequest(Socket request) {
-        try(request) {
-            requestProcessor.process(request.getInputStream(), request.getOutputStream());
-        } catch (IOException | ServletException e) {
+    private void handleRequest(Socket request) throws IOException {
+        try ( PushbackInputStream inputStream = new PushbackInputStream(request.getInputStream(), 2000); // 2000 character buffer for URL
+                  OutputStream outputStream = request.getOutputStream()) {
             try {
-                PrintWriter stackTrace = new PrintWriter(new StringWriter());
-                e.printStackTrace(stackTrace);
+                String readString = "";
+                byte[] buffer = new byte[16];
+                while (inputStream.read(buffer, 0, buffer.length) != -1) {
+                    readString += new String(buffer);
+                    if (readString.contains("\n")) {
+                        break;
+                    }
+                }
 
-                new PrintWriter(request.getOutputStream()).write(
-                        "HTTP/1.1 500\n"
+                inputStream.unread(readString.getBytes());
+                String uri = readString.split("\n")[0].split(" ")[1].split("\\?")[0];
+
+                Deployment deployment = deploymentRegistry.getDeployments().
+                        stream().
+                        filter(app -> app.matches(uri)).
+                        max(Comparator.comparingInt((app) -> app.getContextPath().length())).
+                        get();
+
+                deployment.process(inputStream, outputStream);
+            } catch (Exception e) {
+                StringWriter stackTrace = new StringWriter();
+                PrintWriter printer = new PrintWriter(stackTrace);
+                e.printStackTrace(printer);
+
+                outputStream.write(("HTTP/1.1 500\n"
                         + "Content-type: text/html\n"
                         + "Server-name: localhost\n"
                         + "\n"
-                        + "Error processing request: " + stackTrace.toString());
-            } catch (IOException ex) {
-                throw new UncheckedIOException(ex);
-            }
+                        + "Error processing request: " + stackTrace.toString().replaceAll("\n", "<br>")).getBytes());
 
-            LOGGER.log(Level.SEVERE, "Error processing request: ", e);
+                LOGGER.log(Level.SEVERE, "Error processing request: ", e);
+            }
         }
     }
 }

@@ -1,11 +1,16 @@
 package es.guillermogonzalezdeaguero.servlet.impl.deployment;
 
-import es.guillermogonzalezdeaguero.container.api.ServletDeployment;
+import es.guillermogonzalezdeaguero.container.api.Deployment;
 import es.guillermogonzalezdeaguero.container.systemwebapplib.FileServlet;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.EffectiveWebXml;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.WebXmlParser;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleDescriptor;
 import java.lang.module.ModuleFinder;
@@ -14,6 +19,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
@@ -23,14 +32,15 @@ import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 
 /**
  *
  * @author guillermo
  */
-public class ServletDeploymentImpl implements ServletDeployment {
+public class ServletDeployment implements Deployment {
 
-    private static final Logger LOGGER = Logger.getLogger(ServletDeploymentImpl.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ServletDeployment.class.getName());
 
     private static final Path RELATIVE_CLASSES_PATH = Paths.get("WEB-INF", "classes");
     private static final Path RELATIVE_LIBS_PATH = Paths.get("WEB-INF", "lib");
@@ -47,7 +57,7 @@ public class ServletDeploymentImpl implements ServletDeployment {
 
     private ServletContext servletContext;
 
-    public ServletDeploymentImpl(ModuleLayer parentLayer, Path appPath) {
+    public ServletDeployment(ModuleLayer parentLayer, Path appPath) {
         this.parentLayer = parentLayer;
         this.appPath = appPath;
 
@@ -100,6 +110,64 @@ public class ServletDeploymentImpl implements ServletDeployment {
     }
 
     @Override
+    public void process(InputStream input, OutputStream output) throws IOException, ServletException {
+        HttpServletRequestImpl servletRequest = createServletRequest(input);
+
+        FilterChain filterChain = createFilterChain(servletRequest.getRequestURI());
+
+        HttpServletResponseImpl servletResponse = new HttpServletResponseImpl();
+        filterChain.doFilter(servletRequest, servletResponse);
+
+        sendResponse(servletResponse, output);
+    }
+
+    private HttpServletRequestImpl createServletRequest(InputStream input) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+        String[] requestLine = reader.readLine().split(" ");
+
+        System.out.println(requestLine[0]);
+        System.out.println(requestLine[1]);
+
+        String method = requestLine[0];
+
+        String[] uriQueryParams = requestLine[1].split("\\?");
+        String uri = uriQueryParams[0];
+        if (uriQueryParams.length == 2) {
+            String queryParams = uriQueryParams[1]; // TODO: support query params
+        }
+
+        String httpVersion = requestLine[2];
+
+        Map<String, List<String>> headers = new HashMap<>();
+
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if ("".equals(line)) {
+                // Headers are done.
+                break;
+            }
+
+            String[] header = line.split(":");
+            List<String> headerValues = headers.computeIfAbsent(header[0], k -> new ArrayList<>());
+            //System.out.println(line);
+            headerValues.add(header[1]);
+        }
+
+        // TODO: process entity body
+        return new HttpServletRequestImpl(servletContext, method, uri, headers);
+    }
+
+    private void sendResponse(HttpServletResponseImpl response, OutputStream output) throws IOException {
+        output.write(("HTTP/1.1 " + response.getStatus() + " Unknown\r\n\r\n").getBytes());
+        if (response.isErrorSent() && response.getStatusMessage() != null) {
+            output.write(response.getStatusMessage().getBytes());
+        } else {
+            output.write(response.getStringWriter().toString().getBytes());
+        }
+
+    }
+
     public FilterChain createFilterChain(String url) {
         if (!matches(url)) {
             throw new IllegalArgumentException("Url cannot be matched to this application");
@@ -207,17 +275,8 @@ public class ServletDeploymentImpl implements ServletDeployment {
         return state;
     }
 
+    @Override
     public String getContextPath() {
         return contextPath;
     }
-
-    @Override
-    public ServletContext getServletContext() {
-        if (getState() != DeploymentState.DEPLOYED) {
-            throw new IllegalStateException("Only deployed applications have an associated ServletContext");
-        }
-
-        return servletContext;
-    }
-
 }

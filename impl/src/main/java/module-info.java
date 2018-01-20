@@ -4,5 +4,4 @@ module es.guillermogonzalezdeaguero.container.Impl {
     requires es.guillermogonzalezdeaguero.container.Api;
     
     uses es.guillermogonzalezdeaguero.container.api.event.ServerLifeCycleListener;
-    uses es.guillermogonzalezdeaguero.container.api.RequestProcessor;
 }
