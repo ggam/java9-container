@@ -8,4 +8,9 @@
     </parent>
     <artifactId>container-servlet</artifactId>
     <packaging>pom</packaging>
+    <modules>
+        <module>api</module>
+        <module>impl</module>
+        <module>root-webapp</module>
+    </modules>
 </project>
