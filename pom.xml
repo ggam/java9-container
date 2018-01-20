@@ -7,7 +7,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>servlet-repackage</module>
-        <module>system-webapp-lib</module>
         <module>root-webapp</module>
         <module>container-api</module>
         <module>impl</module>
