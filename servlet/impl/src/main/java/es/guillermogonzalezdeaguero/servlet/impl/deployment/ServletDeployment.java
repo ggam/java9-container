@@ -1,15 +1,12 @@
 package es.guillermogonzalezdeaguero.servlet.impl.deployment;
 
 import es.guillermogonzalezdeaguero.container.api.Deployment;
-import es.guillermogonzalezdeaguero.servlet.impl.FilterChainImpl;
+import es.guillermogonzalezdeaguero.servlet.impl.FilterChainFactory;
 import es.guillermogonzalezdeaguero.servlet.impl.HttpServletRequestImpl;
 import es.guillermogonzalezdeaguero.servlet.impl.HttpServletResponseImpl;
 import es.guillermogonzalezdeaguero.servlet.impl.ServletContextImpl;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.EffectiveWebXml;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.WebXmlParser;
-import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
-import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
-import es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,22 +16,17 @@ import java.lang.module.Configuration;
 import java.lang.module.ModuleDescriptor;
 import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReference;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static java.util.stream.Collectors.toSet;
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
@@ -60,6 +52,8 @@ public class ServletDeployment implements Deployment {
     private Module warModule;
 
     private ServletContext servletContext;
+
+    private FilterChainFactory filterChainFactory;
 
     public ServletDeployment(ModuleLayer parentLayer, Path appPath) {
         this.parentLayer = parentLayer;
@@ -101,9 +95,11 @@ public class ServletDeployment implements Deployment {
         moduleLayer = parentLayer.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
         warModule = moduleLayer.findModule(warModuleName).get();
 
+        servletContext = new ServletContextImpl(contextPath);
+
         effectiveWebXml = WebXmlParser.parse(appPath.resolve(Paths.get("WEB-INF", "web.xml")));
 
-        servletContext = new ServletContextImpl(contextPath);
+        filterChainFactory = new FilterChainFactory(effectiveWebXml, warModule);
 
         changeState(DeploymentState.DEPLOYED);
     }
@@ -116,10 +112,14 @@ public class ServletDeployment implements Deployment {
     @Override
     public void process(InputStream input, OutputStream output) throws IOException, ServletException {
         HttpServletRequestImpl servletRequest = createServletRequest(input);
-
-        FilterChain filterChain = createFilterChain(servletRequest.getRequestURI());
-
         HttpServletResponseImpl servletResponse = new HttpServletResponseImpl();
+
+        if (!matches(servletRequest.getRequestURI())) {
+            throw new IllegalArgumentException("Url cannot be matched to this application");
+        }
+
+        FilterChain filterChain = filterChainFactory.create(servletRequest.getPathInfo());
+
         filterChain.doFilter(servletRequest, servletResponse);
 
         sendResponse(servletResponse, output);
@@ -170,109 +170,6 @@ public class ServletDeployment implements Deployment {
             output.write(response.getStringWriter().toString().getBytes());
         }
 
-    }
-
-    public FilterChain createFilterChain(String url) {
-        if (!matches(url)) {
-            throw new IllegalArgumentException("Url cannot be matched to this application");
-        }
-
-        String pathInfo = url.substring(getContextPath().length(), url.length()); // TODO: pathInfo may be null?
-
-        ServletDescriptor servletMatch = findServletMatch(effectiveWebXml.getServletDescriptors(), pathInfo);
-        Queue<FilterDescriptor> matchedFilters = findFilterMatches(effectiveWebXml.getFilterDescriptors(), pathInfo);
-
-        String servletClassName;
-        if (servletMatch != null) {
-            servletClassName = servletMatch.getClassName();
-        } else {
-            // Fallback to FileServlet when no match is found
-            servletClassName = FileServlet.class.getName();
-        }
-
-        Servlet servletInstance = null;
-        try {
-            Class<?> servletClass = Class.forName(servletClassName, true, warModule.getClassLoader());
-
-            servletInstance = (Servlet) Class.forName(servletClass.getModule(), servletClass.getName()).getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
-            throw new RuntimeException(ex);
-        }
-
-        ArrayDeque<Filter> matchedFilterInstances = new ArrayDeque<>();
-        for (FilterDescriptor matchedFilter : matchedFilters) {
-            try {
-                Class<?> filterClass = Class.forName(matchedFilter.getClassName(), true, warModule.getClassLoader());
-
-                matchedFilterInstances.add((Filter) Class.forName(filterClass.getModule(), filterClass.getName()).getDeclaredConstructor().newInstance());
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
-
-        return new FilterChainImpl(matchedFilterInstances, servletInstance);
-    }
-
-    public ServletDescriptor findServletMatch(Set<ServletDescriptor> servletDescriptors, String pathInfo) {
-        for (ServletDescriptor servletDescriptor : servletDescriptors) {
-            for (String exactPattern : servletDescriptor.getExactPatterns()) {
-                if (exactPattern.equals(pathInfo) || (pathInfo == null && "/".equals(exactPattern))) {
-                    return servletDescriptor;
-                }
-            }
-
-            for (String prefixPattern : servletDescriptor.getPrefixPatterns()) {
-                String prefix = prefixPattern.substring(0, prefixPattern.length() - 1);
-                if (pathInfo != null && pathInfo.startsWith(prefix)) {
-                    return servletDescriptor;
-                }
-            }
-
-            if (pathInfo == null) {
-                return null; // TODO: Default Servlet?
-            }
-
-            for (String extensionPattern : servletDescriptor.getExtensionPatterns()) {
-                String extension = extensionPattern.split(".")[1];
-                if (pathInfo.endsWith(extension)) {
-                    return servletDescriptor;
-                }
-            }
-
-        }
-        return null;
-    }
-
-    public Queue<FilterDescriptor> findFilterMatches(Set<FilterDescriptor> filterDescriptors, String pathInfo) {
-        Queue<FilterDescriptor> matchedFilters = new ArrayDeque<>();
-        for (FilterDescriptor filterDescriptor : filterDescriptors) {
-            for (String exactPattern : filterDescriptor.getExactPatterns()) {
-                if (exactPattern.equals(pathInfo) || (pathInfo == null && "/".equals(exactPattern))) {
-                    matchedFilters.add(filterDescriptor);
-                }
-            }
-
-            for (String prefixPattern : filterDescriptor.getPrefixPatterns()) {
-                String prefix = prefixPattern.substring(0, prefixPattern.length() - 1);
-                if (pathInfo != null && pathInfo.startsWith(prefix)) {
-                    matchedFilters.add(filterDescriptor);
-                }
-            }
-
-            if (pathInfo == null) {
-                // TODO: pending review
-                // matchedFilters.add(filterDescriptor);
-            }
-
-            for (String extensionPattern : filterDescriptor.getExtensionPatterns()) {
-                String extension = extensionPattern.split(".")[1];
-                if (pathInfo != null && pathInfo.endsWith(extension)) {
-                    matchedFilters.add(filterDescriptor);
-                }
-            }
-
-        }
-        return matchedFilters;
     }
 
     public synchronized DeploymentState getState() {
