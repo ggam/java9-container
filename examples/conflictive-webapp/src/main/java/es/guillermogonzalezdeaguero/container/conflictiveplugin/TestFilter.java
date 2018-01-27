@@ -19,9 +19,11 @@ import javax.servlet.http.HttpServletResponse;
 public class TestFilter implements Filter {
 
     private static final Logger LOGGER = Logger.getLogger(TestFilter.class.getName());
+    private String forbiddenParam;
     
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        forbiddenParam = filterConfig.getInitParameter("forbidden_param");
     }
 
     @Override
@@ -30,9 +32,8 @@ public class TestFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         
         LOGGER.log(Level.INFO, "Intercepting request to {0}", httpRequest.getRequestURI());
-
-        String parameter = httpRequest.getParameter("ok");
-        if ("false".equalsIgnoreCase(parameter)) {
+        
+        if (httpRequest.getParameterMap().containsKey(forbiddenParam)) {
             httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Fobidden!");
         } else {
             chain.doFilter(request, response);

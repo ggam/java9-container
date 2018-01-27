@@ -2,10 +2,14 @@ package es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor;
 
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.FilterMappingType;
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.FilterType;
+import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.UrlPatternType;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
@@ -25,18 +29,24 @@ public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterCon
     private final Set<String> prefixPatterns = new HashSet<>();
     private final Set<String> extensionPatterns = new HashSet<>();
     private final Set<String> namedServlets = new HashSet<>();
+    
+    private final Map<String, String> initParams = new HashMap<>();
 
     public FilterDescriptor(FilterType filterType, List<FilterMappingType> filterMappingTypes, ClassLoader classLoader, int position) throws ClassNotFoundException {
         this.filterName = filterType.getFilterName().getValue();
         this.filterClass = (Class<Filter>) Class.forName(filterType.getFilterClass().getValue(), true, classLoader);
         this.position = position;
 
+        for (ParamValueType initParamTypes : filterType.getInitParams()) {
+            initParams.put(initParamTypes.getParamName().getValue(), initParamTypes.getParamValue().getValue());
+        }
+        
         for (FilterMappingType mapping : filterMappingTypes) {
             for (UrlPatternType servletNamePattern : mapping.getServletNames()) {
                 namedServlets.add(servletNamePattern.getValue());
             }
 
-            for (UrlPatternType urlPattern : mapping.getServletNames()) {
+            for (UrlPatternType urlPattern : mapping.getUrlPatterns()) {
                 String pattern = urlPattern.getValue();
 
                 /* Validation */
@@ -110,12 +120,12 @@ public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterCon
 
     @Override
     public String getInitParameter(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return initParams.get(name);
     }
 
     @Override
     public Enumeration getInitParameterNames() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Collections.enumeration(initParams.keySet());
     }
 
 }

@@ -70,7 +70,7 @@ public class FilterMatcher {
                 try {
                     Filter newInstance = descriptor.getFilterClass().getDeclaredConstructor().newInstance();
 
-                    newInstance.init(null);
+                    newInstance.init(descriptor);
 
                     return newInstance;
                 } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ServletException ex) {

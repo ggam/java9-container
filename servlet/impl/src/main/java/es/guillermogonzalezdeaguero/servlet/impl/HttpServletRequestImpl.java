@@ -265,19 +265,19 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
     @Override
     public Enumeration getParameterNames() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Collections.enumeration(getParameterMap().keySet());
     }
 
     @Override
     public String[] getParameterValues(String name) {
         // TODO: check for POST parameters
-        List<String> parameters = queryParams.get(name);
+        List<String> parameters = (List<String>)getParameterMap().get(name);
         return parameters != null ? parameters.toArray(new String[parameters.size()]) : null;
     }
 
     @Override
     public Map getParameterMap() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new HashMap<>(queryParams);
     }
 
     @Override

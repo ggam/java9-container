@@ -1,13 +1,17 @@
 package es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor;
 
+import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ServletMappingType;
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ServletType;
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.UrlPatternType;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.EffectiveWebXml;
 import es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -26,6 +30,8 @@ public class ServletDescriptor implements ServletConfig {
     private final Set<String> prefixPatterns = new HashSet<>();
     private final Set<String> extensionPatterns = new HashSet<>();
 
+    private final Map<String, String> initParams = new HashMap<>();
+
     /**
      * Specific constructor for {@link FileServlet} via {@link EffectiveWebXml}
      *
@@ -42,6 +48,10 @@ public class ServletDescriptor implements ServletConfig {
     public ServletDescriptor(ServletType servletType, List<ServletMappingType> mappings, ClassLoader classLoader) throws ClassNotFoundException {
         this.servletName = servletType.getServletName().getValue();
         this.servletClass = (Class<Servlet>) Class.forName(servletType.getServletClass().getValue(), true, classLoader);
+
+        for (ParamValueType initParamTypes : servletType.getInitParams()) {
+            initParams.put(initParamTypes.getParamName().getValue(), initParamTypes.getParamValue().getValue());
+        }
 
         for (ServletMappingType servletMapping : mappings) {
             for (UrlPatternType urlPattern : servletMapping.getUrlPatterns()) {
@@ -104,12 +114,12 @@ public class ServletDescriptor implements ServletConfig {
 
     @Override
     public String getInitParameter(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return initParams.get(name);
     }
 
     @Override
     public Enumeration getInitParameterNames() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Collections.enumeration(initParams.keySet());
     }
 
 }
