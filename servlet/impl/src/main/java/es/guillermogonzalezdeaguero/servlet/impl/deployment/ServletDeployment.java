@@ -16,6 +16,8 @@ import java.lang.module.Configuration;
 import java.lang.module.ModuleDescriptor;
 import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReference;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -130,15 +132,13 @@ public class ServletDeployment implements Deployment {
 
         String[] requestLine = reader.readLine().split(" ");
 
-        System.out.println(requestLine[0]);
-        System.out.println(requestLine[1]);
-
         String method = requestLine[0];
 
-        String[] uriQueryParams = requestLine[1].split("\\?");
-        String uri = uriQueryParams[0];
-        if (uriQueryParams.length == 2) {
-            String queryParams = uriQueryParams[1]; // TODO: support query params
+        URI uri;
+        try {
+            uri = new URI(requestLine[1]);
+        } catch (URISyntaxException ex) {
+            throw new IOException(ex);
         }
 
         String httpVersion = requestLine[2];

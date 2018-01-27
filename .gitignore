@@ -13,3 +13,6 @@
 /servlet/api/target/
 /servlet/impl/target/
 /servlet/root-webapp/target/
+**/.classpath
+**/.project
+**/.settings

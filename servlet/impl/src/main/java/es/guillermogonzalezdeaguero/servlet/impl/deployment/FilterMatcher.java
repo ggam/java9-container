@@ -1,11 +1,10 @@
-package es.guillermogonzalezdeaguero.servlet.impl;
+package es.guillermogonzalezdeaguero.servlet.impl.deployment;
 
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
 import java.util.ArrayDeque;
-import java.util.HashSet;
 import java.util.Queue;
-import java.util.Set;
+import java.util.TreeSet;
 
 /**
  *
@@ -13,10 +12,10 @@ import java.util.Set;
  */
 public class FilterMatcher {
 
-    private final Set<FilterDescriptor> filterDescriptors;
+    private final TreeSet<FilterDescriptor> filterDescriptors;
 
-    public FilterMatcher(Set<FilterDescriptor> filterDescriptors) {
-        this.filterDescriptors = new HashSet<>(filterDescriptors);
+    public FilterMatcher(TreeSet<FilterDescriptor> filterDescriptors) {
+        this.filterDescriptors = new TreeSet<>(filterDescriptors);
     }
 
     public Queue<FilterDescriptor> match(String pathInfo, ServletDescriptor matchedServlet) {

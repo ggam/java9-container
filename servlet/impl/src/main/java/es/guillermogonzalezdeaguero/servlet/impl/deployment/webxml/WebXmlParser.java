@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
@@ -23,7 +24,6 @@ import javax.xml.bind.JAXBException;
 public class WebXmlParser {
 
     public static EffectiveWebXml parse(Path webXmlPath) {
-
         try {
             WebApp webApp = (WebApp) JAXBContext.newInstance("com.sun.java.xml.ns.javaee").
                     createUnmarshaller().
@@ -52,8 +52,9 @@ public class WebXmlParser {
         return servletDescriptors;
     }
 
-    private static Set<FilterDescriptor> findFilters(WebApp webApp) {
-        Set<FilterDescriptor> filterDescriptors = new HashSet<>();
+    private static TreeSet<FilterDescriptor> findFilters(WebApp webApp) {
+        TreeSet<FilterDescriptor> filterDescriptors = new TreeSet<>();
+        int position = 0;
         for (FilterType filter : webApp.getFilters()) {
             Set<String> urlPatterns = new HashSet<>();
             for (FilterMappingType filterMapping : webApp.getFilterMappings()) {
@@ -63,7 +64,7 @@ public class WebXmlParser {
                     }
                 }
             }
-            filterDescriptors.add(new FilterDescriptor(filter.getFilterName().getValue(), filter.getFilterClass().getValue(), urlPatterns, Collections.emptySet()));
+            filterDescriptors.add(new FilterDescriptor(filter.getFilterName().getValue(), filter.getFilterClass().getValue(), ++position, urlPatterns, Collections.emptySet()));
         }
 
         return filterDescriptors;

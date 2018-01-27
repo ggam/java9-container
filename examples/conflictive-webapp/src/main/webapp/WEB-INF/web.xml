@@ -8,4 +8,14 @@
         <servlet-name>ConflictiveServlet</servlet-name>
         <url-pattern>/conflictive.html</url-pattern>
     </servlet-mapping>
+    
+    <filter>
+        <filter-name>Test</filter-name>
+        <filter-class>es.guillermogonzalezdeaguero.container.conflictiveplugin.TestFilter</filter-class>
+    </filter>
+    
+    <filter-mapping>
+        <filter-name>Test</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 </web-app>

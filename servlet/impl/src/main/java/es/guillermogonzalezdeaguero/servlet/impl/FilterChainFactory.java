@@ -1,5 +1,6 @@
 package es.guillermogonzalezdeaguero.servlet.impl;
 
+import es.guillermogonzalezdeaguero.servlet.impl.deployment.FilterMatcher;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.ServletMatcher;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.EffectiveWebXml;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;

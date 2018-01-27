@@ -3,16 +3,23 @@ package es.guillermogonzalezdeaguero.servlet.impl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLDecoder;
 import java.security.Principal;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletInputStream;
@@ -32,6 +39,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
     private final String method;
     private String pathInfo;
     private String queryString;
+    private Map<String, List<String>> queryParams;
     private String remoteUser;
     private Principal userPrincipal;
     private String requestedSessionId;
@@ -41,12 +49,26 @@ public class HttpServletRequestImpl implements HttpServletRequest {
     private HttpSession httpSession;
     private final Map<String, List<String>> headers;
 
-    public HttpServletRequestImpl(ServletContext servletContext, String method, String requestURI, Map<String, List<String>> headers) {
+    public HttpServletRequestImpl(ServletContext servletContext, String method, URI uri, Map<String, List<String>> headers) {
         this.servletContext = servletContext;
         this.method = method;
-        this.requestURI = requestURI;
+        this.requestURI = uri.getPath();
         this.headers = new HashMap<>(headers);
         this.pathInfo = requestURI.substring(servletContext.getContextPath().length(), requestURI.length());
+        this.queryString = uri.getQuery();
+
+        // https://stackoverflow.com/a/37368660
+        queryParams = Pattern.compile("&").splitAsStream(queryString)
+                .map(s -> Arrays.copyOf(s.split("="), 2))
+                .collect(groupingBy(s -> decode(s[0]), mapping(s -> decode(s[1]), toList())));
+    }
+
+    private String decode(final String encoded) {
+        try {
+            return encoded == null ? null : URLDecoder.decode(encoded, "UTF-8");
+        } catch (final UnsupportedEncodingException e) {
+            throw new RuntimeException("Impossible: UTF-8 is a required encoding", e);
+        }
     }
 
     @Override
@@ -231,7 +253,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
     @Override
     public String getParameter(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String[] parameterValues = getParameterValues(name);
+        if(parameterValues != null && parameterValues.length > 0) {
+            return parameterValues[0];
+        }
+        
+        return null;
     }
 
     @Override
@@ -241,7 +268,9 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
     @Override
     public String[] getParameterValues(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // TODO: check for POST parameters
+        List<String> parameters = queryParams.get(name);
+        return parameters != null ? parameters.toArray(new String[parameters.size()]) : null;
     }
 
     @Override

@@ -8,19 +8,21 @@ import java.util.Set;
  *
  * @author guillermo
  */
-public class FilterDescriptor {
+public class FilterDescriptor implements Comparable<FilterDescriptor> {
 
-    private final String servletName;
+    private final String filterName;
     private final String className;
+    private final int position;
 
     private final Set<String> exactPatterns;
     private final Set<String> prefixPatterns;
     private final Set<String> extensionPatterns;
     private final Set<String> namedServlets;
 
-    public FilterDescriptor(String servletName, String className, Set<String> urlPatterns, Set<String> namedServlets) {
-        this.servletName = servletName;
+    public FilterDescriptor(String filterName, String className, int position, Set<String> urlPatterns, Set<String> namedServlets) {
+        this.filterName = filterName;
         this.className = className;
+        this.position = position;
 
         this.namedServlets = Collections.unmodifiableSet(namedServlets);
         exactPatterns = new HashSet<>();
@@ -57,8 +59,12 @@ public class FilterDescriptor {
         }
     }
 
-    public String getServletName() {
-        return servletName;
+    public int getPosition() {
+        return position;
+    }
+
+    public String getFilterName() {
+        return filterName;
     }
 
     public String getClassName() {
@@ -79,6 +85,11 @@ public class FilterDescriptor {
 
     public Set<String> getNamedServlets() {
         return namedServlets;
+    }
+
+    @Override
+    public int compareTo(FilterDescriptor other) {
+        return Integer.compare(this.position, other.position);
     }
 
 }

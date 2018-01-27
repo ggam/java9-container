@@ -7,8 +7,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>api</module>
-        <module>impl</module>
         <module>servlet</module>
+        <module>impl</module>
         <module>examples</module>
     </modules>
     <properties>

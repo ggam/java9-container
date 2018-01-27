@@ -76,8 +76,8 @@ public class WebApp {
         @XmlElementRef(name = "icon", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
         @XmlElementRef(name = "distributable", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
         @XmlElementRef(name = "context-param", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
-        @XmlElementRef(name = "filter", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
-        @XmlElementRef(name = "filter-mapping", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
+        //@XmlElementRef(name = "filter", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
+        //@XmlElementRef(name = "filter-mapping", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
         @XmlElementRef(name = "listener", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
         //@XmlElementRef(name = "servlet", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
         //@XmlElementRef(name = "servlet-mapping", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
@@ -112,7 +112,7 @@ public class WebApp {
     
     @XmlElement(name = "filter")
     private List<FilterType> filters;
-    @XmlElement(name = "servlet-mapping")
+    @XmlElement(name = "filter-mapping")
     private List<FilterMappingType> filterMappings;
     
     @XmlAttribute(name = "version", required = true)
