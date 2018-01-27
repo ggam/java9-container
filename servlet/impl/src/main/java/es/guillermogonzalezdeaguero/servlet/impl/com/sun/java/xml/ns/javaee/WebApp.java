@@ -4,8 +4,6 @@
 // Todas las modificaciones realizadas en este archivo se perderán si se vuelve a compilar el esquema de origen. 
 // Generado el: 2018.01.03 a las 04:45:20 PM CET 
 //
-
-
 package es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee;
 
 import java.util.ArrayList;
@@ -24,12 +22,14 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-
 /**
- * <p>Clase Java para web-appType complex type.
- * 
- * <p>El siguiente fragmento de esquema especifica el contenido que se espera que haya en esta clase.
- * 
+ * <p>
+ * Clase Java para web-appType complex type.
+ *
+ * <p>
+ * El siguiente fragmento de esquema especifica el contenido que se espera que
+ * haya en esta clase.
+ *
  * <pre>
  * &lt;complexType name="web-appType"&gt;
  *   &lt;complexContent&gt;
@@ -62,8 +62,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "web-appType")
@@ -75,10 +75,10 @@ public class WebApp {
         @XmlElementRef(name = "display-name", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
         @XmlElementRef(name = "icon", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
         @XmlElementRef(name = "distributable", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
-        @XmlElementRef(name = "context-param", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
+        //@XmlElementRef(name = "context-param", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
         //@XmlElementRef(name = "filter", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
         //@XmlElementRef(name = "filter-mapping", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
-        @XmlElementRef(name = "listener", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
+        //@XmlElementRef(name = "listener", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
         //@XmlElementRef(name = "servlet", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
         //@XmlElementRef(name = "servlet-mapping", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
         @XmlElementRef(name = "session-config", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),
@@ -104,17 +104,23 @@ public class WebApp {
         @XmlElementRef(name = "locale-encoding-mapping-list", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false)
     })
     protected List<JAXBElement<?>> descriptionsAndDisplayNamesAndIcons;
-    
+
+    @XmlElement(name = "context-param")
+    private List<ParamValueType> contextParams;
+
     @XmlElement(name = "servlet")
     private List<ServletType> servlets;
     @XmlElement(name = "servlet-mapping")
     private List<ServletMappingType> servletMappings;
-    
+
+    @XmlElement(name = "listeners")
+    private List<ListenerType> listeners;
+
     @XmlElement(name = "filter")
     private List<FilterType> filters;
     @XmlElement(name = "filter-mapping")
     private List<FilterMappingType> filterMappings;
-    
+
     @XmlAttribute(name = "version", required = true)
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     protected java.lang.String version;
@@ -128,23 +134,23 @@ public class WebApp {
 
     /**
      * Gets the value of the descriptionsAndDisplayNamesAndIcons property.
-     * 
+     *
      * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the descriptionsAndDisplayNamesAndIcons property.
-     * 
+     * This accessor method returns a reference to the live list, not a
+     * snapshot. Therefore any modification you make to the returned list will
+     * be present inside the JAXB object. This is why there is not a
+     * <CODE>set</CODE> method for the descriptionsAndDisplayNamesAndIcons
+     * property.
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getDescriptionsAndDisplayNamesAndIcons().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link JAXBElement }{@code <}{@link DescriptionType }{@code >}
+     * Objects of the following type(s) are allowed in the list null     {@link JAXBElement }{@code <}{@link DescriptionType }{@code >}
      * {@link JAXBElement }{@code <}{@link DisplayNameType }{@code >}
      * {@link JAXBElement }{@code <}{@link IconType }{@code >}
      * {@link JAXBElement }{@code <}{@link EmptyType }{@code >}
@@ -171,14 +177,21 @@ public class WebApp {
      * {@link JAXBElement }{@code <}{@link LifecycleCallbackType }{@code >}
      * {@link JAXBElement }{@code <}{@link MessageDestinationType }{@code >}
      * {@link JAXBElement }{@code <}{@link LocaleEncodingMappingListType }{@code >}
-     * 
-     * 
+     *
+     *
      */
     public List<JAXBElement<?>> getDescriptionsAndDisplayNamesAndIcons() {
         if (descriptionsAndDisplayNamesAndIcons == null) {
             descriptionsAndDisplayNamesAndIcons = new ArrayList<JAXBElement<?>>();
         }
         return this.descriptionsAndDisplayNamesAndIcons;
+    }
+
+    public List<ParamValueType> getContextParams() {
+        if (contextParams == null) {
+            contextParams = new ArrayList<>();
+        }
+        return this.contextParams;
     }
 
     public List<ServletType> getServlets() {
@@ -195,8 +208,15 @@ public class WebApp {
         return this.servletMappings;
     }
 
+    public List<ListenerType> getListeners() {
+        if (listeners == null) {
+            listeners = new ArrayList<>();
+        }
+        return this.listeners;
+    }
+
     public List<FilterType> getFilters() {
-         if (filters == null) {
+        if (filters == null) {
             filters = new ArrayList<>();
         }
         return this.filters;
@@ -208,14 +228,12 @@ public class WebApp {
         }
         return this.filterMappings;
     }
-    
+
     /**
      * Obtiene el valor de la propiedad version.
-     * 
-     * @return
-     *     possible object is
-     *     {@link java.lang.String }
-     *     
+     *
+     * @return possible object is {@link java.lang.String }
+     *
      */
     public java.lang.String getVersion() {
         return version;
@@ -223,11 +241,9 @@ public class WebApp {
 
     /**
      * Define el valor de la propiedad version.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link java.lang.String }
-     *     
+     *
+     * @param value allowed object is {@link java.lang.String }
+     *
      */
     public void setVersion(java.lang.String value) {
         this.version = value;
@@ -235,11 +251,9 @@ public class WebApp {
 
     /**
      * Obtiene el valor de la propiedad id.
-     * 
-     * @return
-     *     possible object is
-     *     {@link java.lang.String }
-     *     
+     *
+     * @return possible object is {@link java.lang.String }
+     *
      */
     public java.lang.String getId() {
         return id;
@@ -247,11 +261,9 @@ public class WebApp {
 
     /**
      * Define el valor de la propiedad id.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link java.lang.String }
-     *     
+     *
+     * @param value allowed object is {@link java.lang.String }
+     *
      */
     public void setId(java.lang.String value) {
         this.id = value;
@@ -259,11 +271,9 @@ public class WebApp {
 
     /**
      * Obtiene el valor de la propiedad metadataComplete.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
+     *
+     * @return possible object is {@link Boolean }
+     *
      */
     public Boolean isMetadataComplete() {
         return metadataComplete;
@@ -271,11 +281,9 @@ public class WebApp {
 
     /**
      * Define el valor de la propiedad metadataComplete.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
+     *
+     * @param value allowed object is {@link Boolean }
+     *
      */
     public void setMetadataComplete(Boolean value) {
         this.metadataComplete = value;

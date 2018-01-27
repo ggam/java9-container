@@ -4,7 +4,6 @@ import es.guillermogonzalezdeaguero.container.api.Deployment;
 import es.guillermogonzalezdeaguero.servlet.impl.FilterChainFactory;
 import es.guillermogonzalezdeaguero.servlet.impl.HttpServletRequestImpl;
 import es.guillermogonzalezdeaguero.servlet.impl.HttpServletResponseImpl;
-import es.guillermogonzalezdeaguero.servlet.impl.ServletContextImpl;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.EffectiveWebXml;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -99,12 +98,12 @@ public class ServletDeployment implements Deployment {
         warModule = moduleLayer.findModule(warModuleName).get();
 
         try ( InputStream is = Files.newInputStream(appPath.resolve(Paths.get("WEB-INF", "web.xml")))) {
-            webXml = new EffectiveWebXml(is, warModule.getClassLoader());
+            webXml = new EffectiveWebXml(contextPath, is, warModule.getClassLoader());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         
-        servletContext = new ServletContextImpl(contextPath);
+        servletContext = webXml.getServletContext();
 
         filterChainFactory = new FilterChainFactory(webXml.getServletDescriptors(), webXml.getFilterDescriptors());
 

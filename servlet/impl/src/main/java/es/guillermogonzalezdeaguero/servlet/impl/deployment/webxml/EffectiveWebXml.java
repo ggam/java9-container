@@ -1,15 +1,21 @@
 package es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml;
 
+import es.guillermogonzalezdeaguero.servlet.impl.ServletContextImpl;
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.FilterMappingType;
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.FilterType;
+import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ListenerType;
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ObjectFactory;
+import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ServletMappingType;
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.WebApp;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
 import es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +23,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.toSet;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextAttributeListener;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
@@ -28,41 +36,45 @@ public class EffectiveWebXml {
 
     private final Set<ServletDescriptor> servletDescriptors;
     private final Set<FilterDescriptor> filterDescriptors;
+    private ServletContext servletContext;
 
-    public EffectiveWebXml(InputStream webXmlPath, ClassLoader warClassLoader) {
+    public EffectiveWebXml(String contextPath, InputStream webXmlPath, ClassLoader warClassLoader) {
         try {
             WebApp webApp = (WebApp) JAXBContext.newInstance(ObjectFactory.class.getPackageName()).
                     createUnmarshaller().
                     unmarshal(webXmlPath);
 
-            this.servletDescriptors = findServlets(webApp, warClassLoader);
+            servletContext = createServletContext(webApp, contextPath, warClassLoader);
 
-            int count = servletDescriptors.stream().
-                    filter(ServletDescriptor::isDefaultServlet).
-                    collect(counting()).
-                    intValue();
+            servletDescriptors = findServlets(webApp, warClassLoader);
+            filterDescriptors = findFilters(webApp, warClassLoader);
 
-            switch (count) {
-                case 1:
-                    // Default Servlet is already set
-                    break;
-                case 0:
-                    // No default Servlet
-                    Class<FileServlet> fileServlet = es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet.class;
-                    servletDescriptors.add(new ServletDescriptor(fileServlet.getSimpleName(), fileServlet));
-                    break;
-                default:
-                    // More than one default Servlet
-                    throw new WebXmlProcessingException("Multiple Servlets mapped as default");
-            }
-
-            this.filterDescriptors = findFilters(webApp, warClassLoader);
-        } catch (JAXBException | ClassNotFoundException e) {
+            validate();
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | JAXBException | ClassNotFoundException e) {
             throw new WebXmlProcessingException(e);
         }
     }
 
-    private static Set<ServletDescriptor> findServlets(WebApp webApp, ClassLoader classLoader) {
+    private ServletContext createServletContext(WebApp webApp, String contextPath, ClassLoader classLoader) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        List<ListenerType> listenerTypes = webApp.getListeners();
+
+        List<ServletContextAttributeListener> attributeListeners = new ArrayList<>();
+        for (ListenerType listenerType : listenerTypes) {
+            Class<?> forName = Class.forName(listenerType.getListenerClass().getValue(), false, classLoader);
+            if (ServletContextAttributeListener.class.isAssignableFrom(forName)) {
+                attributeListeners.add((ServletContextAttributeListener) forName.getDeclaredConstructor().newInstance());
+            }
+        }
+
+        Map<String, String> initParams = new HashMap<>();
+        for (ParamValueType contextParams : webApp.getContextParams()) {
+            initParams.put(contextParams.getParamName().getValue(), contextParams.getParamValue().getValue());
+        }
+
+        return new ServletContextImpl(contextPath, attributeListeners, initParams);
+    }
+
+    private Set<ServletDescriptor> findServlets(WebApp webApp, ClassLoader classLoader) {
         Map<String, List<ServletMappingType>> collect = webApp.getServletMappings().
                 stream().
                 collect(Collectors.groupingBy(smt -> smt.getServletName().getValue()));
@@ -78,7 +90,7 @@ public class EffectiveWebXml {
                 }).collect(toSet());
     }
 
-    private static Set<FilterDescriptor> findFilters(WebApp webApp, ClassLoader classLoader) throws ClassNotFoundException {
+    private Set<FilterDescriptor> findFilters(WebApp webApp, ClassLoader classLoader) throws ClassNotFoundException {
         Map<String, List<FilterMappingType>> collect = webApp.getFilterMappings().
                 stream().
                 collect(Collectors.groupingBy(s -> s.getFilterName().getValue()));
@@ -94,12 +106,37 @@ public class EffectiveWebXml {
         return filterDescriptors;
     }
 
+    private void validate() {
+        int count = servletDescriptors.stream().
+                filter(ServletDescriptor::isDefaultServlet).
+                collect(counting()).
+                intValue();
+
+        switch (count) {
+            case 1:
+                // Default Servlet is already set
+                break;
+            case 0:
+                // No default Servlet
+                Class<FileServlet> fileServlet = es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet.class;
+                servletDescriptors.add(new ServletDescriptor(fileServlet.getSimpleName(), fileServlet));
+                break;
+            default:
+                // More than one default Servlet
+                throw new WebXmlProcessingException("Multiple Servlets mapped as default");
+        }
+    }
+
     public Set<ServletDescriptor> getServletDescriptors() {
         return servletDescriptors;
     }
 
     public Set<FilterDescriptor> getFilterDescriptors() {
         return filterDescriptors;
+    }
+
+    public ServletContext getServletContext() {
+        return servletContext;
     }
 
 }

@@ -5,12 +5,17 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletContextAttributeEvent;
+import javax.servlet.ServletContextAttributeListener;
 import javax.servlet.ServletException;
 
 /**
@@ -22,9 +27,18 @@ public class ServletContextImpl implements ServletContext {
     private static final Logger LOGGER = Logger.getLogger(ServletContextImpl.class.getName());
 
     private final String contextPath;
+    private final Map<String, String> initParams;
+    private final List<ServletContextAttributeListener> attributeListeners;
 
-    public ServletContextImpl(String contextPath) {
+    private final Map<String, Object> attributes;
+    private final Object attributeLock = new Object(); // Object to hold the lock when accessing the attributes
+
+    public ServletContextImpl(String contextPath, List<ServletContextAttributeListener> attributeListeners, Map<String, String> initParams) {
         this.contextPath = contextPath;
+        this.attributeListeners = Collections.unmodifiableList(attributeListeners);
+        this.initParams = Collections.unmodifiableMap(initParams);
+
+        this.attributes = new HashMap<>();
     }
 
     @Override
@@ -119,32 +133,73 @@ public class ServletContextImpl implements ServletContext {
 
     @Override
     public String getInitParameter(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return initParams.get(name);
     }
 
     @Override
     public Enumeration getInitParameterNames() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Collections.enumeration(initParams.keySet());
     }
 
     @Override
     public Object getAttribute(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        synchronized (attributeLock) {
+            return attributes.get(name);
+        }
     }
 
     @Override
     public Enumeration getAttributeNames() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        synchronized (attributeLock) {
+            return Collections.enumeration(attributes.keySet());
+        }
     }
 
     @Override
-    public void setAttribute(String name, Object object) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void setAttribute(String name, Object newValue) {
+        synchronized (attributeLock) {
+            if (newValue == null) {
+                removeAttribute(name);
+            } else {
+                Object oldValue = getAttribute(name);
+                ServletContextAttributeEvent event;
+
+                if (oldValue == null) {
+                    // Adding
+                    event = new ServletContextAttributeEvent(this, name, newValue);
+                } else {
+                    // Replacing
+                    event = new ServletContextAttributeEvent(this, name, oldValue);
+                }
+
+                attributes.put(name, newValue);
+
+                for (ServletContextAttributeListener listener : attributeListeners) {
+                    if (oldValue == null) {
+                        listener.attributeAdded(event);
+                    } else {
+                        listener.attributeReplaced(event);
+                    }
+                }
+            }
+        }
     }
 
     @Override
     public void removeAttribute(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        synchronized (attributeLock) {
+            Object value = getAttribute(name);
+            if (value == null) {
+                return;
+            }
+
+            ServletContextAttributeEvent event = new ServletContextAttributeEvent(this, name, value);
+
+            for (ServletContextAttributeListener listener : attributeListeners) {
+                listener.attributeRemoved(event);
+            }
+        }
+
     }
 
     @Override
