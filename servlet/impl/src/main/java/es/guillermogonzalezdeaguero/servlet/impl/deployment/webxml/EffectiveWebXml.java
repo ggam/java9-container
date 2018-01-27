@@ -27,13 +27,13 @@ public class EffectiveWebXml {
     private Set<ServletDescriptor> servletDescriptors;
     private Set<FilterDescriptor> filterDescriptors;
 
-    public EffectiveWebXml(InputStream webXmlPath, ClassLoader classLoader) {
+    public EffectiveWebXml(InputStream webXmlPath, ClassLoader warClassLoader) {
         try {
             WebApp webApp = (WebApp) JAXBContext.newInstance(ObjectFactory.class.getPackageName()).
                     createUnmarshaller().
                     unmarshal(webXmlPath);
 
-            this.servletDescriptors = findServlets(webApp, classLoader);
+            this.servletDescriptors = findServlets(webApp, warClassLoader);
 
             boolean anyMatch = servletDescriptors.stream().
                     map(ServletDescriptor::getExactPatterns).
@@ -43,7 +43,7 @@ public class EffectiveWebXml {
                 servletDescriptors.add(new ServletDescriptor("FileServlet", es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet.class, Set.of("/*")));
             }
 
-            this.filterDescriptors = findFilters(webApp, classLoader);
+            this.filterDescriptors = findFilters(webApp, warClassLoader);
         } catch (JAXBException | ClassNotFoundException e) {
             throw new WebXmlProcessingException(e);
         }
