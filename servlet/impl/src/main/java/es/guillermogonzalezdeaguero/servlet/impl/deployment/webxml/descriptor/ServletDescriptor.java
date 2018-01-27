@@ -5,7 +5,6 @@ import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.Serv
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ServletType;
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.UrlPatternType;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.EffectiveWebXml;
-import es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -32,17 +31,18 @@ public class ServletDescriptor implements ServletConfig {
 
     private final Map<String, String> initParams = new HashMap<>();
 
+    private final boolean defaultServlet;
+
     /**
-     * Specific constructor for {@link FileServlet} via {@link EffectiveWebXml}
+     * Specific constructor for default Servlet via {@link EffectiveWebXml}
      *
      * @param servletName
      * @param servletClass
-     * @param prefixPatterns
      */
-    public ServletDescriptor(String servletName, Class<? extends Servlet> servletClass, Set<String> prefixPatterns) {
+    public ServletDescriptor(String servletName, Class<? extends Servlet> servletClass) {
         this.servletName = servletName;
         this.servletClass = servletClass;
-        this.prefixPatterns.addAll(prefixPatterns);
+        this.defaultServlet = true;
     }
 
     public ServletDescriptor(ServletType servletType, List<ServletMappingType> mappings, ClassLoader classLoader) throws ClassNotFoundException {
@@ -53,9 +53,16 @@ public class ServletDescriptor implements ServletConfig {
             initParams.put(initParamTypes.getParamName().getValue(), initParamTypes.getParamValue().getValue());
         }
 
+        boolean isDefault = false;
+
         for (ServletMappingType servletMapping : mappings) {
             for (UrlPatternType urlPattern : servletMapping.getUrlPatterns()) {
                 String pattern = urlPattern.getValue();
+
+                if ("/".equals(pattern)) {
+                    isDefault = true;
+                    continue;
+                }
 
                 /* Validation */
                 if (pattern.startsWith("*") && pattern.endsWith("*")) {
@@ -84,6 +91,8 @@ public class ServletDescriptor implements ServletConfig {
                 }
             }
         }
+
+        defaultServlet = isDefault;
     }
 
     @Override
@@ -120,6 +129,10 @@ public class ServletDescriptor implements ServletConfig {
     @Override
     public Enumeration getInitParameterNames() {
         return Collections.enumeration(initParams.keySet());
+    }
+
+    public boolean isDefaultServlet() {
+        return defaultServlet;
     }
 
 }

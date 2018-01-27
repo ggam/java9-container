@@ -48,7 +48,7 @@ public class FilterMatcher {
             }
 
             for (String extensionPattern : filterDescriptor.getExtensionPatterns()) {
-                String extension = extensionPattern.split(".")[1];
+                String extension = extensionPattern.split("\\.")[1];
                 if (pathInfo != null && pathInfo.endsWith(extension)) {
                     matchedFilters.add(getFilterInstance(filterDescriptor));
                 }

@@ -7,6 +7,7 @@ import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.Serv
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.WebApp;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
+import es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashSet;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.toSet;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -24,8 +26,8 @@ import javax.xml.bind.JAXBException;
  */
 public class EffectiveWebXml {
 
-    private Set<ServletDescriptor> servletDescriptors;
-    private Set<FilterDescriptor> filterDescriptors;
+    private final Set<ServletDescriptor> servletDescriptors;
+    private final Set<FilterDescriptor> filterDescriptors;
 
     public EffectiveWebXml(InputStream webXmlPath, ClassLoader warClassLoader) {
         try {
@@ -35,12 +37,23 @@ public class EffectiveWebXml {
 
             this.servletDescriptors = findServlets(webApp, warClassLoader);
 
-            boolean anyMatch = servletDescriptors.stream().
-                    map(ServletDescriptor::getExactPatterns).
-                    anyMatch(p -> p.contains("/*"));
-            if (!anyMatch) {
-                // No Servlet mapped to "/*". Register FileServlet with the default classloader
-                servletDescriptors.add(new ServletDescriptor("FileServlet", es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet.class, Set.of("/*")));
+            int count = servletDescriptors.stream().
+                    filter(ServletDescriptor::isDefaultServlet).
+                    collect(counting()).
+                    intValue();
+
+            switch (count) {
+                case 1:
+                    // Default Servlet is already set
+                    break;
+                case 0:
+                    // No default Servlet
+                    Class<FileServlet> fileServlet = es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet.class;
+                    servletDescriptors.add(new ServletDescriptor(fileServlet.getSimpleName(), fileServlet));
+                    break;
+                default:
+                    // More than one default Servlet
+                    throw new WebXmlProcessingException("Multiple Servlets mapped as default");
             }
 
             this.filterDescriptors = findFilters(webApp, warClassLoader);

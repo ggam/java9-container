@@ -19,12 +19,19 @@ public class ServletMatcher {
     private static final Logger LOGGER = Logger.getLogger(ServletMatcher.class.getName());
 
     private final Set<ServletDescriptor> servletDescriptors;
+    private final ServletDescriptor defaultServlet;
 
     private final ConcurrentHashMap<String, Servlet> servletInstances;
 
     public ServletMatcher(Set<ServletDescriptor> servletDescriptors) {
         this.servletDescriptors = new HashSet<>(servletDescriptors);
         this.servletInstances = new ConcurrentHashMap<>();
+
+        // There will always be one and only one default Servlet at this point of time
+        defaultServlet = servletDescriptors.stream().
+                filter(ServletDescriptor::isDefaultServlet).
+                findAny().
+                get();
     }
 
     public Servlet match(String pathInfo) throws ServletException {
@@ -56,7 +63,7 @@ public class ServletMatcher {
         // Finally, verify extension patterns
         for (ServletDescriptor servletDescriptor : servletDescriptors) {
             for (String extensionPattern : servletDescriptor.getExtensionPatterns()) {
-                String extension = extensionPattern.split(".")[1];
+                String extension = extensionPattern.split("\\.")[1];
                 if (pathInfo != null && pathInfo.endsWith(extension)) {
                     LOGGER.log(Level.INFO, "{0} Servlet will process the request", servletDescriptor.getServletName());
 
@@ -66,7 +73,7 @@ public class ServletMatcher {
 
         }
 
-        throw new RuntimeException("No Servlet (not even FileServet) found to process the request");
+        return getServletInstance(defaultServlet);
     }
 
     private Servlet getServletInstance(ServletDescriptor descriptor) throws ServletException {

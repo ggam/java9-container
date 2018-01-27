@@ -61,7 +61,8 @@ public class ServletDeployment implements Deployment {
         String fileName = appPath.getFileName().toString();
 
         // ROOT = /
-        this.contextPath = "/" + ("ROOT".equals(fileName) ? "" : fileName);
+        // TODO: contextPath for root must be ""
+        this.contextPath = ("ROOT".equals(fileName) ? "" : "/" + fileName);
     }
 
     private synchronized void changeState(DeploymentState newState) {
