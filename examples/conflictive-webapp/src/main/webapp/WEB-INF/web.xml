@@ -3,6 +3,10 @@
     <servlet>
         <servlet-name>ConflictiveServlet</servlet-name>
         <servlet-class>es.guillermogonzalezdeaguero.container.conflictiveplugin.ConflictiveServlet</servlet-class>
+        <init-param>
+            <param-name>test_param</param-name>
+            <param-value>This is the value</param-value>
+        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>ConflictiveServlet</servlet-name>

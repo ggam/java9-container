@@ -1,8 +1,11 @@
 package es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor;
 
-import java.util.Collections;
+import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.FilterMappingType;
+import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.FilterType;
+import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.UrlPatternType;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
@@ -15,52 +18,53 @@ import javax.servlet.ServletContext;
 public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterConfig {
 
     private final String filterName;
-    private final String className;
-    private final Class<Filter> filterClass;
+    private final Class<? extends Filter> filterClass;
     private final int position;
 
-    private final Set<String> exactPatterns;
-    private final Set<String> prefixPatterns;
-    private final Set<String> extensionPatterns;
-    private final Set<String> namedServlets;
+    private final Set<String> exactPatterns = new HashSet<>();
+    private final Set<String> prefixPatterns = new HashSet<>();
+    private final Set<String> extensionPatterns = new HashSet<>();
+    private final Set<String> namedServlets = new HashSet<>();
 
-    public FilterDescriptor(String filterName, String className, ClassLoader classLoader, int position, Set<String> urlPatterns, Set<String> namedServlets) throws ClassNotFoundException {
-        this.filterName = filterName;
-        this.className = className;
+    public FilterDescriptor(FilterType filterType, List<FilterMappingType> filterMappingTypes, ClassLoader classLoader, int position) throws ClassNotFoundException {
+        this.filterName = filterType.getFilterName().getValue();
+        this.filterClass = (Class<Filter>) Class.forName(filterType.getFilterClass().getValue(), true, classLoader);
         this.position = position;
-        this.filterClass = (Class<Filter>) Class.forName(this.className, true, classLoader);
 
-        this.namedServlets = Collections.unmodifiableSet(namedServlets);
-        exactPatterns = new HashSet<>();
-        prefixPatterns = new HashSet<>();
-        extensionPatterns = new HashSet<>();
-
-        for (String pattern : urlPatterns) {
-            /* Validation */
-            if (pattern.startsWith("*") && pattern.endsWith("*")) {
-                throw new IllegalArgumentException("Invalid URL starting and ending with *");
+        for (FilterMappingType mapping : filterMappingTypes) {
+            for (UrlPatternType servletNamePattern : mapping.getServletNames()) {
+                namedServlets.add(servletNamePattern.getValue());
             }
 
-            if (pattern.startsWith("/") && pattern.contains("*") && !pattern.endsWith("*")) {
-                throw new IllegalArgumentException("Invalid URL starting with / and ending with *");
-            }
+            for (UrlPatternType urlPattern : mapping.getServletNames()) {
+                String pattern = urlPattern.getValue();
 
-            /* Categorization */
-            // Exact match
-            if (!pattern.contains("*")) {
-                exactPatterns.add(pattern);
-                break;
-            }
+                /* Validation */
+                if (pattern.startsWith("*") && pattern.endsWith("*")) {
+                    throw new IllegalArgumentException("Invalid URL starting and ending with *");
+                }
 
-            // Prefix
-            if (pattern.startsWith("/")) {
-                prefixPatterns.add(pattern);
-                break;
-            }
+                if (pattern.startsWith("/") && pattern.contains("*") && !pattern.endsWith("*")) {
+                    throw new IllegalArgumentException("Invalid URL starting with / and ending with *");
+                }
 
-            // Extension
-            if (pattern.contains("*")) {
-                extensionPatterns.add(pattern);
+                /* Categorization */
+                // Exact match
+                if (!pattern.contains("*")) {
+                    exactPatterns.add(pattern);
+                    break;
+                }
+
+                // Prefix
+                if (pattern.startsWith("/")) {
+                    prefixPatterns.add(pattern);
+                    break;
+                }
+
+                // Extension
+                if (pattern.contains("*")) {
+                    extensionPatterns.add(pattern);
+                }
             }
         }
     }
@@ -70,11 +74,7 @@ public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterCon
         return filterName;
     }
 
-    public String getClassName() {
-        return className;
-    }
-
-    public Class<Filter> getFilterClass() {
+    public Class<? extends Filter> getFilterClass() {
         return filterClass;
     }
 

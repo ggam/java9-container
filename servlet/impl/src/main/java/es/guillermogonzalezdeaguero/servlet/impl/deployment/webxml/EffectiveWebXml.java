@@ -5,13 +5,13 @@ import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.Filt
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ObjectFactory;
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ServletMappingType;
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ServletType;
-import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.UrlPatternType;
 import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.WebApp;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
 import java.io.InputStream;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -37,8 +37,8 @@ public class EffectiveWebXml {
                     map(ServletDescriptor::getExactPatterns).
                     anyMatch(p -> p.contains("/*"));
             if (!anyMatch) {
-                // No Servlet mapped to "/*". Register FileServlet
-                servletDescriptors.add(new ServletDescriptor("FileServlet", es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet.class.getName(), getClass().getClassLoader(), Set.of("/*")));
+                // No Servlet mapped to "/*". Register FileServlet with the default classloader
+                servletDescriptors.add(new ServletDescriptor("FileServlet", es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet.class, Set.of("/*")));
             }
 
             this.filterDescriptors = findFilters(webApp, classLoader);
@@ -50,15 +50,14 @@ public class EffectiveWebXml {
     private static Set<ServletDescriptor> findServlets(WebApp webApp, ClassLoader classLoader) throws ClassNotFoundException {
         Set<ServletDescriptor> servletDescriptors = new HashSet<>();
         for (ServletType servlet : webApp.getServlets()) {
-            Set<String> urlPatterns = new HashSet<>();
+            List<ServletMappingType> mappings = new ArrayList<>();
             for (ServletMappingType servletMapping : webApp.getServletMappings()) {
                 if (servletMapping.getServletName().getValue().equals(servlet.getServletName().getValue())) {
-                    for (UrlPatternType urlPattern : servletMapping.getUrlPatterns()) {
-                        urlPatterns.add(urlPattern.getValue());
-                    }
+                    mappings.add(servletMapping);
                 }
             }
-            servletDescriptors.add(new ServletDescriptor(servlet.getServletName().getValue(), servlet.getServletClass().getValue(), classLoader, urlPatterns));
+            
+            servletDescriptors.add(new ServletDescriptor(servlet, mappings, classLoader));
         }
 
         return servletDescriptors;
@@ -67,18 +66,16 @@ public class EffectiveWebXml {
     private static Set<FilterDescriptor> findFilters(WebApp webApp, ClassLoader classLoader) throws ClassNotFoundException {
         Set<FilterDescriptor> filterDescriptors = new HashSet<>();
         
-        // Check whether position counts from definition or mapping of filters
+        // TODO: Check whether position counts from definition or mapping of filters
         int position = 0;
         for (FilterType filter : webApp.getFilters()) {
-            Set<String> urlPatterns = new HashSet<>();
+            List<FilterMappingType> mappings = new ArrayList<>();
             for (FilterMappingType filterMapping : webApp.getFilterMappings()) {
                 if (filterMapping.getFilterName().getValue().equals(filter.getFilterName().getValue())) {
-                    for (Object urlPattern : filterMapping.getUrlPatterns()) {
-                        urlPatterns.add(((UrlPatternType) urlPattern).getValue());
-                    }
+                    mappings.add(filterMapping);
                 }
             }
-            filterDescriptors.add(new FilterDescriptor(filter.getFilterName().getValue(), filter.getFilterClass().getValue(), classLoader, ++position, urlPatterns, Collections.emptySet()));
+            filterDescriptors.add(new FilterDescriptor(filter, mappings, classLoader, ++position));
         }
 
         return filterDescriptors;
