@@ -1,14 +1,17 @@
 package es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor;
 
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 
 /**
  *
  * @author guillermo
  */
-public class ServletDescriptor {
+public class ServletDescriptor implements ServletConfig {
 
     private final String servletName;
     private final String className;
@@ -21,7 +24,7 @@ public class ServletDescriptor {
     public ServletDescriptor(String servletName, String className, ClassLoader classLoader, Set<String> urlPatterns) throws ClassNotFoundException {
         this.servletName = servletName;
         this.className = className;
-        this.servletClass = (Class<Servlet>)Class.forName(this.className, true, classLoader);
+        this.servletClass = (Class<Servlet>) Class.forName(this.className, true, classLoader);
 
         exactPatterns = new HashSet<>();
         prefixPatterns = new HashSet<>();
@@ -56,6 +59,7 @@ public class ServletDescriptor {
         }
     }
 
+    @Override
     public String getServletName() {
         return servletName;
     }
@@ -63,7 +67,7 @@ public class ServletDescriptor {
     public String getClassName() {
         return className;
     }
-    
+
     public Class<Servlet> getServletClass() {
         return servletClass;
     }
@@ -78,6 +82,21 @@ public class ServletDescriptor {
 
     public Set<String> getExtensionPatterns() {
         return new HashSet<>(extensionPatterns);
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String getInitParameter(String name) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Enumeration getInitParameterNames() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

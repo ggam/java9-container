@@ -1,10 +1,14 @@
 package es.guillermogonzalezdeaguero.servlet.impl.deployment;
 
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
 
 /**
  *
@@ -13,14 +17,17 @@ import java.util.logging.Logger;
 public class ServletMatcher {
 
     private static final Logger LOGGER = Logger.getLogger(ServletMatcher.class.getName());
-    
+
     private final Set<ServletDescriptor> servletDescriptors;
+
+    private final ConcurrentHashMap<String, Servlet> servletInstances;
 
     public ServletMatcher(Set<ServletDescriptor> servletDescriptors) {
         this.servletDescriptors = new HashSet<>(servletDescriptors);
+        this.servletInstances = new ConcurrentHashMap<>();
     }
 
-    public ServletDescriptor match(String pathInfo) {
+    public Servlet match(String pathInfo) throws ServletException {
         // TODO: pathInfor == null?
 
         // Look for exact patterns
@@ -28,8 +35,8 @@ public class ServletMatcher {
             for (String exactPattern : servletDescriptor.getExactPatterns()) {
                 if (exactPattern.equals(pathInfo) || (pathInfo == null && "/".equals(exactPattern))) {
                     LOGGER.log(Level.INFO, "{0} Servlet will process the request", servletDescriptor.getServletName());
-                    
-                    return servletDescriptor;
+
+                    return getServletInstance(servletDescriptor);
                 }
             }
         }
@@ -40,8 +47,8 @@ public class ServletMatcher {
                 String prefix = prefixPattern.substring(0, prefixPattern.length() - 1);
                 if (pathInfo != null && pathInfo.startsWith(prefix)) {
                     LOGGER.log(Level.INFO, "{0} Servlet will process the request", servletDescriptor.getServletName());
-                    
-                    return servletDescriptor;
+
+                    return getServletInstance(servletDescriptor);
                 }
             }
         }
@@ -52,13 +59,34 @@ public class ServletMatcher {
                 String extension = extensionPattern.split(".")[1];
                 if (pathInfo != null && pathInfo.endsWith(extension)) {
                     LOGGER.log(Level.INFO, "{0} Servlet will process the request", servletDescriptor.getServletName());
-                    
-                    return servletDescriptor;
+
+                    return getServletInstance(servletDescriptor);
                 }
             }
 
         }
 
         throw new RuntimeException("No Servlet (not even FileServet) found to process the request");
+    }
+
+    private Servlet getServletInstance(ServletDescriptor descriptor) throws ServletException {
+        try {
+            return servletInstances.computeIfAbsent(descriptor.getServletName(), (String s) -> {
+                try {
+                    Servlet newInstance = descriptor.getServletClass().getDeclaredConstructor().newInstance();
+
+                    newInstance.init(descriptor);
+
+                    return newInstance;
+                } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ServletException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+        } catch (RuntimeException e) {
+            if (e.getCause() != null && e.getCause() instanceof ServletException) {
+                throw (ServletException) e.getCause();
+            }
+            throw e;
+        }
     }
 }

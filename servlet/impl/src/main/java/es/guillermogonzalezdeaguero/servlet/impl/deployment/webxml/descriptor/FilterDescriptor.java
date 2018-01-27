@@ -1,15 +1,18 @@
 package es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor;
 
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import javax.servlet.Filter;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 
 /**
  *
  * @author guillermo
  */
-public class FilterDescriptor implements Comparable<FilterDescriptor> {
+public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterConfig {
 
     private final String filterName;
     private final String className;
@@ -62,6 +65,7 @@ public class FilterDescriptor implements Comparable<FilterDescriptor> {
         }
     }
 
+    @Override
     public String getFilterName() {
         return filterName;
     }
@@ -97,6 +101,21 @@ public class FilterDescriptor implements Comparable<FilterDescriptor> {
     @Override
     public int compareTo(FilterDescriptor other) {
         return Integer.compare(this.position, other.position);
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String getInitParameter(String name) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Enumeration getInitParameterNames() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

@@ -5,20 +5,17 @@ import es.guillermogonzalezdeaguero.servlet.impl.FilterChainFactory;
 import es.guillermogonzalezdeaguero.servlet.impl.HttpServletRequestImpl;
 import es.guillermogonzalezdeaguero.servlet.impl.HttpServletResponseImpl;
 import es.guillermogonzalezdeaguero.servlet.impl.ServletContextImpl;
-import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.EffectiveWebXml;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleDescriptor;
 import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReference;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -51,7 +48,6 @@ public class ServletDeployment implements Deployment {
     private final String contextPath;
     private final Path appPath;
     private DeploymentState state = DeploymentState.UNDEPLOYED;
-    private EffectiveWebXml effectiveWebXml;
     private Module warModule;
 
     private ServletContext servletContext;
@@ -100,13 +96,7 @@ public class ServletDeployment implements Deployment {
 
         servletContext = new ServletContextImpl(contextPath);
 
-        try {
-            effectiveWebXml = new EffectiveWebXml(Files.newInputStream(appPath.resolve(Paths.get("WEB-INF", "web.xml"))), warModule.getClassLoader());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        filterChainFactory = new FilterChainFactory(effectiveWebXml, warModule);
+        filterChainFactory = new FilterChainFactory(appPath.resolve(Paths.get("WEB-INF", "web.xml")), warModule.getClassLoader());
 
         changeState(DeploymentState.DEPLOYED);
     }
