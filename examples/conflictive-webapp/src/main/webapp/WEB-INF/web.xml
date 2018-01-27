@@ -2,7 +2,7 @@
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
     <servlet>
         <servlet-name>ConflictiveServlet</servlet-name>
-        <servlet-class>es.guillermogonzalezdeaguero.container.conflictiveplugin.ConflictiveServlet</servlet-class>
+        <servlet-class>es.guillermogonzalezdeaguero.container.testwebapp.ConflictiveServlet</servlet-class>
         <init-param>
             <param-name>test_param</param-name>
             <param-value>This is the value</param-value>
@@ -33,7 +33,7 @@
     
     <filter>
         <filter-name>Test</filter-name>
-        <filter-class>es.guillermogonzalezdeaguero.container.conflictiveplugin.TestFilter</filter-class>
+        <filter-class>es.guillermogonzalezdeaguero.container.testwebapp.TestFilter</filter-class>
         <init-param>
             <param-name>forbidden_param</param-name>
             <param-value>forbidden</param-value>

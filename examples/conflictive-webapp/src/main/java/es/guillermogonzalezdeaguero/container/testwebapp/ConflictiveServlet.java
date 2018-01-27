@@ -1,4 +1,4 @@
-package es.guillermogonzalezdeaguero.container.conflictiveplugin;
+package es.guillermogonzalezdeaguero.container.testwebapp;
 
 import es.guillermogonzalezdeaguero.container.DuplicatedClass;
 import java.io.IOException;

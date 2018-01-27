@@ -16,3 +16,5 @@
 **/.classpath
 **/.project
 **/.settings
+/integrationtests/target/
+/integrationtests/nbproject/
