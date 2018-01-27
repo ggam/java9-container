@@ -18,6 +18,15 @@
         <url-pattern>/monitoring.html</url-pattern>
     </servlet-mapping>
     
+    <servlet>
+        <servlet-name>MonitoringServlet2</servlet-name>
+        <servlet-class>es.guillermogonzalezdeaguero.container.examplelibrary.MonitoringServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MonitoringServlet2</servlet-name>
+        <url-pattern>/monitoring2.html</url-pattern>
+    </servlet-mapping>
+    
     <filter>
         <filter-name>Test</filter-name>
         <filter-class>es.guillermogonzalezdeaguero.container.conflictiveplugin.TestFilter</filter-class>
