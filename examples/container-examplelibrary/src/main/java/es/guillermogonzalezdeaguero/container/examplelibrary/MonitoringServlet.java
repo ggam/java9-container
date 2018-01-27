@@ -1,4 +1,4 @@
-package es.guillermogonzalezdeaguero.servlet.impl.system;
+package es.guillermogonzalezdeaguero.container.examplelibrary;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -10,12 +10,12 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author guillermo
  */
-public class FileServlet extends HttpServlet {
+public class MonitoringServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.sendError(HttpServletResponse.SC_NOT_FOUND, "File not found");
-        resp.setContentType("text/plain");
+        resp.getWriter().println("Session count: <unavailable>\n");
+        resp.getWriter().println("Request count: <unavailable>\n");
     }
 
 }

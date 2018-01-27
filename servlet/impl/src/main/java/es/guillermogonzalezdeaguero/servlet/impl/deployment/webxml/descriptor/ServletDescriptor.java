@@ -2,6 +2,7 @@ package es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.servlet.Servlet;
 
 /**
  *
@@ -11,14 +12,16 @@ public class ServletDescriptor {
 
     private final String servletName;
     private final String className;
+    private final Class<Servlet> servletClass;
 
     private final Set<String> exactPatterns;
     private final Set<String> prefixPatterns;
     private final Set<String> extensionPatterns;
 
-    public ServletDescriptor(String servletName, String className, Set<String> urlPatterns) {
+    public ServletDescriptor(String servletName, String className, ClassLoader classLoader, Set<String> urlPatterns) throws ClassNotFoundException {
         this.servletName = servletName;
         this.className = className;
+        this.servletClass = (Class<Servlet>)Class.forName(this.className, true, classLoader);
 
         exactPatterns = new HashSet<>();
         prefixPatterns = new HashSet<>();
@@ -59,6 +62,10 @@ public class ServletDescriptor {
 
     public String getClassName() {
         return className;
+    }
+    
+    public Class<Servlet> getServletClass() {
+        return servletClass;
     }
 
     public Set<String> getExactPatterns() {

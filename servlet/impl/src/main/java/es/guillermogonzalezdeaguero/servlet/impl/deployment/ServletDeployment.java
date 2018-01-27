@@ -101,7 +101,7 @@ public class ServletDeployment implements Deployment {
         servletContext = new ServletContextImpl(contextPath);
 
         try {
-            effectiveWebXml = new EffectiveWebXml(Files.newInputStream(appPath.resolve(Paths.get("WEB-INF", "web.xml"))));
+            effectiveWebXml = new EffectiveWebXml(Files.newInputStream(appPath.resolve(Paths.get("WEB-INF", "web.xml"))), warModule.getClassLoader());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -168,7 +168,11 @@ public class ServletDeployment implements Deployment {
     }
 
     private void sendResponse(HttpServletResponseImpl response, OutputStream output) throws IOException {
-        output.write(("HTTP/1.1 " + response.getStatus() + " Unknown\r\n\r\n").getBytes());
+        output.write(("HTTP/1.1 " + response.getStatus() + " Unknown\n").getBytes());
+
+        String contentType = response.getContentType() != null ? response.getContentType() : "text/html";
+        output.write(("Content-Type: " + contentType + "\r\n\r\n").getBytes());
+
         if (response.isErrorSent() && response.getStatusMessage() != null) {
             output.write(response.getStatusMessage().getBytes());
         } else {

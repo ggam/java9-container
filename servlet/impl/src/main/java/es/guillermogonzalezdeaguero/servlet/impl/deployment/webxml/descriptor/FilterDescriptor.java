@@ -3,6 +3,7 @@ package es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import javax.servlet.Filter;
 
 /**
  *
@@ -12,6 +13,7 @@ public class FilterDescriptor implements Comparable<FilterDescriptor> {
 
     private final String filterName;
     private final String className;
+    private final Class<Filter> filterClass;
     private final int position;
 
     private final Set<String> exactPatterns;
@@ -19,10 +21,11 @@ public class FilterDescriptor implements Comparable<FilterDescriptor> {
     private final Set<String> extensionPatterns;
     private final Set<String> namedServlets;
 
-    public FilterDescriptor(String filterName, String className, int position, Set<String> urlPatterns, Set<String> namedServlets) {
+    public FilterDescriptor(String filterName, String className, ClassLoader classLoader, int position, Set<String> urlPatterns, Set<String> namedServlets) throws ClassNotFoundException {
         this.filterName = filterName;
         this.className = className;
         this.position = position;
+        this.filterClass = (Class<Filter>) Class.forName(this.className, true, classLoader);
 
         this.namedServlets = Collections.unmodifiableSet(namedServlets);
         exactPatterns = new HashSet<>();
@@ -59,16 +62,20 @@ public class FilterDescriptor implements Comparable<FilterDescriptor> {
         }
     }
 
-    public int getPosition() {
-        return position;
-    }
-
     public String getFilterName() {
         return filterName;
     }
 
     public String getClassName() {
         return className;
+    }
+
+    public Class<Filter> getFilterClass() {
+        return filterClass;
+    }
+
+    public int getPosition() {
+        return position;
     }
 
     public Set<String> getExactPatterns() {

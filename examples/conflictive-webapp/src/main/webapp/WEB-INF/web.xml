@@ -9,6 +9,15 @@
         <url-pattern>/conflictive.html</url-pattern>
     </servlet-mapping>
     
+    <servlet>
+        <servlet-name>MonitoringServlet</servlet-name>
+        <servlet-class>es.guillermogonzalezdeaguero.container.examplelibrary.MonitoringServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MonitoringServlet</servlet-name>
+        <url-pattern>/monitoring.html</url-pattern>
+    </servlet-mapping>
+    
     <filter>
         <filter-name>Test</filter-name>
         <filter-class>es.guillermogonzalezdeaguero.container.conflictiveplugin.TestFilter</filter-class>

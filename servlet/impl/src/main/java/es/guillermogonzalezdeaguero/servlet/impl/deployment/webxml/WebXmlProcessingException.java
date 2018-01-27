@@ -4,9 +4,9 @@ package es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml;
  *
  * @author guillermo
  */
-public class WebXmlParsingException extends RuntimeException {
+public class WebXmlProcessingException extends RuntimeException {
 
-    public WebXmlParsingException(Throwable t) {
+    public WebXmlProcessingException(Throwable t) {
         super(t);
     }
 

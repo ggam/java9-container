@@ -5,7 +5,6 @@ import es.guillermogonzalezdeaguero.servlet.impl.deployment.ServletMatcher;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.EffectiveWebXml;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
-import es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -37,32 +36,20 @@ public class FilterChainFactory {
         ServletDescriptor servletMatch = servletMatcher.match(pathInfo);
         Queue<FilterDescriptor> matchedFilters = filterMatcher.match(pathInfo, servletMatch);
 
-        String servletClassName;
-        if (servletMatch != null) {
-            servletClassName = servletMatch.getClassName();
-        } else {
-            // Fallback to FileServlet when no match is found
-            servletClassName = FileServlet.class.getName();
-        }
-
-        Servlet servletInstance = null;
+        Servlet servletInstance;
         try {
-            Class<?> servletClass = Class.forName(servletClassName, true, module.getClassLoader());
-
-            servletInstance = (Servlet) Class.forName(servletClass.getModule(), servletClass.getName()).getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
+            servletInstance = servletMatch.getServletClass().getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             throw new RuntimeException(ex);
         }
 
         ArrayDeque<Filter> matchedFilterInstances = new ArrayDeque<>();
-        for (FilterDescriptor matchedFilter : matchedFilters) {
-            try {
-                Class<?> filterClass = Class.forName(matchedFilter.getClassName(), true, module.getClassLoader());
-
-                matchedFilterInstances.add((Filter) Class.forName(filterClass.getModule(), filterClass.getName()).getDeclaredConstructor().newInstance());
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
-                throw new RuntimeException(ex);
+        try {
+            for (FilterDescriptor matchedFilter : matchedFilters) {
+                matchedFilterInstances.add(matchedFilter.getFilterClass().getDeclaredConstructor().newInstance());
             }
+        } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            throw new RuntimeException(ex);
         }
 
         return new FilterChainImpl(matchedFilterInstances, servletInstance);

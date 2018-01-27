@@ -22,23 +22,32 @@ import javax.xml.bind.JAXBException;
  */
 public class EffectiveWebXml {
 
-    public Set<ServletDescriptor> servletDescriptors;
-    public Set<FilterDescriptor> filterDescriptors;
+    private Set<ServletDescriptor> servletDescriptors;
+    private Set<FilterDescriptor> filterDescriptors;
 
-    public EffectiveWebXml(InputStream webXmlPath) {
+    public EffectiveWebXml(InputStream webXmlPath, ClassLoader classLoader) {
         try {
             WebApp webApp = (WebApp) JAXBContext.newInstance(ObjectFactory.class.getPackageName()).
                     createUnmarshaller().
                     unmarshal(webXmlPath);
 
-            this.servletDescriptors = findServlets(webApp);
-            this.filterDescriptors = findFilters(webApp);
-        } catch (JAXBException e) {
-            throw new WebXmlParsingException(e);
+            this.servletDescriptors = findServlets(webApp, classLoader);
+
+            boolean anyMatch = servletDescriptors.stream().
+                    map(ServletDescriptor::getExactPatterns).
+                    anyMatch(p -> p.contains("/*"));
+            if (!anyMatch) {
+                // No Servlet mapped to "/*". Register FileServlet
+                servletDescriptors.add(new ServletDescriptor("FileServlet", es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet.class.getName(), getClass().getClassLoader(), Set.of("/*")));
+            }
+
+            this.filterDescriptors = findFilters(webApp, classLoader);
+        } catch (JAXBException | ClassNotFoundException e) {
+            throw new WebXmlProcessingException(e);
         }
     }
 
-    private static Set<ServletDescriptor> findServlets(WebApp webApp) {
+    private static Set<ServletDescriptor> findServlets(WebApp webApp, ClassLoader classLoader) throws ClassNotFoundException {
         Set<ServletDescriptor> servletDescriptors = new HashSet<>();
         for (ServletType servlet : webApp.getServlets()) {
             Set<String> urlPatterns = new HashSet<>();
@@ -49,14 +58,16 @@ public class EffectiveWebXml {
                     }
                 }
             }
-            servletDescriptors.add(new ServletDescriptor(servlet.getServletName().getValue(), servlet.getServletClass().getValue(), urlPatterns));
+            servletDescriptors.add(new ServletDescriptor(servlet.getServletName().getValue(), servlet.getServletClass().getValue(), classLoader, urlPatterns));
         }
 
         return servletDescriptors;
     }
 
-    private static Set<FilterDescriptor> findFilters(WebApp webApp) {
+    private static Set<FilterDescriptor> findFilters(WebApp webApp, ClassLoader classLoader) throws ClassNotFoundException {
         Set<FilterDescriptor> filterDescriptors = new HashSet<>();
+        
+        // Check whether position counts from definition or mapping of filters
         int position = 0;
         for (FilterType filter : webApp.getFilters()) {
             Set<String> urlPatterns = new HashSet<>();
@@ -67,7 +78,7 @@ public class EffectiveWebXml {
                     }
                 }
             }
-            filterDescriptors.add(new FilterDescriptor(filter.getFilterName().getValue(), filter.getFilterClass().getValue(), ++position, urlPatterns, Collections.emptySet()));
+            filterDescriptors.add(new FilterDescriptor(filter.getFilterName().getValue(), filter.getFilterClass().getValue(), classLoader, ++position, urlPatterns, Collections.emptySet()));
         }
 
         return filterDescriptors;

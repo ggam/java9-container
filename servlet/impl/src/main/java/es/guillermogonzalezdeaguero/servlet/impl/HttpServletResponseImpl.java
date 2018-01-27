@@ -24,7 +24,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
     private int status;
     private String statusMessage;
-    private final String contentType;
+    private String contentType;
     private final String characterEncoding;
 
     private final Map<String, String> headers;
@@ -144,7 +144,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
     @Override
     public String getContentType() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return contentType;
     }
 
     @Override
@@ -169,7 +169,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
     @Override
     public void setContentType(String type) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.contentType = type;
     }
 
     @Override
