@@ -1,7 +1,6 @@
 package es.guillermogonzalezdeaguero.container.integrationtests;
 
 import static es.guillermogonzalezdeaguero.container.integrationtests.Constants.BASE_URL;
-import java.io.IOException;
 import javax.ws.rs.client.ClientBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -57,7 +56,7 @@ public class ServletMatchTest {
     }
 
     @Test
-    public void defaultServlet() throws IOException {
+    public void defaultServlet() {
         String get = ClientBuilder.newClient().
                 target(BASE_URL).
                 path("/non-existing-url-default-executes").
