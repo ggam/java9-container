@@ -3,8 +3,11 @@ package es.guillermogonzalezdeaguero.servlet.impl;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
@@ -16,8 +19,10 @@ import javax.servlet.ServletException;
  */
 public class ServletContextImpl implements ServletContext {
 
+    private static final Logger LOGGER = Logger.getLogger(ServletContextImpl.class.getName());
+
     private final String contextPath;
-    
+
     public ServletContextImpl(String contextPath) {
         this.contextPath = contextPath;
     }
@@ -29,17 +34,17 @@ public class ServletContextImpl implements ServletContext {
 
     @Override
     public ServletContext getContext(String uripath) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return null;
     }
 
     @Override
     public int getMajorVersion() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return 2;
     }
 
     @Override
     public int getMinorVersion() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return 5;
     }
 
     @Override
@@ -74,32 +79,32 @@ public class ServletContextImpl implements ServletContext {
 
     @Override
     public Servlet getServlet(String name) throws ServletException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return null;
     }
 
     @Override
     public Enumeration getServlets() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Collections.emptyEnumeration();
     }
 
     @Override
     public Enumeration getServletNames() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Collections.emptyEnumeration();
     }
 
     @Override
     public void log(String msg) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        LOGGER.log(Level.INFO, msg);
     }
 
     @Override
     public void log(Exception exception, String msg) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        LOGGER.log(Level.SEVERE, msg, exception);
     }
 
     @Override
     public void log(String message, Throwable throwable) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        LOGGER.log(Level.SEVERE, message, throwable);
     }
 
     @Override
