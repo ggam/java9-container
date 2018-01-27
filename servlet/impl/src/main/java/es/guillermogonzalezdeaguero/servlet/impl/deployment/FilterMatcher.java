@@ -4,6 +4,7 @@ import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.Fi
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.Set;
 import java.util.TreeSet;
 
 /**
@@ -14,7 +15,7 @@ public class FilterMatcher {
 
     private final TreeSet<FilterDescriptor> filterDescriptors;
 
-    public FilterMatcher(TreeSet<FilterDescriptor> filterDescriptors) {
+    public FilterMatcher(Set<FilterDescriptor> filterDescriptors) {
         this.filterDescriptors = new TreeSet<>(filterDescriptors);
     }
 
