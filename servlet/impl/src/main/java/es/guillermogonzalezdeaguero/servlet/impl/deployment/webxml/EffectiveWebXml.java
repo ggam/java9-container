@@ -1,11 +1,12 @@
 package es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml;
 
-import com.sun.java.xml.ns.javaee.FilterMappingType;
-import com.sun.java.xml.ns.javaee.FilterType;
-import com.sun.java.xml.ns.javaee.ServletMappingType;
-import com.sun.java.xml.ns.javaee.ServletType;
-import com.sun.java.xml.ns.javaee.UrlPatternType;
-import com.sun.java.xml.ns.javaee.WebApp;
+import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.FilterMappingType;
+import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.FilterType;
+import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ObjectFactory;
+import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ServletMappingType;
+import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ServletType;
+import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.UrlPatternType;
+import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.WebApp;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
 import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
 import java.io.InputStream;
@@ -26,7 +27,7 @@ public class EffectiveWebXml {
 
     public EffectiveWebXml(InputStream webXmlPath) {
         try {
-            WebApp webApp = (WebApp) JAXBContext.newInstance("com.sun.java.xml.ns.javaee").
+            WebApp webApp = (WebApp) JAXBContext.newInstance(ObjectFactory.class.getPackageName()).
                     createUnmarshaller().
                     unmarshal(webXmlPath);
 
