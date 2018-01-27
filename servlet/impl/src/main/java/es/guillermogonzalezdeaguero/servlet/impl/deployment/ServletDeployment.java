@@ -5,17 +5,20 @@ import es.guillermogonzalezdeaguero.servlet.impl.FilterChainFactory;
 import es.guillermogonzalezdeaguero.servlet.impl.HttpServletRequestImpl;
 import es.guillermogonzalezdeaguero.servlet.impl.HttpServletResponseImpl;
 import es.guillermogonzalezdeaguero.servlet.impl.ServletContextImpl;
+import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.EffectiveWebXml;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleDescriptor;
 import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReference;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -50,6 +53,8 @@ public class ServletDeployment implements Deployment {
     private DeploymentState state = DeploymentState.UNDEPLOYED;
     private Module warModule;
 
+    private EffectiveWebXml webXml;
+    
     private ServletContext servletContext;
 
     private FilterChainFactory filterChainFactory;
@@ -60,8 +65,6 @@ public class ServletDeployment implements Deployment {
 
         String fileName = appPath.getFileName().toString();
 
-        // ROOT = /
-        // TODO: contextPath for root must be ""
         this.contextPath = ("ROOT".equals(fileName) ? "" : "/" + fileName);
     }
 
@@ -95,9 +98,15 @@ public class ServletDeployment implements Deployment {
         moduleLayer = parentLayer.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
         warModule = moduleLayer.findModule(warModuleName).get();
 
+        try ( InputStream is = Files.newInputStream(appPath.resolve(Paths.get("WEB-INF", "web.xml")))) {
+            webXml = new EffectiveWebXml(is, warModule.getClassLoader());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        
         servletContext = new ServletContextImpl(contextPath);
 
-        filterChainFactory = new FilterChainFactory(appPath.resolve(Paths.get("WEB-INF", "web.xml")), warModule.getClassLoader());
+        filterChainFactory = new FilterChainFactory(webXml.getServletDescriptors(), webXml.getFilterDescriptors());
 
         changeState(DeploymentState.DEPLOYED);
     }
