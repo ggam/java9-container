@@ -39,7 +39,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
     private final String method;
     private String pathInfo;
     private String queryString;
-    private Map<String, List<String>> queryParams;
+    private Map<String, List<String>> queryParams = Collections.emptyMap();
     private String remoteUser;
     private Principal userPrincipal;
     private String requestedSessionId;
@@ -58,9 +58,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
         this.queryString = uri.getQuery();
 
         // https://stackoverflow.com/a/37368660
-        queryParams = Pattern.compile("&").splitAsStream(queryString)
-                .map(s -> Arrays.copyOf(s.split("="), 2))
-                .collect(groupingBy(s -> decode(s[0]), mapping(s -> decode(s[1]), toList())));
+        if (queryString != null) {
+            queryParams = Pattern.compile("&").splitAsStream(queryString)
+                    .map(s -> Arrays.copyOf(s.split("="), 2))
+                    .collect(groupingBy(s -> decode(s[0]), mapping(s -> decode(s[1]), toList())));
+        }
     }
 
     private String decode(final String encoded) {
@@ -254,10 +256,10 @@ public class HttpServletRequestImpl implements HttpServletRequest {
     @Override
     public String getParameter(String name) {
         String[] parameterValues = getParameterValues(name);
-        if(parameterValues != null && parameterValues.length > 0) {
+        if (parameterValues != null && parameterValues.length > 0) {
             return parameterValues[0];
         }
-        
+
         return null;
     }
 
