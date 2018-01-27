@@ -54,7 +54,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
         this.method = method;
         this.requestURI = uri.getPath();
         this.headers = new HashMap<>(headers);
-        this.pathInfo = requestURI.substring(servletContext.getContextPath().length(), requestURI.length());
+        this.pathInfo = "/" + requestURI.substring(servletContext.getContextPath().length(), requestURI.length());
         this.queryString = uri.getQuery();
 
         // https://stackoverflow.com/a/37368660
