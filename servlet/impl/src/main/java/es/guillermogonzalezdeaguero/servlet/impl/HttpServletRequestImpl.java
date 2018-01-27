@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -67,7 +68,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
     private String decode(final String encoded) {
         try {
-            return encoded == null ? null : URLDecoder.decode(encoded, "UTF-8");
+            return encoded == null ? null : URLDecoder.decode(encoded, StandardCharsets.UTF_8.name());
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException("Impossible: UTF-8 is a required encoding", e);
         }
