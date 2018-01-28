@@ -1,4 +1,4 @@
 language: java
 jdk:
   - oraclejdk9
-script: mvn clean && mvn install -DskipTests && ./test.sh
+script: ./test.sh
