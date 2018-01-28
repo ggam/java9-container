@@ -113,7 +113,7 @@ public class WebApp {
     @XmlElement(name = "servlet-mapping")
     private List<ServletMappingType> servletMappings;
 
-    @XmlElement(name = "listeners")
+    @XmlElement(name = "listener")
     private List<ListenerType> listeners;
 
     @XmlElement(name = "filter")

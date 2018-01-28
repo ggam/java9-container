@@ -36,7 +36,7 @@ public class EffectiveWebXml {
 
     private final Set<ServletDescriptor> servletDescriptors;
     private final Set<FilterDescriptor> filterDescriptors;
-    private ServletContext servletContext;
+    private ServletContextImpl servletContext;
 
     public EffectiveWebXml(String contextPath, InputStream webXmlPath, ClassLoader warClassLoader) {
         try {
@@ -46,8 +46,8 @@ public class EffectiveWebXml {
 
             servletContext = createServletContext(webApp, contextPath, warClassLoader);
 
-            servletDescriptors = findServlets(webApp, warClassLoader);
-            filterDescriptors = findFilters(webApp, warClassLoader);
+            servletDescriptors = findServlets(servletContext, webApp);
+            filterDescriptors = findFilters(servletContext, webApp);
 
             validate();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | JAXBException | ClassNotFoundException e) {
@@ -55,7 +55,7 @@ public class EffectiveWebXml {
         }
     }
 
-    private ServletContext createServletContext(WebApp webApp, String contextPath, ClassLoader classLoader) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    private ServletContextImpl createServletContext(WebApp webApp, String contextPath, ClassLoader classLoader) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         List<ListenerType> listenerTypes = webApp.getListeners();
 
         List<ServletContextAttributeListener> attributeListeners = new ArrayList<>();
@@ -71,10 +71,10 @@ public class EffectiveWebXml {
             initParams.put(contextParams.getParamName().getValue(), contextParams.getParamValue().getValue());
         }
 
-        return new ServletContextImpl(contextPath, attributeListeners, initParams);
+        return new ServletContextImpl(classLoader, contextPath, attributeListeners, initParams);
     }
 
-    private Set<ServletDescriptor> findServlets(WebApp webApp, ClassLoader classLoader) {
+    private Set<ServletDescriptor> findServlets(ServletContextImpl servletContext, WebApp webApp) {
         Map<String, List<ServletMappingType>> collect = webApp.getServletMappings().
                 stream().
                 collect(Collectors.groupingBy(smt -> smt.getServletName().getValue()));
@@ -83,14 +83,14 @@ public class EffectiveWebXml {
                 stream().
                 map(st -> {
                     try {
-                        return new ServletDescriptor(st, collect.getOrDefault(st.getServletName().getValue(), Collections.emptyList()), classLoader);
+                        return new ServletDescriptor(servletContext, st, collect.getOrDefault(st.getServletName().getValue(), Collections.emptyList()));
                     } catch (ClassNotFoundException ex) {
                         throw new WebXmlProcessingException(ex);
                     }
                 }).collect(toSet());
     }
 
-    private Set<FilterDescriptor> findFilters(WebApp webApp, ClassLoader classLoader) throws ClassNotFoundException {
+    private Set<FilterDescriptor> findFilters(ServletContextImpl servletContext, WebApp webApp) throws ClassNotFoundException {
         Map<String, List<FilterMappingType>> collect = webApp.getFilterMappings().
                 stream().
                 collect(Collectors.groupingBy(s -> s.getFilterName().getValue()));
@@ -100,7 +100,7 @@ public class EffectiveWebXml {
         // TODO: Check whether position counts from definition or mapping of filters
         int position = 0;
         for (FilterType filter : webApp.getFilters()) {
-            filterDescriptors.add(new FilterDescriptor(filter, collect.getOrDefault(filter.getFilterName().getValue(), Collections.emptyList()), classLoader, ++position));
+            filterDescriptors.add(new FilterDescriptor(servletContext, filter, collect.getOrDefault(filter.getFilterName().getValue(), Collections.emptyList()), ++position));
         }
 
         return filterDescriptors;
@@ -117,9 +117,9 @@ public class EffectiveWebXml {
                 // Default Servlet is already set
                 break;
             case 0:
-                // No default Servlet
+                // No default Servlet. Add a new one with the server ClassLoader
                 Class<FileServlet> fileServlet = eu.ggam.servlet.impl.system.FileServlet.class;
-                servletDescriptors.add(new ServletDescriptor(fileServlet.getSimpleName(), fileServlet));
+                servletDescriptors.add(new ServletDescriptor(servletContext, fileServlet.getSimpleName(), fileServlet));
                 break;
             default:
                 // More than one default Servlet

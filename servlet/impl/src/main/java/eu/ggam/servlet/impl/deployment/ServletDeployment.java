@@ -17,6 +17,7 @@ import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReference;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -140,7 +141,7 @@ public class ServletDeployment implements Deployment {
 
         URI uri;
         try {
-            uri = new URI(requestLine[1]);
+            uri = new URI(URLDecoder.decode(requestLine[1], "UTF-8"));
         } catch (URISyntaxException ex) {
             throw new IOException(ex);
         }

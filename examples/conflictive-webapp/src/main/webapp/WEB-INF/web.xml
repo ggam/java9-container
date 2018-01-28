@@ -144,4 +144,23 @@
         <filter-name>FilterTwo</filter-name>
         <url-pattern>/filters/ordered-filter</url-pattern>
     </filter-mapping>
+    
+    <!-- ServletContext -->
+    <context-param>
+        <param-name>test_context_param</param-name>
+        <param-value>It works!</param-value>
+    </context-param>
+    
+    <servlet>
+        <servlet-name>ServletContextTestServlet</servlet-name>
+        <servlet-class>eu.ggam.container.testwebapp.servletcontext.ServletContextTestServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ServletContextTestServlet</servlet-name>
+        <url-pattern>/servletcontext/dynamic-test.html</url-pattern>
+    </servlet-mapping>
+    
+    <listener>
+        <listener-class>eu.ggam.container.testwebapp.servletcontext.SCAttributeListener</listener-class>
+    </listener>
 </web-app>

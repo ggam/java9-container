@@ -1,5 +1,6 @@
 package eu.ggam.servlet.impl.deployment.webxml.descriptor;
 
+import eu.ggam.servlet.impl.ServletContextImpl;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ServletMappingType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ServletType;
@@ -32,6 +33,8 @@ public class ServletDescriptor implements ServletConfig {
     private final Map<String, String> initParams = new HashMap<>();
 
     private final boolean defaultServlet;
+    
+    private final ServletContextImpl servletContext;
 
     /**
      * Specific constructor for default Servlet via {@link EffectiveWebXml}
@@ -39,15 +42,17 @@ public class ServletDescriptor implements ServletConfig {
      * @param servletName
      * @param servletClass
      */
-    public ServletDescriptor(String servletName, Class<? extends Servlet> servletClass) {
+    public ServletDescriptor(ServletContextImpl servletContext, String servletName, Class<? extends Servlet> servletClass) {
         this.servletName = servletName;
         this.servletClass = servletClass;
         this.defaultServlet = true;
+        this.servletContext = servletContext;
     }
 
-    public ServletDescriptor(ServletType servletType, List<ServletMappingType> mappings, ClassLoader classLoader) throws ClassNotFoundException {
+    public ServletDescriptor(ServletContextImpl servletContext, ServletType servletType, List<ServletMappingType> mappings) throws ClassNotFoundException {
         this.servletName = servletType.getServletName().getValue();
-        this.servletClass = (Class<Servlet>) Class.forName(servletType.getServletClass().getValue(), true, classLoader);
+        this.servletClass = (Class<Servlet>) Class.forName(servletType.getServletClass().getValue(), true, servletContext.getWarClassLoader());
+        this.servletContext = servletContext;
 
         for (ParamValueType initParamTypes : servletType.getInitParams()) {
             initParams.put(initParamTypes.getParamName().getValue(), initParamTypes.getParamValue().getValue());
@@ -118,7 +123,7 @@ public class ServletDescriptor implements ServletConfig {
 
     @Override
     public ServletContext getServletContext() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return servletContext;
     }
 
     @Override

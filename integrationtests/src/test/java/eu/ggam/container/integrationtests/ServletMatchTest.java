@@ -54,6 +54,17 @@ public class ServletMatchTest {
 
         Assertions.assertEquals("exact match", get);
     }
+    
+    @Test
+    public void exact_encodingQueryString() {
+        String get = ClientBuilder.newClient().
+                target(BASE_URL).
+                path("/pattern/exact%3Fparam=value").
+                request().
+                get(String.class);
+
+        Assertions.assertEquals("exact match", get);
+    }
 
     @Test
     public void defaultServlet() {

@@ -26,6 +26,7 @@ public class ServletContextImpl implements ServletContext {
 
     private static final Logger LOGGER = Logger.getLogger(ServletContextImpl.class.getName());
 
+    private ClassLoader warClassLoader;
     private final String contextPath;
     private final Map<String, String> initParams;
     private final List<ServletContextAttributeListener> attributeListeners;
@@ -33,7 +34,8 @@ public class ServletContextImpl implements ServletContext {
     private final Map<String, Object> attributes;
     private final Object attributeLock = new Object(); // Object to hold the lock when accessing the attributes
 
-    public ServletContextImpl(String contextPath, List<ServletContextAttributeListener> attributeListeners, Map<String, String> initParams) {
+    public ServletContextImpl(ClassLoader warClassLoader, String contextPath, List<ServletContextAttributeListener> attributeListeners, Map<String, String> initParams) {
+        this.warClassLoader = warClassLoader;
         this.contextPath = contextPath;
         this.attributeListeners = Collections.unmodifiableList(attributeListeners);
         this.initParams = Collections.unmodifiableMap(initParams);
@@ -192,6 +194,8 @@ public class ServletContextImpl implements ServletContext {
             if (value == null) {
                 return;
             }
+            
+            attributes.remove(name);
 
             ServletContextAttributeEvent event = new ServletContextAttributeEvent(this, name, value);
 
@@ -205,6 +209,10 @@ public class ServletContextImpl implements ServletContext {
     @Override
     public String getServletContextName() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public ClassLoader getWarClassLoader() {
+        return warClassLoader;
     }
 
 }

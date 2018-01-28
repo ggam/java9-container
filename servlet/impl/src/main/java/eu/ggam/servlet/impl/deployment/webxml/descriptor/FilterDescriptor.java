@@ -1,5 +1,6 @@
 package eu.ggam.servlet.impl.deployment.webxml.descriptor;
 
+import eu.ggam.servlet.impl.ServletContextImpl;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterMappingType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
@@ -23,6 +24,7 @@ public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterCon
 
     private final String filterName;
     private final Class<? extends Filter> filterClass;
+    private final ServletContextImpl servletContext;
     private final int position;
 
     private final Set<String> exactPatterns = new HashSet<>();
@@ -32,9 +34,10 @@ public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterCon
     
     private final Map<String, String> initParams = new HashMap<>();
 
-    public FilterDescriptor(FilterType filterType, List<FilterMappingType> filterMappingTypes, ClassLoader classLoader, int position) throws ClassNotFoundException {
+    public FilterDescriptor(ServletContextImpl servletContext, FilterType filterType, List<FilterMappingType> filterMappingTypes, int position) throws ClassNotFoundException {
         this.filterName = filterType.getFilterName().getValue();
-        this.filterClass = (Class<Filter>) Class.forName(filterType.getFilterClass().getValue(), true, classLoader);
+        this.filterClass = (Class<Filter>) Class.forName(filterType.getFilterClass().getValue(), true, servletContext.getWarClassLoader());
+        this.servletContext = servletContext;
         this.position = position;
 
         for (ParamValueType initParamTypes : filterType.getInitParams()) {
@@ -115,7 +118,7 @@ public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterCon
 
     @Override
     public ServletContext getServletContext() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return servletContext;
     }
 
     @Override
