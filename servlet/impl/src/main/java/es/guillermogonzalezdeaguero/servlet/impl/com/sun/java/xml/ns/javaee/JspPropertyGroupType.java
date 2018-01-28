@@ -6,7 +6,7 @@
 //
 
 
-package es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee;
+package eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,7 +97,7 @@ public class JspPropertyGroupType {
     @XmlElement(name = "el-ignored")
     protected TrueFalseType elIgnored;
     @XmlElement(name = "page-encoding")
-    protected es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String pageEncoding;
+    protected eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String pageEncoding;
     @XmlElement(name = "scripting-invalid")
     protected TrueFalseType scriptingInvalid;
     @XmlElement(name = "is-xml")
@@ -261,10 +261,10 @@ public class JspPropertyGroupType {
      * 
      * @return
      *     possible object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String getPageEncoding() {
+    public eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String getPageEncoding() {
         return pageEncoding;
     }
 
@@ -273,10 +273,10 @@ public class JspPropertyGroupType {
      * 
      * @param value
      *     allowed object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public void setPageEncoding(es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
+    public void setPageEncoding(eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
         this.pageEncoding = value;
     }
 

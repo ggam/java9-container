@@ -1,6 +1,6 @@
-package es.guillermogonzalezdeaguero.container.impl;
+package eu.ggam.container.impl;
 
-import es.guillermogonzalezdeaguero.container.impl.server.Server;
+import eu.ggam.container.impl.server.Server;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;

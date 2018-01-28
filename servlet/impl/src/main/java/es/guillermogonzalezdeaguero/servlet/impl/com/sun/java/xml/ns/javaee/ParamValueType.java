@@ -6,7 +6,7 @@
 //
 
 
-package es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee;
+package eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +61,7 @@ public class ParamValueType {
     @XmlElement(name = "description")
     protected List<DescriptionType> descriptions;
     @XmlElement(name = "param-name", required = true)
-    protected es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String paramName;
+    protected eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String paramName;
     @XmlElement(name = "param-value", required = true)
     protected XsdStringType paramValue;
     @XmlAttribute(name = "id")
@@ -104,10 +104,10 @@ public class ParamValueType {
      * 
      * @return
      *     possible object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String getParamName() {
+    public eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String getParamName() {
         return paramName;
     }
 
@@ -116,10 +116,10 @@ public class ParamValueType {
      * 
      * @param value
      *     allowed object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public void setParamName(es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
+    public void setParamName(eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
         this.paramName = value;
     }
 

@@ -1,4 +1,4 @@
-package es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml;
+package eu.ggam.servlet.impl.deployment.webxml;
 
 /**
  *

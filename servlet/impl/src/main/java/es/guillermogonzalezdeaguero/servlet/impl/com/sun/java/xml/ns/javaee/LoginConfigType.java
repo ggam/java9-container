@@ -6,7 +6,7 @@
 //
 
 
-package es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee;
+package eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -63,7 +63,7 @@ public class LoginConfigType {
     @XmlElement(name = "auth-method")
     protected AuthMethodType authMethod;
     @XmlElement(name = "realm-name")
-    protected es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String realmName;
+    protected eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String realmName;
     @XmlElement(name = "form-login-config")
     protected FormLoginConfigType formLoginConfig;
     @XmlAttribute(name = "id")
@@ -101,10 +101,10 @@ public class LoginConfigType {
      * 
      * @return
      *     possible object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String getRealmName() {
+    public eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String getRealmName() {
         return realmName;
     }
 
@@ -113,10 +113,10 @@ public class LoginConfigType {
      * 
      * @param value
      *     allowed object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public void setRealmName(es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
+    public void setRealmName(eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
         this.realmName = value;
     }
 

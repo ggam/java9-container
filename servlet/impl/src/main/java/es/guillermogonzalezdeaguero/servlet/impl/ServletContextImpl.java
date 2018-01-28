@@ -1,4 +1,4 @@
-package es.guillermogonzalezdeaguero.servlet.impl;
+package eu.ggam.servlet.impl;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;

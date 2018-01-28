@@ -1,16 +1,16 @@
-package es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml;
+package eu.ggam.servlet.impl.deployment.webxml;
 
-import es.guillermogonzalezdeaguero.servlet.impl.ServletContextImpl;
-import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.FilterMappingType;
-import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.FilterType;
-import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ListenerType;
-import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ObjectFactory;
-import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
-import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ServletMappingType;
-import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.WebApp;
-import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
-import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
-import es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet;
+import eu.ggam.servlet.impl.ServletContextImpl;
+import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterMappingType;
+import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterType;
+import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ListenerType;
+import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ObjectFactory;
+import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
+import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ServletMappingType;
+import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.WebApp;
+import eu.ggam.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
+import eu.ggam.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
+import eu.ggam.servlet.impl.system.FileServlet;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -118,7 +118,7 @@ public class EffectiveWebXml {
                 break;
             case 0:
                 // No default Servlet
-                Class<FileServlet> fileServlet = es.guillermogonzalezdeaguero.servlet.impl.system.FileServlet.class;
+                Class<FileServlet> fileServlet = eu.ggam.servlet.impl.system.FileServlet.class;
                 servletDescriptors.add(new ServletDescriptor(fileServlet.getSimpleName(), fileServlet));
                 break;
             default:

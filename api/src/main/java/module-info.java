@@ -1,5 +1,5 @@
-module es.guillermogonzalezdeaguero.container.Api {
-    exports es.guillermogonzalezdeaguero.container.api;
-    exports es.guillermogonzalezdeaguero.container.api.event;
-    exports es.guillermogonzalezdeaguero.container.api.deployment;
+module eu.ggam.container.Api {
+    exports eu.ggam.container.api;
+    exports eu.ggam.container.api.event;
+    exports eu.ggam.container.api.deployment;
 }

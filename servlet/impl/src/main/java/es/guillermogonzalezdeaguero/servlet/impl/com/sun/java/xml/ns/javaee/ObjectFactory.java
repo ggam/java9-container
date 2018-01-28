@@ -6,7 +6,7 @@
 //
 
 
-package es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee;
+package eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;

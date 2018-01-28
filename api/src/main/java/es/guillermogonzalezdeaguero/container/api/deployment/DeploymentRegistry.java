@@ -1,7 +1,7 @@
-package es.guillermogonzalezdeaguero.container.api.deployment;
+package eu.ggam.container.api.deployment;
 
 import java.util.Set;
-import es.guillermogonzalezdeaguero.container.api.Deployment;
+import eu.ggam.container.api.Deployment;
 
 /**
  *

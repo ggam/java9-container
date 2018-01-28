@@ -1,9 +1,9 @@
-package es.guillermogonzalezdeaguero.servlet.impl;
+package eu.ggam.servlet.impl;
 
-import es.guillermogonzalezdeaguero.servlet.impl.deployment.FilterMatcher;
-import es.guillermogonzalezdeaguero.servlet.impl.deployment.ServletMatcher;
-import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
-import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
+import eu.ggam.servlet.impl.deployment.FilterMatcher;
+import eu.ggam.servlet.impl.deployment.ServletMatcher;
+import eu.ggam.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
+import eu.ggam.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
 import java.util.Queue;
 import java.util.Set;
 import javax.servlet.Filter;

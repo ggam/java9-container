@@ -1,6 +1,6 @@
-package es.guillermogonzalezdeaguero.container.impl.server.event;
+package eu.ggam.container.impl.server.event;
 
-import es.guillermogonzalezdeaguero.container.api.event.ServerStartedEvent;
+import eu.ggam.container.api.event.ServerStartedEvent;
 
 /**
  *

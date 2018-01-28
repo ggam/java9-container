@@ -1,4 +1,4 @@
-package es.guillermogonzalezdeaguero.container.exampleplugin;
+package eu.ggam.container.exampleplugin;
 
 import java.io.IOException;
 import javax.servlet.ServletException;

@@ -1,9 +1,9 @@
-package es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor;
+package eu.ggam.servlet.impl.deployment.webxml.descriptor;
 
-import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.FilterMappingType;
-import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.FilterType;
-import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
-import es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.UrlPatternType;
+import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterMappingType;
+import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterType;
+import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
+import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.UrlPatternType;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package es.guillermogonzalezdeaguero.container.testwebapp;
+package eu.ggam.container.testwebapp;
 
 import java.io.IOException;
 import java.util.logging.Level;

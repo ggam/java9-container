@@ -1,4 +1,4 @@
-package es.guillermogonzalezdeaguero.container.testwebapp.filtermatch.order;
+package eu.ggam.container.testwebapp.filtermatch.order;
 
 import java.io.IOException;
 import javax.servlet.Filter;

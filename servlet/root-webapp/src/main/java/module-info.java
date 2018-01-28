@@ -1,3 +1,3 @@
-open module es.guillermogonzalezdeaguero.container.RootWebApp {
+open module eu.ggam.container.RootWebApp {
     
 }

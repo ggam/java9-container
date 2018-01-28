@@ -1,7 +1,7 @@
-module es.guillermogonzalezdeaguero.container.Impl {
+module eu.ggam.container.Impl {
     requires java.logging;
     requires java.servlet;
-    requires es.guillermogonzalezdeaguero.container.Api;
+    requires eu.ggam.container.Api;
     
-    uses es.guillermogonzalezdeaguero.container.api.event.ServerLifeCycleListener;
+    uses eu.ggam.container.api.event.ServerLifeCycleListener;
 }

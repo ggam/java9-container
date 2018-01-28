@@ -1,4 +1,4 @@
-package es.guillermogonzalezdeaguero.container.integrationtests;
+package eu.ggam.container.integrationtests;
 
 /**
  *

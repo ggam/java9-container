@@ -2,24 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>es.guillermogonzalezdeaguero</groupId>
+        <groupId>eu.ggam</groupId>
         <artifactId>container</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>container-impl</artifactId>
     <packaging>jar</packaging>
-    <properties>
-        <maven.compiler.source>9</maven.compiler.source>
-        <maven.compiler.target>9</maven.compiler.target>
-    </properties>
     
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -34,7 +25,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>es.guillermogonzalezdeaguero</groupId>
+                                    <groupId>eu.ggam</groupId>
                                     <artifactId>container-impl</artifactId>
                                     <version>1.0-SNAPSHOT</version>
                                     <overWrite>true</overWrite>
@@ -42,15 +33,7 @@
                                     <outputDirectory>${project.build.directory}/jre-dist2/modules</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>es.guillermogonzalezdeaguero</groupId>
-                                    <artifactId>container-system-webapp-lib</artifactId>
-                                    <version>1.0-SNAPSHOT</version>
-                                    <overWrite>true</overWrite>
-                                    <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/jre-dist2/modules</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>es.guillermogonzalezdeaguero</groupId>
+                                    <groupId>eu.ggam</groupId>
                                     <artifactId>servlet-api</artifactId>
                                     <version>2.5</version>
                                     <overWrite>true</overWrite>
@@ -58,7 +41,7 @@
                                     <outputDirectory>${project.build.directory}/jre-dist2/modules</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>es.guillermogonzalezdeaguero</groupId>
+                                    <groupId>eu.ggam</groupId>
                                     <artifactId>container-api</artifactId>
                                     <version>1.0-SNAPSHOT</version>
                                     <overWrite>true</overWrite>
@@ -66,7 +49,7 @@
                                     <outputDirectory>${project.build.directory}/jre-dist2/modules</outputDirectory>
                                 </artifactItem>
                                    <artifactItem>
-                                    <groupId>es.guillermogonzalezdeaguero</groupId>
+                                    <groupId>eu.ggam</groupId>
                                     <artifactId>servlet-impl</artifactId>
                                     <version>1.0-SNAPSHOT</version>
                                     <overWrite>true</overWrite>
@@ -85,7 +68,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>es.guillermogonzalezdeaguero</groupId>
+                                    <groupId>eu.ggam</groupId>
                                     <artifactId>container-root-webapp</artifactId>
                                     <version>1.0-SNAPSHOT</version>
                                     <overWrite>true</overWrite>
@@ -120,12 +103,12 @@
     
     <dependencies>
         <dependency>
-            <groupId>es.guillermogonzalezdeaguero</groupId>
+            <groupId>eu.ggam</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
         </dependency>
         <dependency>
-            <groupId>es.guillermogonzalezdeaguero</groupId>
+            <groupId>eu.ggam</groupId>
             <artifactId>container-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>

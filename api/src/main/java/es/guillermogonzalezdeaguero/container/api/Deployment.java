@@ -1,4 +1,4 @@
-package es.guillermogonzalezdeaguero.container.api;
+package eu.ggam.container.api;
 
 import java.io.InputStream;
 import java.io.OutputStream;

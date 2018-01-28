@@ -1,9 +1,9 @@
-package es.guillermogonzalezdeaguero.container.impl.deployment;
+package eu.ggam.container.impl.deployment;
 
-import es.guillermogonzalezdeaguero.container.api.deployment.DeploymentRegistry;
+import eu.ggam.container.api.deployment.DeploymentRegistry;
 import java.util.HashSet;
 import java.util.Set;
-import es.guillermogonzalezdeaguero.container.api.Deployment;
+import eu.ggam.container.api.Deployment;
 
 /**
  *

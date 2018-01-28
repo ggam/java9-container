@@ -1,4 +1,4 @@
-package es.guillermogonzalezdeaguero.servlet.impl.system;
+package eu.ggam.servlet.impl.system;
 
 import java.io.IOException;
 import javax.servlet.ServletException;

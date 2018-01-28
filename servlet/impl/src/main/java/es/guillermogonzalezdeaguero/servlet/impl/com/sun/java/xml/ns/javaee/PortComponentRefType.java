@@ -6,7 +6,7 @@
 //
 
 
-package es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee;
+package eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -64,7 +64,7 @@ public class PortComponentRefType {
     @XmlElement(name = "enable-mtom")
     protected TrueFalseType enableMtom;
     @XmlElement(name = "port-component-link")
-    protected es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String portComponentLink;
+    protected eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String portComponentLink;
     @XmlAttribute(name = "id")
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
@@ -124,10 +124,10 @@ public class PortComponentRefType {
      * 
      * @return
      *     possible object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String getPortComponentLink() {
+    public eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String getPortComponentLink() {
         return portComponentLink;
     }
 
@@ -136,10 +136,10 @@ public class PortComponentRefType {
      * 
      * @param value
      *     allowed object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public void setPortComponentLink(es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
+    public void setPortComponentLink(eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
         this.portComponentLink = value;
     }
 

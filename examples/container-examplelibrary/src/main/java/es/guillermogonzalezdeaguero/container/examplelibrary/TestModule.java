@@ -1,4 +1,4 @@
-package es.guillermogonzalezdeaguero.container.examplelibrary;
+package eu.ggam.container.examplelibrary;
 
 /**
  *

@@ -6,7 +6,7 @@
 //
 
 
-package es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee;
+package eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +66,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class WebResourceCollectionType {
 
     @XmlElement(name = "web-resource-name", required = true)
-    protected es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String webResourceName;
+    protected eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String webResourceName;
     @XmlElement(name = "description")
     protected List<DescriptionType> descriptions;
     @XmlElement(name = "url-pattern", required = true)
@@ -86,10 +86,10 @@ public class WebResourceCollectionType {
      * 
      * @return
      *     possible object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String getWebResourceName() {
+    public eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String getWebResourceName() {
         return webResourceName;
     }
 
@@ -98,10 +98,10 @@ public class WebResourceCollectionType {
      * 
      * @param value
      *     allowed object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public void setWebResourceName(es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
+    public void setWebResourceName(eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
         this.webResourceName = value;
     }
 

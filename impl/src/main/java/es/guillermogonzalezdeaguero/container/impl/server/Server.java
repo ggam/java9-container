@@ -1,13 +1,13 @@
-package es.guillermogonzalezdeaguero.container.impl.server;
+package eu.ggam.container.impl.server;
 
-import es.guillermogonzalezdeaguero.container.api.Deployment;
-import es.guillermogonzalezdeaguero.container.api.event.ServerLifeCycleListener;
-import es.guillermogonzalezdeaguero.container.api.event.ServerStartedEvent;
-import es.guillermogonzalezdeaguero.container.api.event.ServerStartingEvent;
-import es.guillermogonzalezdeaguero.container.impl.deployment.DeploymentRegistryImpl;
-import es.guillermogonzalezdeaguero.container.impl.internal.HttpWorkerThreadFactory;
-import es.guillermogonzalezdeaguero.container.impl.server.event.ServerStartedEventImpl;
-import es.guillermogonzalezdeaguero.container.impl.server.event.ServerStartingEventImpl;
+import eu.ggam.container.api.Deployment;
+import eu.ggam.container.api.event.ServerLifeCycleListener;
+import eu.ggam.container.api.event.ServerStartedEvent;
+import eu.ggam.container.api.event.ServerStartingEvent;
+import eu.ggam.container.impl.deployment.DeploymentRegistryImpl;
+import eu.ggam.container.impl.internal.HttpWorkerThreadFactory;
+import eu.ggam.container.impl.server.event.ServerStartedEventImpl;
+import eu.ggam.container.impl.server.event.ServerStartingEventImpl;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;

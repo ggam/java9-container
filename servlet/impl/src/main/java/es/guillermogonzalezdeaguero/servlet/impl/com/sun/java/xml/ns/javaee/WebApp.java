@@ -4,7 +4,7 @@
 // Todas las modificaciones realizadas en este archivo se perderán si se vuelve a compilar el esquema de origen. 
 // Generado el: 2018.01.03 a las 04:45:20 PM CET 
 //
-package es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee;
+package eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee;
 
 import java.util.ArrayList;
 import java.util.List;

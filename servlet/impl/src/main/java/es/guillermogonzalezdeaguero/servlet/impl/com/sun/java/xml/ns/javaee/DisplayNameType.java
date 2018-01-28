@@ -6,7 +6,7 @@
 //
 
 
-package es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee;
+package eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -53,7 +53,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "display-nameType")
 public class DisplayNameType
-    extends es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String
+    extends eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String
 {
 
     @XmlAttribute(name = "lang", namespace = "http://www.w3.org/XML/1998/namespace")

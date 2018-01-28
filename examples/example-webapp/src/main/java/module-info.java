@@ -1,4 +1,4 @@
-open module es.guillermogonzalezdeaguero.container.ExamplePlugin {
+open module eu.ggam.container.ExamplePlugin {
     requires java.servlet;
-    requires es.guillermogonzalezdeaguero.container.ExampleLibrary;
+    requires eu.ggam.container.ExampleLibrary;
 }

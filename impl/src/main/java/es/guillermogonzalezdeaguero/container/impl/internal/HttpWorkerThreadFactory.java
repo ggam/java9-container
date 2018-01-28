@@ -1,4 +1,4 @@
-package es.guillermogonzalezdeaguero.container.impl.internal;
+package eu.ggam.container.impl.internal;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;

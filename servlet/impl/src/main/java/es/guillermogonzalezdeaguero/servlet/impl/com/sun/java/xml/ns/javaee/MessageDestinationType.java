@@ -6,7 +6,7 @@
 //
 
 
-package es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee;
+package eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +87,7 @@ public class MessageDestinationType {
     @XmlElement(name = "icon")
     protected List<IconType> icons;
     @XmlElement(name = "message-destination-name", required = true)
-    protected es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String messageDestinationName;
+    protected eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String messageDestinationName;
     @XmlElement(name = "mapped-name")
     protected XsdStringType mappedName;
     @XmlAttribute(name = "id")
@@ -188,10 +188,10 @@ public class MessageDestinationType {
      * 
      * @return
      *     possible object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String getMessageDestinationName() {
+    public eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String getMessageDestinationName() {
         return messageDestinationName;
     }
 
@@ -200,10 +200,10 @@ public class MessageDestinationType {
      * 
      * @param value
      *     allowed object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public void setMessageDestinationName(es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
+    public void setMessageDestinationName(eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
         this.messageDestinationName = value;
     }
 

@@ -1,9 +1,9 @@
-package es.guillermogonzalezdeaguero.container.impl.server.event;
+package eu.ggam.container.impl.server.event;
 
-import es.guillermogonzalezdeaguero.container.api.event.ServerStartingEvent;
-import es.guillermogonzalezdeaguero.container.impl.deployment.DeploymentRegistryImpl;
-import es.guillermogonzalezdeaguero.container.impl.server.Server;
-import es.guillermogonzalezdeaguero.container.api.Deployment;
+import eu.ggam.container.api.event.ServerStartingEvent;
+import eu.ggam.container.impl.deployment.DeploymentRegistryImpl;
+import eu.ggam.container.impl.server.Server;
+import eu.ggam.container.api.Deployment;
 
 /**
  *

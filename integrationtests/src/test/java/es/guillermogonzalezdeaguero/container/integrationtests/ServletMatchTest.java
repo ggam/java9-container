@@ -1,6 +1,6 @@
-package es.guillermogonzalezdeaguero.container.integrationtests;
+package eu.ggam.container.integrationtests;
 
-import static es.guillermogonzalezdeaguero.container.integrationtests.Constants.BASE_URL;
+import static eu.ggam.container.integrationtests.Constants.BASE_URL;
 import javax.ws.rs.client.ClientBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

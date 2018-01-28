@@ -1,7 +1,7 @@
-package es.guillermogonzalezdeaguero.servlet.impl.deployment;
+package eu.ggam.servlet.impl.deployment;
 
-import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
-import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
+import eu.ggam.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
+import eu.ggam.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
 import java.util.Queue;

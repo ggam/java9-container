@@ -1,10 +1,10 @@
-package es.guillermogonzalezdeaguero.servlet.impl.deployment;
+package eu.ggam.servlet.impl.deployment;
 
-import es.guillermogonzalezdeaguero.container.api.Deployment;
-import es.guillermogonzalezdeaguero.servlet.impl.FilterChainFactory;
-import es.guillermogonzalezdeaguero.servlet.impl.HttpServletRequestImpl;
-import es.guillermogonzalezdeaguero.servlet.impl.HttpServletResponseImpl;
-import es.guillermogonzalezdeaguero.servlet.impl.deployment.webxml.EffectiveWebXml;
+import eu.ggam.container.api.Deployment;
+import eu.ggam.servlet.impl.FilterChainFactory;
+import eu.ggam.servlet.impl.HttpServletRequestImpl;
+import eu.ggam.servlet.impl.HttpServletResponseImpl;
+import eu.ggam.servlet.impl.deployment.webxml.EffectiveWebXml;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

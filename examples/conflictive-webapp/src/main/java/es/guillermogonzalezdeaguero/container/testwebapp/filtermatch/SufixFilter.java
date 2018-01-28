@@ -1,4 +1,4 @@
-package es.guillermogonzalezdeaguero.container.testwebapp.filtermatch;
+package eu.ggam.container.testwebapp.filtermatch;
 
 import java.io.IOException;
 import javax.servlet.Filter;

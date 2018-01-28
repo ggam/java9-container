@@ -1,5 +1,5 @@
-open module es.guillermogonzalezdeaguero.container.ConflictivePlugin {
+open module eu.ggam.container.ConflictivePlugin {
     requires java.servlet;
     requires java.logging;
-    requires es.guillermogonzalezdeaguero.container.ExampleLibrary;
+    requires eu.ggam.container.ExampleLibrary;
 }

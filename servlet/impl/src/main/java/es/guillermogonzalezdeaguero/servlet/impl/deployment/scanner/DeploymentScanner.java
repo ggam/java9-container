@@ -1,8 +1,8 @@
-package es.guillermogonzalezdeaguero.servlet.impl.deployment.deployment;
+package eu.ggam.servlet.impl.deployment.deployment;
 
-import es.guillermogonzalezdeaguero.container.api.event.ServerLifeCycleListener;
-import es.guillermogonzalezdeaguero.container.api.event.ServerStartingEvent;
-import es.guillermogonzalezdeaguero.servlet.impl.deployment.ServletDeployment;
+import eu.ggam.container.api.event.ServerLifeCycleListener;
+import eu.ggam.container.api.event.ServerStartingEvent;
+import eu.ggam.servlet.impl.deployment.ServletDeployment;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;

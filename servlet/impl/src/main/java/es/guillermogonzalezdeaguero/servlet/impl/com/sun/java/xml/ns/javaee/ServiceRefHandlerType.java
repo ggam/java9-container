@@ -6,7 +6,7 @@
 //
 
 
-package es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee;
+package eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +79,7 @@ public class ServiceRefHandlerType {
     @XmlElement(name = "icon")
     protected List<IconType> icons;
     @XmlElement(name = "handler-name", required = true)
-    protected es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String handlerName;
+    protected eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String handlerName;
     @XmlElement(name = "handler-class", required = true)
     protected FullyQualifiedClassType handlerClass;
     @XmlElement(name = "init-param")
@@ -87,9 +87,9 @@ public class ServiceRefHandlerType {
     @XmlElement(name = "soap-header")
     protected List<XsdQNameType> soapHeaders;
     @XmlElement(name = "soap-role")
-    protected List<es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String> soapRoles;
+    protected List<eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String> soapRoles;
     @XmlElement(name = "port-name")
-    protected List<es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String> portNames;
+    protected List<eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String> portNames;
     @XmlAttribute(name = "id")
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
@@ -188,10 +188,10 @@ public class ServiceRefHandlerType {
      * 
      * @return
      *     possible object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String getHandlerName() {
+    public eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String getHandlerName() {
         return handlerName;
     }
 
@@ -200,10 +200,10 @@ public class ServiceRefHandlerType {
      * 
      * @param value
      *     allowed object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public void setHandlerName(es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
+    public void setHandlerName(eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
         this.handlerName = value;
     }
 
@@ -302,13 +302,13 @@ public class ServiceRefHandlerType {
      *    getSoapRoles().add(newItem);
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     * {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      * 
      * 
      */
-    public List<es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String> getSoapRoles() {
+    public List<eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String> getSoapRoles() {
         if (soapRoles == null) {
-            soapRoles = new ArrayList<es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String>();
+            soapRoles = new ArrayList<eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String>();
         }
         return this.soapRoles;
     }
@@ -326,13 +326,13 @@ public class ServiceRefHandlerType {
      *    getPortNames().add(newItem);
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     * {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      * 
      * 
      */
-    public List<es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String> getPortNames() {
+    public List<eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String> getPortNames() {
         if (portNames == null) {
-            portNames = new ArrayList<es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String>();
+            portNames = new ArrayList<eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String>();
         }
         return this.portNames;
     }

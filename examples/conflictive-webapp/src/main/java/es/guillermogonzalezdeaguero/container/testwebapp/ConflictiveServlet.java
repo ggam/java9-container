@@ -1,6 +1,6 @@
-package es.guillermogonzalezdeaguero.container.testwebapp;
+package eu.ggam.container.testwebapp;
 
-import es.guillermogonzalezdeaguero.container.DuplicatedClass;
+import eu.ggam.container.DuplicatedClass;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

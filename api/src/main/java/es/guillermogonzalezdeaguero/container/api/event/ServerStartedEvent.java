@@ -1,4 +1,4 @@
-package es.guillermogonzalezdeaguero.container.api.event;
+package eu.ggam.container.api.event;
 
 import java.util.EventObject;
 

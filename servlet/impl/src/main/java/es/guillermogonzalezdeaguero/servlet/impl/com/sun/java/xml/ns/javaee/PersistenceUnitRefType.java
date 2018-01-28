@@ -6,7 +6,7 @@
 //
 
 
-package es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee;
+package eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +90,7 @@ public class PersistenceUnitRefType {
     @XmlElement(name = "persistence-unit-ref-name", required = true)
     protected JndiNameType persistenceUnitRefName;
     @XmlElement(name = "persistence-unit-name")
-    protected es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String persistenceUnitName;
+    protected eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String persistenceUnitName;
     @XmlElement(name = "mapped-name")
     protected XsdStringType mappedName;
     @XmlElement(name = "injection-target")
@@ -159,10 +159,10 @@ public class PersistenceUnitRefType {
      * 
      * @return
      *     possible object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String getPersistenceUnitName() {
+    public eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String getPersistenceUnitName() {
         return persistenceUnitName;
     }
 
@@ -171,10 +171,10 @@ public class PersistenceUnitRefType {
      * 
      * @param value
      *     allowed object is
-     *     {@link es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String }
+     *     {@link eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String }
      *     
      */
-    public void setPersistenceUnitName(es.guillermogonzalezdeaguero.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
+    public void setPersistenceUnitName(eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.String value) {
         this.persistenceUnitName = value;
     }
 

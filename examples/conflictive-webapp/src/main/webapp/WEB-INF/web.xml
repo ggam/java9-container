@@ -2,7 +2,7 @@
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
     <servlet>
         <servlet-name>ConflictiveServlet</servlet-name>
-        <servlet-class>es.guillermogonzalezdeaguero.container.testwebapp.ConflictiveServlet</servlet-class>
+        <servlet-class>eu.ggam.container.testwebapp.ConflictiveServlet</servlet-class>
         <init-param>
             <param-name>test_param</param-name>
             <param-value>This is the value</param-value>
@@ -15,7 +15,7 @@
     
     <servlet>
         <servlet-name>MonitoringServlet</servlet-name>
-        <servlet-class>es.guillermogonzalezdeaguero.container.examplelibrary.MonitoringServlet</servlet-class>
+        <servlet-class>eu.ggam.container.examplelibrary.MonitoringServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>MonitoringServlet</servlet-name>
@@ -24,7 +24,7 @@
     
     <servlet>
         <servlet-name>MonitoringServlet2</servlet-name>
-        <servlet-class>es.guillermogonzalezdeaguero.container.examplelibrary.MonitoringServlet</servlet-class>
+        <servlet-class>eu.ggam.container.examplelibrary.MonitoringServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>MonitoringServlet2</servlet-name>
@@ -33,7 +33,7 @@
     
     <filter>
         <filter-name>Test</filter-name>
-        <filter-class>es.guillermogonzalezdeaguero.container.testwebapp.TestFilter</filter-class>
+        <filter-class>eu.ggam.container.testwebapp.TestFilter</filter-class>
         <init-param>
             <param-name>forbidden_param</param-name>
             <param-value>forbidden</param-value>
@@ -48,7 +48,7 @@
     <!-- Servlet matching -->
     <servlet>
         <servlet-name>DefaultServlet</servlet-name>
-        <servlet-class>es.guillermogonzalezdeaguero.container.testwebapp.servletmatch.DefaultServlet</servlet-class>
+        <servlet-class>eu.ggam.container.testwebapp.servletmatch.DefaultServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>DefaultServlet</servlet-name>
@@ -57,7 +57,7 @@
     
     <servlet>
         <servlet-name>ExactPatternServlet</servlet-name>
-        <servlet-class>es.guillermogonzalezdeaguero.container.testwebapp.servletmatch.ExactPatternServlet</servlet-class>
+        <servlet-class>eu.ggam.container.testwebapp.servletmatch.ExactPatternServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>ExactPatternServlet</servlet-name>
@@ -66,7 +66,7 @@
     
     <servlet>
         <servlet-name>PrefixPatternServlet</servlet-name>
-        <servlet-class>es.guillermogonzalezdeaguero.container.testwebapp.servletmatch.PrefixPatternServlet</servlet-class>
+        <servlet-class>eu.ggam.container.testwebapp.servletmatch.PrefixPatternServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>PrefixPatternServlet</servlet-name>
@@ -75,7 +75,7 @@
     
     <servlet>
         <servlet-name>SufixPatternServlet</servlet-name>
-        <servlet-class>es.guillermogonzalezdeaguero.container.testwebapp.servletmatch.SufixPatternServlet</servlet-class>
+        <servlet-class>eu.ggam.container.testwebapp.servletmatch.SufixPatternServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>SufixPatternServlet</servlet-name>
@@ -85,7 +85,7 @@
     <!-- Filter Matchting -->
     <filter>
         <filter-name>ExactFilter</filter-name>
-        <filter-class>es.guillermogonzalezdeaguero.container.testwebapp.filtermatch.ExactFilter</filter-class>
+        <filter-class>eu.ggam.container.testwebapp.filtermatch.ExactFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>ExactFilter</filter-name>
@@ -94,7 +94,7 @@
     
     <filter>
         <filter-name>PrefixFilter</filter-name>
-        <filter-class>es.guillermogonzalezdeaguero.container.testwebapp.filtermatch.PrefixFilter</filter-class>
+        <filter-class>eu.ggam.container.testwebapp.filtermatch.PrefixFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>PrefixFilter</filter-name>
@@ -103,7 +103,7 @@
     
     <filter>
         <filter-name>SufixFilter</filter-name>
-        <filter-class>es.guillermogonzalezdeaguero.container.testwebapp.filtermatch.SufixFilter</filter-class>
+        <filter-class>eu.ggam.container.testwebapp.filtermatch.SufixFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>SufixFilter</filter-name>
@@ -112,7 +112,7 @@
     
     <servlet>
         <servlet-name>SpecialServlet</servlet-name>
-        <servlet-class>es.guillermogonzalezdeaguero.container.testwebapp.filtermatch.SpecialServlet</servlet-class>
+        <servlet-class>eu.ggam.container.testwebapp.filtermatch.SpecialServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>SpecialServlet</servlet-name>
@@ -121,7 +121,7 @@
     
     <filter>
         <filter-name>NamedServletFilter</filter-name>
-        <filter-class>es.guillermogonzalezdeaguero.container.testwebapp.filtermatch.NamedServletFilter</filter-class>
+        <filter-class>eu.ggam.container.testwebapp.filtermatch.NamedServletFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>NamedServletFilter</filter-name>
@@ -130,7 +130,7 @@
     
     <filter>
         <filter-name>FilterOne</filter-name>
-        <filter-class>es.guillermogonzalezdeaguero.container.testwebapp.filtermatch.order.FilterOne</filter-class>
+        <filter-class>eu.ggam.container.testwebapp.filtermatch.order.FilterOne</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>FilterOne</filter-name>
@@ -138,7 +138,7 @@
     </filter-mapping>
     <filter>
         <filter-name>FilterTwo</filter-name>
-        <filter-class>es.guillermogonzalezdeaguero.container.testwebapp.filtermatch.order.FilterTwo</filter-class>
+        <filter-class>eu.ggam.container.testwebapp.filtermatch.order.FilterTwo</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>FilterTwo</filter-name>
