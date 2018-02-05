@@ -1,4 +1,4 @@
-package eu.ggam.container.impl.internal;
+package eu.ggam.container.impl.http;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,13 +11,13 @@ import java.util.Queue;
  *
  * @author guillermo
  */
-public class ByteBufferInputStream extends InputStream {
+public class HttpRequestInputStream extends InputStream {
 
     private final Queue<ByteBuffer> queue;
 
     private ByteBuffer current;
 
-    public ByteBufferInputStream(List<ByteBuffer> buffers) {
+    public HttpRequestInputStream(List<ByteBuffer> buffers) {
         this.queue = new ArrayDeque<>(buffers.size());
         for (ByteBuffer buffer : buffers) {
             buffer.flip();

@@ -1,30 +1,22 @@
 package eu.ggam.servlet.impl.deployment;
 
 import eu.ggam.container.api.Deployment;
+import eu.ggam.container.api.http.HttpMessageExchange;
 import eu.ggam.servlet.impl.FilterChainFactory;
 import eu.ggam.servlet.impl.HttpServletRequestImpl;
 import eu.ggam.servlet.impl.HttpServletResponseImpl;
 import eu.ggam.servlet.impl.deployment.webxml.EffectiveWebXml;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleDescriptor;
 import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReference;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -117,8 +109,9 @@ public class ServletDeployment implements Deployment {
     }
 
     @Override
-    public void process(InputStream input, OutputStream output) throws IOException, ServletException {
-        HttpServletRequestImpl servletRequest = createServletRequest(input);
+    public void process(HttpMessageExchange httpMessageExchange) throws IOException, ServletException {
+        // TODO: process entity body
+        HttpServletRequestImpl servletRequest = new HttpServletRequestImpl(servletContext, httpMessageExchange.getRequestMethod(), httpMessageExchange.getRequestUri(), httpMessageExchange.getRequestHeaders());
         HttpServletResponseImpl servletResponse = new HttpServletResponseImpl();
 
         if (!matches(servletRequest.getRequestURI())) {
@@ -129,52 +122,18 @@ public class ServletDeployment implements Deployment {
 
         filterChain.doFilter(servletRequest, servletResponse);
 
-        sendResponse(servletResponse, output);
+        sendResponse(servletResponse, httpMessageExchange);
     }
 
-    private HttpServletRequestImpl createServletRequest(InputStream input) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
-        String[] requestLine = reader.readLine().split(" ");
-
-        String method = requestLine[0];
-
-        URI uri;
-        try {
-            uri = new URI(URLDecoder.decode(requestLine[1], "UTF-8"));
-        } catch (URISyntaxException ex) {
-            throw new IOException(ex);
-        }
-
-        String httpVersion = requestLine[2];
-
-        Map<String, List<String>> headers = new HashMap<>();
-
-        String line;
-        while ((line = reader.readLine()) != null) {
-            if ("".equals(line)) {
-                // Headers are done.
-                break;
-            }
-
-            String[] header = line.split(":");
-            List<String> headerValues = headers.computeIfAbsent(header[0], k -> new ArrayList<>());
-            //System.out.println(line);
-            headerValues.add(header[1]);
-        }
-
-        // TODO: process entity body
-        return new HttpServletRequestImpl(servletContext, method, uri, headers);
-    }
-
-    private void sendResponse(HttpServletResponseImpl response, OutputStream output) throws IOException {
-        output.write(("HTTP/1.1 " + response.getStatus() + " Unknown\n").getBytes());
-
+    private void sendResponse(HttpServletResponseImpl response, HttpMessageExchange httpMessageExchange) throws IOException {
+        httpMessageExchange.setResponseStatus(response.getStatus());
         String contentType = response.getContentType() != null ? response.getContentType() : "text/html";
-        output.write(("Content-Type: " + contentType + "\n").getBytes());
+        httpMessageExchange.getResponseHeaders().put("Content-Type", List.of(contentType));
+
         byte[] responseBody = response.getResponseBody();
-        output.write(("Content-Length: " + responseBody.length + "\r\n\r\n").getBytes());
-        output.write(responseBody);
+        httpMessageExchange.getResponseHeaders().put("Content-Length", List.of(String.valueOf(responseBody.length)));
+        
+        httpMessageExchange.getOutputStream().write(responseBody);
     }
 
     public synchronized DeploymentState getState() {

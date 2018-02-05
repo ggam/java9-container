@@ -4,16 +4,15 @@ import eu.ggam.container.api.Deployment;
 import eu.ggam.container.api.event.ServerLifeCycleListener;
 import eu.ggam.container.api.event.ServerStartedEvent;
 import eu.ggam.container.api.event.ServerStartingEvent;
+import eu.ggam.container.api.http.HttpMessageExchange;
 import eu.ggam.container.impl.deployment.DeploymentRegistryImpl;
-import eu.ggam.container.impl.internal.ByteBufferInputStream;
-import eu.ggam.container.impl.internal.ByteBufferOutputStream;
+import eu.ggam.container.impl.http.HttpMessageExchangeImpl;
+import eu.ggam.container.impl.http.HttpRequestInputStream;
+import eu.ggam.container.impl.http.HttpResponseOutputStream;
 import eu.ggam.container.impl.server.event.ServerStartedEventImpl;
 import eu.ggam.container.impl.server.event.ServerStartingEventImpl;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.PushbackInputStream;
 import java.io.StringWriter;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -116,25 +115,27 @@ public class Server {
                                 String lastRead = new String(allocate.array());
                                 int length = lastRead.length();
                                 if (read == -1 || "".equals(lastRead.substring(length - 3, length - 1).trim())) {
-                                    ByteBufferOutputStream output = new ByteBufferOutputStream(outputBufferSize);
-                                    ByteBufferInputStream input = new ByteBufferInputStream(list);
+                                    HttpResponseOutputStream output = new HttpResponseOutputStream(outputBufferSize);
+                                    HttpRequestInputStream input = new HttpRequestInputStream(list);
 
-                                    handleRequest(input, output);
-                                    clientSocket.register(selector, SelectionKey.OP_WRITE, output);
+                                    HttpMessageExchangeImpl httpMessage = HttpMessageExchangeImpl.of(input, output);
+                                    
+                                    handleRequest(httpMessage);
+                                    clientSocket.register(selector, SelectionKey.OP_WRITE, httpMessage);
                                 }
                             }
                         } else if (key.isWritable()) {
                             SocketChannel clientSocket = (SocketChannel) key.channel();
 
-                            ByteBufferOutputStream response = (ByteBufferOutputStream) key.attachment();
+                            HttpMessageExchangeImpl httpMessage = (HttpMessageExchangeImpl) key.attachment();
 
-                            ByteBuffer orElse = response.getNextBuffer().orElse(null);
+                            ByteBuffer orElse = httpMessage.getNextResponseBuffer().orElse(null);
                             if (orElse != null) {
                                 clientSocket.write(orElse);
                             } else {
                                 //clientSocket.close();
                                 clientSocket.register(selector, SelectionKey.OP_READ, new ArrayList<ByteBuffer>());
-                                response.close();
+                                httpMessage.close();
                             }
                         }
                     }
@@ -143,41 +144,26 @@ public class Server {
         }
     }
 
-    private void handleRequest(InputStream input, OutputStream outputStream) throws IOException {
-        PushbackInputStream inputStream = new PushbackInputStream(input, 2000); // 2000 character buffer for URL
-
+    private void handleRequest(HttpMessageExchange httpMessage) throws IOException {
         try {
-            String readString = "";
-            byte[] buffer = new byte[16];
-            while (inputStream.read(buffer, 0, buffer.length) != -1) {
-                readString += new String(buffer);
-                if (readString.contains("\n")) {
-                    break;
-                }
-            }
-
-            inputStream.unread(readString.getBytes());
-            String uri = readString.split("\n")[0].split(" ")[1].split("\\?")[0];
-
             Deployment deployment = deploymentRegistry.getDeployments().
                     stream().
-                    filter(app -> app.matches(uri)).
+                    filter(app -> app.matches(httpMessage.getRequestUri().getPath())).
                     max(Comparator.comparingInt((app) -> app.getContextPath().length())).
                     get();
 
-            deployment.process(inputStream, outputStream);
+            deployment.process(httpMessage);
         } catch (Exception e) {
+
+            LOGGER.log(Level.SEVERE, "Error processing request: ", e);
+            
             StringWriter stackTrace = new StringWriter();
             PrintWriter printer = new PrintWriter(stackTrace);
             e.printStackTrace(printer);
-
-            outputStream.write(("HTTP/1.1 500\n"
-                    + "Content-type: text/html\n"
-                    + "Server-name: localhost\n"
-                    + "\n"
-                    + "Error processing request: " + stackTrace.toString().replaceAll("\n", "<br>")).getBytes());
-
-            LOGGER.log(Level.SEVERE, "Error processing request: ", e);
+            httpMessage.setResponseStatus(500);
+            httpMessage.getResponseHeaders().put("Content-Type", List.of("text/html"));
+            httpMessage.getResponseHeaders().put("Server-name", List.of("localhost"));
+            httpMessage.getOutputStream().write(("Error processing request: " + stackTrace.toString().replaceAll("\n", "<br>")).getBytes());
         }
     }
 }

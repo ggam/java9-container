@@ -1,7 +1,6 @@
 package eu.ggam.container.api;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import eu.ggam.container.api.http.HttpMessageExchange;
 
 /**
  *
@@ -13,7 +12,7 @@ public interface Deployment {
 
     boolean matches(String url);
 
-    void process(InputStream input, OutputStream output) throws Exception;
+    void process(HttpMessageExchange httpMessageExchange) throws Exception;
     
     String getContextPath();
 }

@@ -1,6 +1,5 @@
-package eu.ggam.container.impl.internal;
+package eu.ggam.container.impl.http;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
@@ -11,20 +10,20 @@ import java.util.Queue;
  *
  * @author guillermo
  */
-public class ByteBufferOutputStream extends OutputStream {
+public class HttpResponseOutputStream extends OutputStream {
 
     private final int bufferSize;
     private final Queue<ByteBuffer> buffers = new ArrayDeque<>();
     private ByteBuffer current;
 
-    public ByteBufferOutputStream(int bufferSize) {
+    public HttpResponseOutputStream(int bufferSize) {
         this.bufferSize = bufferSize;
         current = ByteBuffer.allocate(bufferSize);
         buffers.offer(current);
     }
 
     @Override
-    public void write(int b) throws IOException {
+    public void write(int b) {
         if (!current.hasRemaining()) {
             current = ByteBuffer.allocate(bufferSize);
             buffers.offer(current);
@@ -34,7 +33,7 @@ public class ByteBufferOutputStream extends OutputStream {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         buffers.clear();
     }
 
