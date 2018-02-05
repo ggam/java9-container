@@ -54,7 +54,7 @@ public class ServletDeployment implements Deployment {
     private Module warModule;
 
     private EffectiveWebXml webXml;
-    
+
     private ServletContext servletContext;
 
     private FilterChainFactory filterChainFactory;
@@ -98,12 +98,12 @@ public class ServletDeployment implements Deployment {
         moduleLayer = parentLayer.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
         warModule = moduleLayer.findModule(warModuleName).get();
 
-        try ( InputStream is = Files.newInputStream(appPath.resolve(Paths.get("WEB-INF", "web.xml")))) {
+        try (InputStream is = Files.newInputStream(appPath.resolve(Paths.get("WEB-INF", "web.xml")))) {
             webXml = new EffectiveWebXml(contextPath, is, warModule.getClassLoader());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        
+
         servletContext = webXml.getServletContext();
 
         filterChainFactory = new FilterChainFactory(webXml.getServletDescriptors(), webXml.getFilterDescriptors());
@@ -171,14 +171,10 @@ public class ServletDeployment implements Deployment {
         output.write(("HTTP/1.1 " + response.getStatus() + " Unknown\n").getBytes());
 
         String contentType = response.getContentType() != null ? response.getContentType() : "text/html";
-        output.write(("Content-Type: " + contentType + "\r\n\r\n").getBytes());
-
-        if (response.isErrorSent() && response.getStatusMessage() != null) {
-            output.write(response.getStatusMessage().getBytes());
-        } else {
-            output.write(response.getStringWriter().toString().getBytes());
-        }
-
+        output.write(("Content-Type: " + contentType + "\n").getBytes());
+        byte[] responseBody = response.getResponseBody();
+        output.write(("Content-Length: " + responseBody.length + "\r\n\r\n").getBytes());
+        output.write(responseBody);
     }
 
     public synchronized DeploymentState getState() {

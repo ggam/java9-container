@@ -129,7 +129,8 @@ public class Server {
                             if (orElse != null) {
                                 clientSocket.write(orElse);
                             } else {
-                                clientSocket.close();
+                                //clientSocket.close();
+                                clientSocket.register(selector, SelectionKey.OP_READ, new ArrayList<ByteBuffer>());
                                 response.close();
                             }
                         }

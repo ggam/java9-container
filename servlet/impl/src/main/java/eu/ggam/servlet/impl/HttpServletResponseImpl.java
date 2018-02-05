@@ -217,16 +217,11 @@ public class HttpServletResponseImpl implements HttpServletResponse {
      * PROPIETARY METHODS *
      **********************
      */
-    public boolean isErrorSent() {
-        return errorSent;
+    public byte[] getResponseBody() {
+         if (errorSent && statusMessage != null) {
+            return statusMessage.getBytes();
+        } else {
+            return stringWriter.toString().getBytes();
+        }
     }
-
-    public String getStatusMessage() {
-        return statusMessage;
-    }
-
-    public StringWriter getStringWriter() {
-        return stringWriter;
-    }
-
 }
