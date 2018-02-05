@@ -74,7 +74,6 @@ public class Server {
         changeState(ServerState.STARTING);
 
         //ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new HttpWorkerThreadFactory());
-
         deploymentRegistry.deployAll();
 
         changeState(ServerState.RUNNING);
@@ -107,12 +106,16 @@ public class Server {
                             int read = clientSocket.read(allocate);
 
                             List<ByteBuffer> list = (List<ByteBuffer>) key.attachment();
+                            if (read == -1 && list.isEmpty()) {
+                                // Nothing has been read. Perhaps a closed keep alive connection?
+                                continue;
+                            }
                             list.add(allocate);
 
                             if (read < inputBufferSize) {
                                 String lastRead = new String(allocate.array());
                                 int length = lastRead.length();
-                                if ("".equals(lastRead.substring(length - 3, length - 1).trim())) {
+                                if (read == -1 || "".equals(lastRead.substring(length - 3, length - 1).trim())) {
                                     ByteBufferOutputStream output = new ByteBufferOutputStream(outputBufferSize);
                                     ByteBufferInputStream input = new ByteBufferInputStream(list);
 
