@@ -41,7 +41,7 @@ public class ServletMatcher {
         for (ServletDescriptor servletDescriptor : servletDescriptors) {
             for (String exactPattern : servletDescriptor.getExactPatterns()) {
                 if (exactPattern.equals(pathInfo) || (pathInfo == null && "/".equals(exactPattern))) {
-                    LOGGER.log(Level.INFO, "Requrest to {0} will be processed by Servlet {1}", new Object[]{pathInfo, servletDescriptor.getServletName()});
+                    LOGGER.log(Level.INFO, "Request to {0} will be processed by Servlet {1}", new Object[]{pathInfo, servletDescriptor.getServletName()});
 
                     return getServletInstance(servletDescriptor);
                 }
@@ -53,7 +53,7 @@ public class ServletMatcher {
             for (String prefixPattern : servletDescriptor.getPrefixPatterns()) {
                 String prefix = prefixPattern.substring(0, prefixPattern.length() - 1);
                 if (pathInfo != null && pathInfo.startsWith(prefix)) {
-                    LOGGER.log(Level.INFO, "Requrest to {0} will be processed by Servlet {1}", new Object[]{pathInfo, servletDescriptor.getServletName()});
+                    LOGGER.log(Level.INFO, "Request to {0} will be processed by Servlet {1}", new Object[]{pathInfo, servletDescriptor.getServletName()});
 
                     return getServletInstance(servletDescriptor);
                 }
@@ -65,7 +65,7 @@ public class ServletMatcher {
             for (String extensionPattern : servletDescriptor.getExtensionPatterns()) {
                 String extension = extensionPattern.split("\\.")[1];
                 if (pathInfo != null && pathInfo.endsWith(extension)) {
-                    LOGGER.log(Level.INFO, "Requrest to {0} will be processed by Servlet {1}", new Object[]{pathInfo, servletDescriptor.getServletName()});
+                    LOGGER.log(Level.INFO, "Request to {0} will be processed by Servlet {1}", new Object[]{pathInfo, servletDescriptor.getServletName()});
 
                     return getServletInstance(servletDescriptor);
                 }
@@ -73,7 +73,7 @@ public class ServletMatcher {
 
         }
 
-        LOGGER.log(Level.INFO, "Requrest to {0} will be processed by default Servlet, {1}", new Object[]{pathInfo, defaultServlet.getServletName()});
+        LOGGER.log(Level.INFO, "Request to {0} will be processed by default Servlet, {1}", new Object[]{pathInfo, defaultServlet.getServletName()});
         return getServletInstance(defaultServlet);
     }
 
