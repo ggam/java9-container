@@ -24,6 +24,7 @@ public class Launcher {
         }
         int port = Integer.valueOf(String.valueOf(properties.getOrDefault("port", 8383)));
 
+        //new Server(port).start();
         new Server(port).start();
     }
 }

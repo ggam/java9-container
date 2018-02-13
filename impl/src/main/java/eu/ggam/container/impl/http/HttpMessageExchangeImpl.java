@@ -10,6 +10,7 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,27 +32,31 @@ public class HttpMessageExchangeImpl implements HttpMessageExchange, AutoCloseab
     private final Map<String, List<String>> requestHeaders;
     private final HttpRequestInputStream inputStream;
 
-    private Map<String, List<String>> responseHeaders;
-    private final HttpResponseOutputStream responseHeadersStream;
+    private final ArrayDeque<ByteBuffer> responseQueue;
     private final HttpResponseOutputStream responseBodyStream;
+    private Map<String, List<String>> responseHeaders;
+    private final ArrayDeque<ByteBuffer> responseHeadersQueue;
+    private final HttpResponseOutputStream responseHeadersStream;
     private int responseStatus;
 
     private boolean responseInitiated;
     private final Object lock;
 
-    private HttpMessageExchangeImpl(String requestMethod, URI requestUri, Map<String, List<String>> requestHeaders, HttpRequestInputStream inputStream, HttpResponseOutputStream outputStream) {
+    private HttpMessageExchangeImpl(String requestMethod, URI requestUri, Map<String, List<String>> requestHeaders, HttpRequestInputStream inputStream, ArrayDeque<ByteBuffer> responseQueue) {
         this.requestMethod = requestMethod;
         this.requestUri = requestUri;
         this.requestHeaders = Collections.unmodifiableMap(requestHeaders);
         this.inputStream = inputStream;
         this.responseHeaders = new HashMap<>();
-        this.responseHeadersStream = new HttpResponseOutputStream(4096);
-        this.responseBodyStream = outputStream;
+        this.responseQueue = responseQueue;
+        this.responseBodyStream = new HttpResponseOutputStream(responseQueue, 4096);
+        this.responseHeadersQueue = new ArrayDeque<>();
+        this.responseHeadersStream = new HttpResponseOutputStream(responseHeadersQueue, 4096);
         this.lock = new Object();
         this.responseStatus = 200;
     }
 
-    public static HttpMessageExchangeImpl of(HttpRequestInputStream request, HttpResponseOutputStream response) throws RequestParsingException {
+    public static HttpMessageExchangeImpl of(HttpRequestInputStream request, ArrayDeque<ByteBuffer> responseQueue) throws RequestParsingException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(request));
 
         String[] requestLine;
@@ -79,7 +84,7 @@ public class HttpMessageExchangeImpl implements HttpMessageExchange, AutoCloseab
                 headerValues.add(header[1]);
             }
 
-            return new HttpMessageExchangeImpl(method, uri, headers, request, response);
+            return new HttpMessageExchangeImpl(method, uri, headers, request, responseQueue);
         } catch (Exception e) {
             throw new RequestParsingException(e);
         }
@@ -132,6 +137,37 @@ public class HttpMessageExchangeImpl implements HttpMessageExchange, AutoCloseab
         return responseStatus;
     }
 
+    public void prepareResponseBuffer() {
+        if (!responseInitiated) {
+            synchronized (lock) {
+                if (!responseInitiated) {
+                    try {
+                        responseInitiated = true;
+                        responseHeadersStream.write(("HTTP/1.1 " + getResponseStatus() + " Unknown\n").getBytes());
+
+                        Iterator<Entry<String, List<String>>> iterator = getResponseHeaders().entrySet().iterator();
+
+                        while (iterator.hasNext()) {
+                            Entry<String, List<String>> header = iterator.next();
+                            for (String headerValue : header.getValue()) {
+                                String endOfLine = iterator.hasNext() ? "\n" : "\r\n\r\n";
+                                responseHeadersStream.write((header.getKey() + ": " + headerValue + endOfLine).getBytes());
+                            }
+                        }
+
+                        ByteBuffer nextHeadersBuffer;
+                        while ((nextHeadersBuffer = responseHeadersQueue.pollLast()) != null) {
+                            responseQueue.offerFirst(nextHeadersBuffer);
+                        }
+                    } catch (IOException ex) {
+                        throw new UncheckedIOException(ex);
+                    }
+                }
+            }
+        }
+    }
+
+    @Deprecated
     public Optional<ByteBuffer> getNextResponseBuffer() {
         if (!responseInitiated) {
             synchronized (lock) {

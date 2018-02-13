@@ -13,12 +13,17 @@ import java.util.Queue;
 public class HttpResponseOutputStream extends OutputStream {
 
     private final int bufferSize;
-    private final Queue<ByteBuffer> buffers = new ArrayDeque<>();
+    private final Queue<ByteBuffer> buffers;
     private ByteBuffer current;
 
     public HttpResponseOutputStream(int bufferSize) {
+        this(new ArrayDeque<>(), bufferSize);
+    }
+
+    public HttpResponseOutputStream(Queue<ByteBuffer> buffers, int bufferSize) {
+        this.buffers = buffers; // Use the reference directly
         this.bufferSize = bufferSize;
-        current = ByteBuffer.allocate(bufferSize);
+        current = ByteBuffer.allocateDirect(bufferSize);
         buffers.offer(current);
     }
 
