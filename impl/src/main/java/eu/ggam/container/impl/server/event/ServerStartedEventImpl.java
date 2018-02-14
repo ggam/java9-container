@@ -1,6 +1,7 @@
 package eu.ggam.container.impl.server.event;
 
 import eu.ggam.container.api.event.ServerStartedEvent;
+import eu.ggam.container.impl.server.Server;
 
 /**
  *
@@ -8,7 +9,7 @@ import eu.ggam.container.api.event.ServerStartedEvent;
  */
 public class ServerStartedEventImpl extends ServerStartedEvent {
 
-    public ServerStartedEventImpl(Object source) {
+    public ServerStartedEventImpl(Server source) {
         super(source);
     }
 }
