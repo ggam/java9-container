@@ -10,6 +10,7 @@ import java.util.Map;
  *
  * @author guillermo
  */
+@Deprecated
 public interface HttpMessageExchange {
 
     String getRequestMethod();

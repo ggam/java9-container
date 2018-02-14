@@ -1,6 +1,7 @@
 package eu.ggam.container.api;
 
-import eu.ggam.container.api.http.HttpMessageExchange;
+import eu.ggam.container.api.http.HttpRequest;
+import eu.ggam.container.api.http.HttpResponse;
 
 /**
  *
@@ -12,7 +13,7 @@ public interface Deployment {
 
     boolean matches(String url);
 
-    void process(HttpMessageExchange httpMessageExchange) throws Exception;
+    void process(HttpRequest request, HttpResponse response) throws Exception;
     
     String getContextPath();
 }

@@ -1,4 +1,4 @@
-package eu.ggam.container.impl.http;
+package eu.ggam.container.impl.internal;
 
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -10,17 +10,17 @@ import java.util.Queue;
  *
  * @author guillermo
  */
-public class HttpResponseOutputStream extends OutputStream {
+public class ByteBufferOutputStream extends OutputStream {
 
     private final int bufferSize;
     private final Queue<ByteBuffer> buffers;
     private ByteBuffer current;
 
-    public HttpResponseOutputStream(int bufferSize) {
+    public ByteBufferOutputStream(int bufferSize) {
         this(new ArrayDeque<>(), bufferSize);
     }
 
-    public HttpResponseOutputStream(Queue<ByteBuffer> buffers, int bufferSize) {
+    public ByteBufferOutputStream(Queue<ByteBuffer> buffers, int bufferSize) {
         this.buffers = buffers; // Use the reference directly
         this.bufferSize = bufferSize;
         current = ByteBuffer.allocateDirect(bufferSize);

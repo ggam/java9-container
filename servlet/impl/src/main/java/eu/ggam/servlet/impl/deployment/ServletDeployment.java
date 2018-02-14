@@ -1,7 +1,8 @@
 package eu.ggam.servlet.impl.deployment;
 
 import eu.ggam.container.api.Deployment;
-import eu.ggam.container.api.http.HttpMessageExchange;
+import eu.ggam.container.api.http.HttpRequest;
+import eu.ggam.container.api.http.HttpResponse;
 import eu.ggam.servlet.impl.FilterChainFactory;
 import eu.ggam.servlet.impl.HttpServletRequestImpl;
 import eu.ggam.servlet.impl.HttpServletResponseImpl;
@@ -109,9 +110,9 @@ public class ServletDeployment implements Deployment {
     }
 
     @Override
-    public void process(HttpMessageExchange httpMessageExchange) throws IOException, ServletException {
+    public void process(HttpRequest containerRequest, HttpResponse containerResponse) throws IOException, ServletException {
         // TODO: process entity body
-        HttpServletRequestImpl servletRequest = new HttpServletRequestImpl(servletContext, httpMessageExchange.getRequestMethod(), httpMessageExchange.getRequestUri(), httpMessageExchange.getRequestHeaders());
+        HttpServletRequestImpl servletRequest = new HttpServletRequestImpl(servletContext, containerRequest.getMethod(), containerRequest.getUri(), containerRequest.getHeaders());
         HttpServletResponseImpl servletResponse = new HttpServletResponseImpl();
 
         if (!matches(servletRequest.getRequestURI())) {
@@ -122,18 +123,18 @@ public class ServletDeployment implements Deployment {
 
         filterChain.doFilter(servletRequest, servletResponse);
 
-        sendResponse(servletResponse, httpMessageExchange);
+        sendResponse(servletResponse, containerResponse);
     }
 
-    private void sendResponse(HttpServletResponseImpl response, HttpMessageExchange httpMessageExchange) throws IOException {
-        httpMessageExchange.setResponseStatus(response.getStatus());
+    private void sendResponse(HttpServletResponseImpl response, HttpResponse containerResponse) throws IOException {
+        containerResponse.setStatus(response.getStatus());
         String contentType = response.getContentType() != null ? response.getContentType() : "text/html";
-        httpMessageExchange.getResponseHeaders().put("Content-Type", List.of(contentType));
+        containerResponse.getHeaders().put("Content-Type", List.of(contentType));
 
         byte[] responseBody = response.getResponseBody();
-        httpMessageExchange.getResponseHeaders().put("Content-Length", List.of(String.valueOf(responseBody.length)));
+        containerResponse.getHeaders().put("Content-Length", List.of(String.valueOf(responseBody.length)));
         
-        httpMessageExchange.getOutputStream().write(responseBody);
+        containerResponse.getOutputStream().write(responseBody);
     }
 
     public synchronized DeploymentState getState() {

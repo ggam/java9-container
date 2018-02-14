@@ -2,7 +2,8 @@ package eu.ggam.container.impl;
 
 import eu.ggam.container.api.Deployment;
 import eu.ggam.container.api.deployment.DeploymentRegistry;
-import eu.ggam.container.api.http.HttpMessageExchange;
+import eu.ggam.container.impl.http.HttpRequestBuilder;
+import eu.ggam.container.impl.http.HttpResponseImpl;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -18,32 +19,39 @@ import java.util.logging.Logger;
 public class RequestHandler {
 
     private static final Logger LOGGER = Logger.getLogger(RequestHandler.class.getName());
-    
+
     private final DeploymentRegistry deploymentRegistry;
 
     public RequestHandler(DeploymentRegistry deploymentRegistry) {
         this.deploymentRegistry = deploymentRegistry;
     }
 
-    public void handleRequest(HttpMessageExchange httpMessage) throws IOException {
+    public void handle(HttpRequestBuilder.HttpRequestImpl request, HttpResponseImpl response) throws IOException {
         try {
             Deployment deployment = deploymentRegistry.getDeployments().
                     stream().
-                    filter(app -> app.matches(httpMessage.getRequestUri().getPath())).
+                    filter(app -> app.matches(request.getUri().getPath())).
                     max(Comparator.comparingInt((app) -> app.getContextPath().length())).
                     get();
 
-            deployment.process(httpMessage);
+            deployment.process(request, response);
         } catch (Exception e) {
-
             LOGGER.log(Level.SEVERE, "Error processing request: ", e);
+
             StringWriter stackTrace = new StringWriter();
             PrintWriter printer = new PrintWriter(stackTrace);
             e.printStackTrace(printer);
-            httpMessage.setResponseStatus(500);
-            httpMessage.getResponseHeaders().put("Content-Type", List.of("text/html"));
-            httpMessage.getResponseHeaders().put("Server-name", List.of("localhost"));
-            httpMessage.getOutputStream().write(("Error processing request: " + stackTrace.toString().replaceAll("\n", "<br>")).getBytes());
+            response.setStatus(500);
+
+            response.getHeaders().put("Content-Type", List.of("text/html"));
+            response.getHeaders().put("Server-name", List.of("localhost"));
+
+            byte[] body = ("Error processing request: " + stackTrace.toString().replaceAll("\n", "<br>")).getBytes();
+            response.getHeaders().put("Content-Length", List.of(String.valueOf(body.length)));
+
+            response.getOutputStream().write(body);
         }
+        
+        response.finish(); // Makes the buffer queue available
     }
 }

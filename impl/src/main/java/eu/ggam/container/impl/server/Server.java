@@ -5,6 +5,8 @@ import eu.ggam.container.api.event.ServerStartedEvent;
 import eu.ggam.container.api.event.ServerStartingEvent;
 import eu.ggam.container.impl.RequestHandler;
 import eu.ggam.container.impl.deployment.DeploymentRegistryImpl;
+import eu.ggam.container.impl.http.HttpRequestBuilder;
+import eu.ggam.container.impl.http.HttpResponseImpl;
 import eu.ggam.container.impl.server.event.ServerStartedEventImpl;
 import eu.ggam.container.impl.server.event.ServerStartingEventImpl;
 import eu.ggam.container.impl.server.handler.AcceptHandler;
@@ -53,12 +55,14 @@ public class Server {
                 iterator().
                 forEachRemaining(lifeCycleListeners::add);
 
-        Map<SocketChannel, HttpRequestHolder> pendingData = new HashMap<>();
-
+        
+        Map<SocketChannel, HttpRequestBuilder> inflightRequests = new HashMap<>();
+        Map<SocketChannel, HttpResponseImpl> inflightResponses = new HashMap<>();
+        
         Set<Handler> handlersTemp = new HashSet<>();
-        handlersTemp.add(new AcceptHandler(pendingData));
-        handlersTemp.add(new ReadHandler(pendingData, new RequestHandler(deploymentRegistry)));
-        handlersTemp.add(new WriteHandler(pendingData));
+        handlersTemp.add(new AcceptHandler());
+        handlersTemp.add(new ReadHandler(inflightRequests, inflightResponses, new RequestHandler(deploymentRegistry)));
+        handlersTemp.add(new WriteHandler(inflightResponses));
 
         handlers = Collections.unmodifiableSet(handlersTemp);
     }

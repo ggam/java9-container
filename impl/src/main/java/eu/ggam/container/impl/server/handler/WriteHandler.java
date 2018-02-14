@@ -1,12 +1,10 @@
 package eu.ggam.container.impl.server.handler;
 
-import eu.ggam.container.impl.server.HttpRequestHolder;
+import eu.ggam.container.impl.http.HttpResponseImpl;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Map;
-import java.util.Queue;
 
 /**
  *
@@ -14,38 +12,31 @@ import java.util.Queue;
  */
 public class WriteHandler implements Handler {
 
-    private final Map<SocketChannel, HttpRequestHolder> pendingData;
+    private final Map<SocketChannel, HttpResponseImpl> inflightResponses;
 
-    public WriteHandler(Map<SocketChannel, HttpRequestHolder> pendingData) {
-        this.pendingData = pendingData;
+    public WriteHandler(Map<SocketChannel, HttpResponseImpl> inflightResponses) {
+        this.inflightResponses = inflightResponses;
     }
 
     @Override
     public void handle(SelectionKey selectionKey) throws IOException {
-        SocketChannel sc = (SocketChannel) selectionKey.channel();
+        SocketChannel channel = (SocketChannel) selectionKey.channel();
 
-        HttpRequestHolder get = pendingData.get(sc);
-        get.createExchange().prepareResponseBuffer();
+        HttpResponseImpl response = inflightResponses.get(channel);
 
-        Queue<ByteBuffer> queue = pendingData.get(sc).getOutput();
-        while (!queue.isEmpty()) {
-            ByteBuffer buf = queue.peek();
-            buf.flip();
-            int written = sc.write(buf);
-            if (written == -1) {
-                // Lost connection?
-                sc.close();
-                pendingData.remove(sc);
-                return;
-            }
+        HttpResponseImpl.ResponseStatus status = response.write(channel);
 
-            if (buf.hasRemaining()) {
-                return;
-            }
-            queue.remove();
+        switch (status) {
+            case CONNECTION_LOST:
+                inflightResponses.remove(channel);
+                channel.close();
+            case ALL_SENT:
+                inflightResponses.remove(channel);
+                selectionKey.interestOps(SelectionKey.OP_READ);
+                break;
+            default:
+            // There's some data pending
         }
-        pendingData.put(sc, new HttpRequestHolder());
-        selectionKey.interestOps(SelectionKey.OP_READ);
     }
 
     @Override
