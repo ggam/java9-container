@@ -8,7 +8,7 @@ This is a (WIP) toy project HTTP 1.1 server and Servlet 2.5 Container implementa
 
 ## API JavaDoc
 
-http://ggam.eu/java9-container/
+http://ggam.eu/java9-container/site/apidocs
 
 ## Running
 
