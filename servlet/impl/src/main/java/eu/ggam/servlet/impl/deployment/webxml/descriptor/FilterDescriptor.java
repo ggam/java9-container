@@ -27,11 +27,8 @@ public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterCon
     private final ServletContextImpl servletContext;
     private final int position;
 
-    private final Set<String> exactPatterns = new HashSet<>();
-    private final Set<String> prefixPatterns = new HashSet<>();
-    private final Set<String> extensionPatterns = new HashSet<>();
-    private final Set<String> namedServlets = new HashSet<>();
-    
+    private final Set<MatchingPattern> matchingMatterns = new HashSet<>();
+
     private final Map<String, String> initParams = new HashMap<>();
 
     public FilterDescriptor(ServletContextImpl servletContext, FilterType filterType, List<FilterMappingType> filterMappingTypes, int position) throws ClassNotFoundException {
@@ -43,41 +40,14 @@ public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterCon
         for (ParamValueType initParamTypes : filterType.getInitParams()) {
             initParams.put(initParamTypes.getParamName().getValue(), initParamTypes.getParamValue().getValue());
         }
-        
+
         for (FilterMappingType mapping : filterMappingTypes) {
             for (UrlPatternType servletNamePattern : mapping.getServletNames()) {
-                namedServlets.add(servletNamePattern.getValue());
+                matchingMatterns.add(MatchingPattern.createServletNamePattern(servletNamePattern.getValue()));
             }
 
             for (UrlPatternType urlPattern : mapping.getUrlPatterns()) {
-                String pattern = urlPattern.getValue();
-
-                /* Validation */
-                if (pattern.startsWith("*") && pattern.endsWith("*")) {
-                    throw new IllegalArgumentException("Invalid URL starting and ending with *");
-                }
-
-                if (pattern.startsWith("/") && pattern.contains("*") && !pattern.endsWith("*")) {
-                    throw new IllegalArgumentException("Invalid URL starting with / and ending with *");
-                }
-
-                /* Categorization */
-                // Exact match
-                if (!pattern.contains("*")) {
-                    exactPatterns.add(pattern);
-                    break;
-                }
-
-                // Prefix
-                if (pattern.startsWith("/")) {
-                    prefixPatterns.add(pattern);
-                    break;
-                }
-
-                // Extension
-                if (pattern.contains("*")) {
-                    extensionPatterns.add(pattern);
-                }
+                matchingMatterns.add(MatchingPattern.createUrlPattern(urlPattern.getValue()));
             }
         }
     }
@@ -95,20 +65,8 @@ public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterCon
         return position;
     }
 
-    public Set<String> getExactPatterns() {
-        return new HashSet<>(exactPatterns);
-    }
-
-    public Set<String> getPrefixPatterns() {
-        return new HashSet<>(prefixPatterns);
-    }
-
-    public Set<String> getExtensionPatterns() {
-        return new HashSet<>(extensionPatterns);
-    }
-
-    public Set<String> getNamedServlets() {
-        return namedServlets;
+    public Set<MatchingPattern> getMatchingMatterns() {
+        return new HashSet<>(matchingMatterns);
     }
 
     @Override

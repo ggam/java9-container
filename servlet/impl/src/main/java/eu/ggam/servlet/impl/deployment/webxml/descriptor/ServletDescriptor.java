@@ -26,19 +26,18 @@ public class ServletDescriptor implements ServletConfig {
     private final String servletName;
     private final Class<? extends Servlet> servletClass;
 
-    private final Set<String> exactPatterns = new HashSet<>();
-    private final Set<String> prefixPatterns = new HashSet<>();
-    private final Set<String> extensionPatterns = new HashSet<>();
+    private final Set<MatchingPattern> urlPatterns = new HashSet<>();
 
     private final Map<String, String> initParams = new HashMap<>();
 
     private final boolean defaultServlet;
-    
+
     private final ServletContextImpl servletContext;
 
     /**
      * Specific constructor for default Servlet via {@link EffectiveWebXml}
      *
+     * @param servletContext
      * @param servletName
      * @param servletClass
      */
@@ -60,6 +59,7 @@ public class ServletDescriptor implements ServletConfig {
 
         boolean isDefault = false;
 
+        // TODO: categorize using RegEx to also validate correctness
         for (ServletMappingType servletMapping : mappings) {
             for (UrlPatternType urlPattern : servletMapping.getUrlPatterns()) {
                 String pattern = urlPattern.getValue();
@@ -69,31 +69,7 @@ public class ServletDescriptor implements ServletConfig {
                     continue;
                 }
 
-                /* Validation */
-                if (pattern.startsWith("*") && pattern.endsWith("*")) {
-                    throw new IllegalArgumentException("Invalid URL starting and ending with *");
-                }
-
-                if (pattern.startsWith("/") && pattern.contains("*") && !pattern.endsWith("*")) {
-                    throw new IllegalArgumentException("Invalid URL starting with / and ending with *");
-                }
-
-                /* Categorization */
-                // Exact match
-                if (!pattern.contains("*")) {
-                    exactPatterns.add(pattern);
-                } else {
-                    // Prefix
-                    if (pattern.startsWith("/")) {
-                        prefixPatterns.add(pattern);
-                        break;
-                    } else {
-                        // Extension
-                        if (pattern.contains("*")) {
-                            extensionPatterns.add(pattern);
-                        }
-                    }
-                }
+                urlPatterns.add(MatchingPattern.createUrlPattern(pattern));
             }
         }
 
@@ -109,16 +85,8 @@ public class ServletDescriptor implements ServletConfig {
         return servletClass;
     }
 
-    public Set<String> getExactPatterns() {
-        return new HashSet<>(exactPatterns);
-    }
-
-    public Set<String> getPrefixPatterns() {
-        return new HashSet<>(prefixPatterns);
-    }
-
-    public Set<String> getExtensionPatterns() {
-        return new HashSet<>(extensionPatterns);
+    public Set<MatchingPattern> getUrlPatterns() {
+        return new HashSet<>(urlPatterns);
     }
 
     @Override

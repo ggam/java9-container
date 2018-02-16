@@ -1,8 +1,12 @@
 package eu.ggam.servlet.impl.deployment;
 
+import eu.ggam.servlet.impl.deployment.webxml.descriptor.MatchingPattern;
+import eu.ggam.servlet.impl.deployment.webxml.descriptor.MatchingPattern.MatchType;
 import eu.ggam.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -23,6 +27,8 @@ public class ServletMatcher {
 
     private final ConcurrentHashMap<String, Servlet> servletInstances;
 
+    private static final EnumSet<MatchType> MATCHING_TYPES = EnumSet.of(MatchType.EXACT, MatchType.EXTENSION, MatchType.PREFIX);
+
     public ServletMatcher(Set<ServletDescriptor> servletDescriptors) {
         this.servletDescriptors = new HashSet<>(servletDescriptors);
         this.servletInstances = new ConcurrentHashMap<>();
@@ -35,42 +41,20 @@ public class ServletMatcher {
     }
 
     public Servlet match(String pathInfo) throws ServletException {
-        // TODO: pathInfor == null?
+        for (MatchType matchType : MATCHING_TYPES) {
+            for (ServletDescriptor servletDescriptor : servletDescriptors) {
+                Optional<MatchingPattern> findAny = servletDescriptor.getUrlPatterns().
+                        stream().
+                        filter(p -> p.getMatchType() == matchType).
+                        filter(p -> p.matchesPathInfo(pathInfo)).
+                        findAny();
 
-        // Look for exact patterns
-        for (ServletDescriptor servletDescriptor : servletDescriptors) {
-            for (String exactPattern : servletDescriptor.getExactPatterns()) {
-                if (exactPattern.equals(pathInfo) || (pathInfo == null && "/".equals(exactPattern))) {
-                    LOGGER.log(Level.INFO, "Request to {0} will be processed by Servlet {1}", new Object[]{pathInfo, servletDescriptor.getServletName()});
-
-                    return getServletInstance(servletDescriptor);
-                }
-            }
-        }
-
-        // Check prefix patterns
-        for (ServletDescriptor servletDescriptor : servletDescriptors) {
-            for (String prefixPattern : servletDescriptor.getPrefixPatterns()) {
-                String prefix = prefixPattern.substring(0, prefixPattern.length() - 1);
-                if (pathInfo != null && pathInfo.startsWith(prefix)) {
-                    LOGGER.log(Level.INFO, "Request to {0} will be processed by Servlet {1}", new Object[]{pathInfo, servletDescriptor.getServletName()});
+                if (findAny.isPresent()) {
+                    LOGGER.log(Level.INFO, "Request to {0} will be processed by Servlet {1} ({2} match)", new Object[]{pathInfo, servletDescriptor.getServletName(), matchType});
 
                     return getServletInstance(servletDescriptor);
                 }
             }
-        }
-
-        // Finally, verify extension patterns
-        for (ServletDescriptor servletDescriptor : servletDescriptors) {
-            for (String extensionPattern : servletDescriptor.getExtensionPatterns()) {
-                String extension = extensionPattern.split("\\.")[1];
-                if (pathInfo != null && pathInfo.endsWith(extension)) {
-                    LOGGER.log(Level.INFO, "Request to {0} will be processed by Servlet {1}", new Object[]{pathInfo, servletDescriptor.getServletName()});
-
-                    return getServletInstance(servletDescriptor);
-                }
-            }
-
         }
 
         LOGGER.log(Level.INFO, "Request to {0} will be processed by default Servlet, {1}", new Object[]{pathInfo, defaultServlet.getServletName()});
