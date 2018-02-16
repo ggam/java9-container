@@ -3,4 +3,4 @@ jdk:
   - oraclejdk9
 script: ./test.sh
 after_success:
-  - ./publish-api.sh
+  - ./publish_api.sh
