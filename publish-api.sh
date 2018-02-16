@@ -4,7 +4,7 @@ cd api
 
 mvn javadoc:javadoc
 
-sitePath="$(pwd)/target/site"
+sitePath="$(pwd)/target/site/"
 
 cd $HOME
 
