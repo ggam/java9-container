@@ -1,4 +1,4 @@
-package eu.ggam.servlet.impl.deployment.webxml.descriptor;
+package eu.ggam.servlet.impl.deployment.servlet.webxml.descriptor;
 
 import eu.ggam.servlet.impl.ServletContextImpl;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterMappingType;

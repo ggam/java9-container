@@ -1,6 +1,6 @@
 package eu.ggam.container.api.http;
 
-import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +14,7 @@ public interface HttpResponse {
 
     Map<String, List<String>> getHeaders();
 
-    OutputStream getOutputStream();
+    ByteArrayOutputStream getOutputStream();
 
     void setStatus(int status);
 

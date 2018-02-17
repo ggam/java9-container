@@ -1,4 +1,4 @@
-package eu.ggam.servlet.impl.deployment.webxml.descriptor;
+package eu.ggam.servlet.impl.deployment.servlet.webxml.descriptor;
 
 import java.util.Objects;
 

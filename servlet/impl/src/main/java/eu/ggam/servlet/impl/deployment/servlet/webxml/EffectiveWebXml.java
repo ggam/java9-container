@@ -1,4 +1,4 @@
-package eu.ggam.servlet.impl.deployment.webxml;
+package eu.ggam.servlet.impl.deployment.servlet.webxml;
 
 import eu.ggam.servlet.impl.ServletContextImpl;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterMappingType;
@@ -8,8 +8,8 @@ import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ObjectFactory;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ServletMappingType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.WebApp;
-import eu.ggam.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
-import eu.ggam.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
+import eu.ggam.servlet.impl.deployment.servlet.webxml.descriptor.FilterDescriptor;
+import eu.ggam.servlet.impl.deployment.servlet.webxml.descriptor.ServletDescriptor;
 import eu.ggam.servlet.impl.system.FileServlet;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;

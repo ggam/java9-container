@@ -1,12 +1,13 @@
-package eu.ggam.servlet.impl.deployment;
+package eu.ggam.servlet.impl.deployment.servlet;
 
-import eu.ggam.container.api.Deployment;
+import eu.ggam.servlet.impl.deployment.Deployment;
 import eu.ggam.container.api.http.HttpRequest;
 import eu.ggam.container.api.http.HttpResponse;
 import eu.ggam.servlet.impl.FilterChainFactory;
 import eu.ggam.servlet.impl.HttpServletRequestImpl;
 import eu.ggam.servlet.impl.HttpServletResponseImpl;
-import eu.ggam.servlet.impl.deployment.webxml.EffectiveWebXml;
+import eu.ggam.servlet.impl.deployment.DeploymentState;
+import eu.ggam.servlet.impl.deployment.servlet.webxml.EffectiveWebXml;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;

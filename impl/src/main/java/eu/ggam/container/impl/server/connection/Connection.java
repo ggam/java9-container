@@ -63,7 +63,7 @@ public class Connection {
         while (!outputQueue.isEmpty()) {
             ByteBuffer buf = outputQueue.peek();
             buf.flip();
-
+            
             int written = channel.write(buf);
             if (written == -1) { // Connection is closed
                 channel.close();

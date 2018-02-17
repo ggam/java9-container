@@ -1,11 +1,11 @@
-package eu.ggam.servlet.impl.deployment.webxml.descriptor;
+package eu.ggam.servlet.impl.deployment.servlet.webxml.descriptor;
 
 import eu.ggam.servlet.impl.ServletContextImpl;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ServletMappingType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ServletType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.UrlPatternType;
-import eu.ggam.servlet.impl.deployment.webxml.EffectiveWebXml;
+import eu.ggam.servlet.impl.deployment.servlet.webxml.EffectiveWebXml;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;

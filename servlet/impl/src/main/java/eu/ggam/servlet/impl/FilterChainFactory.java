@@ -1,9 +1,9 @@
 package eu.ggam.servlet.impl;
 
-import eu.ggam.servlet.impl.deployment.FilterMatcher;
-import eu.ggam.servlet.impl.deployment.ServletMatcher;
-import eu.ggam.servlet.impl.deployment.webxml.descriptor.FilterDescriptor;
-import eu.ggam.servlet.impl.deployment.webxml.descriptor.ServletDescriptor;
+import eu.ggam.servlet.impl.deployment.servlet.FilterMatcher;
+import eu.ggam.servlet.impl.deployment.servlet.ServletMatcher;
+import eu.ggam.servlet.impl.deployment.servlet.webxml.descriptor.FilterDescriptor;
+import eu.ggam.servlet.impl.deployment.servlet.webxml.descriptor.ServletDescriptor;
 import java.util.Queue;
 import java.util.Set;
 import javax.servlet.Filter;

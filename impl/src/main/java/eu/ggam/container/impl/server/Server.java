@@ -3,8 +3,7 @@ package eu.ggam.container.impl.server;
 import eu.ggam.container.api.event.ServerLifeCycleListener;
 import eu.ggam.container.api.event.ServerStartedEvent;
 import eu.ggam.container.api.event.ServerStartingEvent;
-import eu.ggam.container.impl.RequestHandler;
-import eu.ggam.container.impl.deployment.DeploymentRegistryImpl;
+import eu.ggam.container.api.http.HttpRequestHandler;
 import eu.ggam.container.impl.server.connection.ConnectionManager;
 import eu.ggam.container.impl.server.event.ServerStartedEventImpl;
 import eu.ggam.container.impl.server.event.ServerStartingEventImpl;
@@ -18,6 +17,7 @@ import java.util.List;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static java.util.stream.Collectors.toList;
 
 /**
  *
@@ -31,8 +31,7 @@ public class Server {
     private final int port;
     private final List<ServerLifeCycleListener> lifeCycleListeners;
 
-    // Server already running
-    private final DeploymentRegistryImpl deploymentRegistry = new DeploymentRegistryImpl();
+    private HttpRequestHandler requestHandler;
 
     public Server(int port) {
         this.port = port;
@@ -41,6 +40,14 @@ public class Server {
         ServiceLoader.load(ServerLifeCycleListener.class).
                 iterator().
                 forEachRemaining(lifeCycleListeners::add);
+
+        List<ServiceLoader.Provider<HttpRequestHandler>> requestHandlers = ServiceLoader.load(HttpRequestHandler.class).
+                stream().
+                collect(toList());
+        if (requestHandlers.size() != 1) {
+            throw new IllegalStateException("There must be exactly one " + HttpRequestHandler.class.getSimpleName() + ". (" + requestHandlers.size() + " found)");
+        }
+        requestHandler = requestHandlers.iterator().next().get();
     }
 
     private synchronized void changeState(ServerState newState) {
@@ -48,7 +55,7 @@ public class Server {
 
         switch (newState) {
             case STARTING:
-                ServerStartingEvent startingEvent = new ServerStartingEventImpl(this, deploymentRegistry);
+                ServerStartingEvent startingEvent = new ServerStartingEventImpl(this);
                 lifeCycleListeners.forEach(listener -> listener.serverStarting(startingEvent));
                 break;
             case RUNNING:
@@ -64,8 +71,6 @@ public class Server {
         changeState(ServerState.STARTING);
 
         //ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new HttpWorkerThreadFactory());
-        deploymentRegistry.deployAll();
-
         changeState(ServerState.RUNNING);
         LOGGER.log(Level.INFO, "\n============================\nServer is running on port {0}", String.valueOf(port));
 
@@ -76,7 +81,7 @@ public class Server {
         serverSocket.configureBlocking(false);
         serverSocket.register(selector, SelectionKey.OP_ACCEPT);
 
-        ConnectionManager connectionManager = new ConnectionManager(new RequestHandler(deploymentRegistry), selector);
+        ConnectionManager connectionManager = new ConnectionManager(requestHandler, selector);
         connectionManager.beginService();
     }
 }

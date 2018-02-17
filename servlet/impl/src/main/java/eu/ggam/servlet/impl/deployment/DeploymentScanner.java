@@ -1,8 +1,8 @@
-package eu.ggam.servlet.impl.deployment.deployment;
+package eu.ggam.servlet.impl.deployment;
 
 import eu.ggam.container.api.event.ServerLifeCycleListener;
 import eu.ggam.container.api.event.ServerStartingEvent;
-import eu.ggam.servlet.impl.deployment.ServletDeployment;
+import eu.ggam.servlet.impl.deployment.servlet.ServletDeployment;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -20,7 +20,7 @@ public class DeploymentScanner implements ServerLifeCycleListener {
     private static final Path WEBAPPS_PATH = Paths.get("..", "webapps");
 
     private static final Logger LOGGER = Logger.getLogger(DeploymentScanner.class.getName());
-    
+
     @Override
     public void serverStarting(ServerStartingEvent serverStartingEvent) {
         try {
@@ -28,10 +28,12 @@ public class DeploymentScanner implements ServerLifeCycleListener {
                     filter(Files::isDirectory).
                     map(p -> new ServletDeployment(ModuleLayer.boot(), p)).
                     peek(deployment -> LOGGER.log(Level.FINE, "Registered deployment for path: {0}", deployment.getContextPath())).
-                    forEach(serverStartingEvent::registerDeployment);
+                    forEach(DeploymentRegistry::registerDeployment);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+
+        DeploymentRegistry.deployAll();
     }
 
 }

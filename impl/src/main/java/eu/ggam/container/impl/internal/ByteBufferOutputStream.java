@@ -3,7 +3,6 @@ package eu.ggam.container.impl.internal;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
-import java.util.Optional;
 import java.util.Queue;
 
 /**
@@ -23,7 +22,7 @@ public class ByteBufferOutputStream extends OutputStream {
     public ByteBufferOutputStream(Queue<ByteBuffer> buffers, int bufferSize) {
         this.buffers = buffers; // Use the reference directly
         this.bufferSize = bufferSize;
-        current = ByteBuffer.allocateDirect(bufferSize);
+        current = ByteBuffer.allocate(bufferSize);
         buffers.offer(current);
     }
 
@@ -41,17 +40,4 @@ public class ByteBufferOutputStream extends OutputStream {
     public void close() {
         buffers.clear();
     }
-
-    public Optional<ByteBuffer> getNextBuffer() {
-        ByteBuffer poll = buffers.poll();
-
-        if (poll == null || poll.remaining() == bufferSize) {
-            return Optional.empty();
-        }
-
-        poll.flip();
-
-        return Optional.of(poll);
-    }
-
 }

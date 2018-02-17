@@ -8,5 +8,7 @@ module eu.ggam.container.servlet.Impl {
     opens eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee to java.xml.bind;
 
     provides eu.ggam.container.api.event.ServerLifeCycleListener
-            with eu.ggam.servlet.impl.deployment.deployment.DeploymentScanner;
+            with eu.ggam.servlet.impl.deployment.DeploymentScanner;
+    provides eu.ggam.container.api.http.HttpRequestHandler
+            with eu.ggam.servlet.impl.container.HttpServletRequestHandler;
 }
