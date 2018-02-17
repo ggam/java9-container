@@ -9,6 +9,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +28,8 @@ public class RequestHandler {
         this.deploymentRegistry = deploymentRegistry;
     }
 
-    public void handle(HttpRequestImpl request, HttpResponseImpl response) throws IOException {
+    public CompletionStage<HttpResponseImpl> handle(HttpRequestImpl request) throws IOException {
+        HttpResponseImpl response = new HttpResponseImpl(request.getConnection());
         try {
             Deployment deployment = deploymentRegistry.getDeployments().
                     stream().
@@ -52,6 +55,9 @@ public class RequestHandler {
             response.getOutputStream().write(body);
         }
         
-        response.complete(); // Move from the intermediate buffer to the connection one
+        CompletableFuture<HttpResponseImpl> completableFuture = new CompletableFuture<>();
+        completableFuture.complete(response);
+        
+        return completableFuture;
     }
 }

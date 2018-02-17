@@ -1,7 +1,6 @@
 package eu.ggam.container.impl.http;
 
 import eu.ggam.container.api.http.HttpRequest;
-import eu.ggam.container.impl.http.RequestParsingException;
 import eu.ggam.container.impl.server.connection.Connection;
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -23,9 +22,11 @@ public final class HttpRequestImpl implements HttpRequest {
     private final URI uri;
     private final Map<String, List<String>> headers;
     private final InputStream inputStream;
+    private final Connection connection;
 
     public HttpRequestImpl(Connection connection) throws RequestParsingException {
         InputStream input = connection.getInputStream();
+        this.connection = connection;
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
         String[] requestLine;
@@ -79,6 +80,10 @@ public final class HttpRequestImpl implements HttpRequest {
     @Override
     public InputStream getInputStream() {
         return inputStream;
+    }
+
+    public Connection getConnection() {
+        return connection;
     }
 
 }

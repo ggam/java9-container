@@ -1,8 +1,7 @@
 package eu.ggam.container.impl.server.connection;
 
-import eu.ggam.container.impl.http.HttpResponseImpl;
-import eu.ggam.container.impl.http.HttpRequestImpl;
 import eu.ggam.container.impl.RequestHandler;
+import eu.ggam.container.impl.http.HttpRequestImpl;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.channels.SelectionKey;
@@ -60,9 +59,12 @@ public class ConnectionManager {
                                 connection.read();
 
                                 if (connection.readFinished()) {
-                                    requestHandler.handle(new HttpRequestImpl(connection), new HttpResponseImpl(connection));
-
-                                    key.interestOps(SelectionKey.OP_WRITE);
+                                    requestHandler.handle(new HttpRequestImpl(connection))
+                                            .thenAccept(response -> {
+                                                response.complete(); // Move from the intermediate buffer to the connection one
+                                                key.interestOps(SelectionKey.OP_WRITE);
+                                                selector.wakeup();
+                                            });
                                 }
                             } else if (key.isWritable()) {
                                 connection.write();
