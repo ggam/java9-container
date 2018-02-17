@@ -1,6 +1,5 @@
 package eu.ggam.container.impl;
 
-import eu.ggam.container.impl.server.Server;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
