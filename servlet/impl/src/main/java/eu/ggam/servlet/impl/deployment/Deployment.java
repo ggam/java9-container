@@ -13,7 +13,7 @@ public interface Deployment {
 
     boolean matches(String url);
 
-    void process(HttpRequest request, HttpResponse response) throws Exception;
+    HttpResponse process(HttpRequest request) throws Exception;
     
     String getContextPath();
 }

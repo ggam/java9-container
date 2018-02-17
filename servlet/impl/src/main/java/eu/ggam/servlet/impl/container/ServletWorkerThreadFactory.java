@@ -1,4 +1,4 @@
-package eu.ggam.container.impl.internal;
+package eu.ggam.servlet.impl.container;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -9,11 +9,11 @@ import java.util.logging.Logger;
  *
  * @author guillermo
  */
-public class HttpWorkerThreadFactory implements ThreadFactory {
+public class ServletWorkerThreadFactory implements ThreadFactory {
 
     private static final Thread.UncaughtExceptionHandler EXCEPTION_HANDLER = new UncaughtExceptionHandler();
     
-    private static final ThreadGroup THREAD_GROUP = new ThreadGroup("http-worker");
+    private static final ThreadGroup THREAD_GROUP = new ThreadGroup("servlet-worker");
     private static final AtomicInteger THREAD_COUNT= new AtomicInteger();
 
     @Override

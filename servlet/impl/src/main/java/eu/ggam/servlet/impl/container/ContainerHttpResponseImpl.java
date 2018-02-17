@@ -21,7 +21,7 @@ public class ContainerHttpResponseImpl implements HttpResponse {
     private boolean completed;
 
     public ContainerHttpResponseImpl() {
-        output = new ResponseOutputStream();
+        this.output = new ResponseOutputStream();
     }
 
     @Override

@@ -1,11 +1,12 @@
 package eu.ggam.servlet.impl.deployment.servlet;
 
-import eu.ggam.servlet.impl.deployment.Deployment;
 import eu.ggam.container.api.http.HttpRequest;
 import eu.ggam.container.api.http.HttpResponse;
 import eu.ggam.servlet.impl.FilterChainFactory;
 import eu.ggam.servlet.impl.HttpServletRequestImpl;
 import eu.ggam.servlet.impl.HttpServletResponseImpl;
+import eu.ggam.servlet.impl.container.ContainerHttpResponseImpl;
+import eu.ggam.servlet.impl.deployment.Deployment;
 import eu.ggam.servlet.impl.deployment.DeploymentState;
 import eu.ggam.servlet.impl.deployment.servlet.webxml.EffectiveWebXml;
 import java.io.IOException;
@@ -111,7 +112,7 @@ public class ServletDeployment implements Deployment {
     }
 
     @Override
-    public void process(HttpRequest containerRequest, HttpResponse containerResponse) throws IOException, ServletException {
+    public HttpResponse process(HttpRequest containerRequest) throws IOException, ServletException {
         // TODO: process entity body
         HttpServletRequestImpl servletRequest = new HttpServletRequestImpl(servletContext, containerRequest.getMethod(), containerRequest.getUri(), containerRequest.getHeaders());
         HttpServletResponseImpl servletResponse = new HttpServletResponseImpl();
@@ -124,7 +125,10 @@ public class ServletDeployment implements Deployment {
 
         filterChain.doFilter(servletRequest, servletResponse);
 
+        HttpResponse containerResponse = new ContainerHttpResponseImpl();
         sendResponse(servletResponse, containerResponse);
+
+        return containerResponse;
     }
 
     private void sendResponse(HttpServletResponseImpl response, HttpResponse containerResponse) throws IOException {
@@ -134,7 +138,7 @@ public class ServletDeployment implements Deployment {
 
         byte[] responseBody = response.getResponseBody();
         containerResponse.getHeaders().put("Content-Length", List.of(String.valueOf(responseBody.length)));
-        
+
         containerResponse.getOutputStream().write(responseBody);
     }
 
