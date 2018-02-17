@@ -2,7 +2,7 @@ package eu.ggam.container.impl;
 
 import eu.ggam.container.api.Deployment;
 import eu.ggam.container.api.deployment.DeploymentRegistry;
-import eu.ggam.container.impl.http.HttpRequestBuilder;
+import eu.ggam.container.impl.http.HttpRequestImpl;
 import eu.ggam.container.impl.http.HttpResponseImpl;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -26,7 +26,7 @@ public class RequestHandler {
         this.deploymentRegistry = deploymentRegistry;
     }
 
-    public void handle(HttpRequestBuilder.HttpRequestImpl request, HttpResponseImpl response) throws IOException {
+    public void handle(HttpRequestImpl request, HttpResponseImpl response) throws IOException {
         try {
             Deployment deployment = deploymentRegistry.getDeployments().
                     stream().
@@ -52,6 +52,6 @@ public class RequestHandler {
             response.getOutputStream().write(body);
         }
         
-        response.finish(); // Makes the buffer queue available
+        response.complete(); // Move from the intermediate buffer to the connection one
     }
 }

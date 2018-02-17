@@ -1,25 +1,21 @@
 package eu.ggam.container.impl.http;
 
 import eu.ggam.container.api.http.HttpResponse;
-import eu.ggam.container.impl.internal.ByteBufferOutputStream;
+import eu.ggam.container.impl.server.connection.Connection;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
-import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 /**
  *
  * @author guillermo
  */
 public class HttpResponseImpl implements HttpResponse {
-
 
     public enum ResponseStatus {
         ALL_SENT,
@@ -30,22 +26,21 @@ public class HttpResponseImpl implements HttpResponse {
     private int status = 200;
     private Map<String, List<String>> headers = new HashMap<>();
 
-    private final ArrayDeque<ByteBuffer> bufferQueue = new ArrayDeque<>();
-    private final ByteBufferOutputStream output;
-    
-    private final ArrayDeque<ByteBuffer> headersBufferQueue = new ArrayDeque<>();
-    private final ByteBufferOutputStream headersOutput;
+    private final ByteArrayOutputStream output;
 
-    private boolean finished = false;
+    private boolean completed;
 
-    public HttpResponseImpl() {
-        output = new ByteBufferOutputStream(bufferQueue, 4096);
-        headersOutput = new ByteBufferOutputStream(headersBufferQueue, 4096);
+    private final OutputStream connectionOutputStream;
+
+    public HttpResponseImpl(Connection connection) {
+        connectionOutputStream = connection.getOutputStream(); // SocketChannel buffer
+
+        output = new ResponseOutputStream(); // Intermediate stream
     }
 
     @Override
     public void setHeaders(Map<String, List<String>> headers) {
-        if (finished) {
+        if (completed) {
             throw new IllegalStateException("Response already finished");
         }
 
@@ -59,7 +54,7 @@ public class HttpResponseImpl implements HttpResponse {
 
     @Override
     public OutputStream getOutputStream() {
-        if (finished) {
+        if (completed) {
             throw new IllegalStateException("Response already finished");
         }
 
@@ -68,7 +63,7 @@ public class HttpResponseImpl implements HttpResponse {
 
     @Override
     public void setStatus(int status) {
-        if (finished) {
+        if (completed) {
             throw new IllegalStateException("Response already finished");
         }
 
@@ -80,43 +75,34 @@ public class HttpResponseImpl implements HttpResponse {
         return status;
     }
 
-    public Queue<ByteBuffer> getBufferQueue() {
-        if (!finished) {
-            throw new IllegalStateException("Response not finished");
-        }
-        return bufferQueue;
-    }
-
-    public void finish() {
+    public void complete() {
         try {
             // No more changes are allowed
             // TODO: outputStream should throw an exception on attempts to write
-            
-            headersOutput.write(("HTTP/1.1 " + getResponseStatus() + " Unknown").getBytes());
-            
+
+            connectionOutputStream.write(("HTTP/1.1 " + getResponseStatus() + " Unknown").getBytes());
+
             Iterator<Map.Entry<String, List<String>>> iterator = headers.entrySet().iterator();
-            
-            headersOutput.write((iterator.hasNext() ? "\n" : "\r\n\r\n").getBytes());
-            
+
+            connectionOutputStream.write((iterator.hasNext() ? "\n" : "\r\n\r\n").getBytes());
+
             while (iterator.hasNext()) {
                 Map.Entry<String, List<String>> header = iterator.next();
                 for (String headerValue : header.getValue()) {
                     String endOfLine = iterator.hasNext() ? "\n" : "\r\n\r\n";
-                    headersOutput.write((header.getKey() + ": " + headerValue + endOfLine).getBytes());
+                    connectionOutputStream.write((header.getKey() + ": " + headerValue + endOfLine).getBytes());
                 }
             }
-            
-            ByteBuffer nextHeadersBuffer;
-            while ((nextHeadersBuffer = headersBufferQueue.pollLast()) != null) {
-                bufferQueue.offerFirst(nextHeadersBuffer);
-            }
-            
-            finished = true;
+
+            output.writeTo(connectionOutputStream);
+
+            completed = true;
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
     }
 
+    /*
     public ResponseStatus write(SocketChannel channel) throws IOException {
         while (!bufferQueue.isEmpty()) {
             ByteBuffer buf = bufferQueue.peek();
@@ -133,5 +119,32 @@ public class HttpResponseImpl implements HttpResponse {
         }
 
         return ResponseStatus.ALL_SENT;
+    }*/
+    private class ResponseOutputStream extends ByteArrayOutputStream {
+
+        @Override
+        public void write(byte[] b) throws IOException {
+            checkNotCompleted();
+            super.write(b);
+        }
+
+        @Override
+        public synchronized void write(byte[] b, int off, int len) {
+            checkNotCompleted();
+            super.write(b, off, len);
+        }
+
+        @Override
+        public synchronized void write(int b) {
+            checkNotCompleted();
+            super.write(b);
+        }
+
+        private void checkNotCompleted() {
+            if (completed) {
+                throw new IllegalStateException("Response already finished");
+            }
+        }
+
     }
 }

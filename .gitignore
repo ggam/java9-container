@@ -18,3 +18,4 @@
 **/.settings
 /integrationtests/target/
 /integrationtests/nbproject/
+/target/
