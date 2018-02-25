@@ -55,6 +55,15 @@ public class Server {
             throw new IllegalStateException("There must be exactly one " + HttpRequestHandler.class.getSimpleName() + ". (" + requestHandlers.size() + " found)");
         }
         requestHandler = requestHandlers.iterator().next().get();
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                System.out.println("");
+                System.out.println("*** SHUTTING DOWN ***");
+                changeState(Server.State.STOPPING);
+            }
+        });
     }
 
     private synchronized void changeState(State newState) {
