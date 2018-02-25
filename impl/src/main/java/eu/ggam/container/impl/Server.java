@@ -77,7 +77,6 @@ public class Server {
     public void start() throws IOException {
         changeState(State.STARTING);
 
-        //ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new HttpWorkerThreadFactory());
         changeState(State.RUNNING);
         LOGGER.log(Level.INFO, "\n============================\nServer is running on port {0}", String.valueOf(port));
 

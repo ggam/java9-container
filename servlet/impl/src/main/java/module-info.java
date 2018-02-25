@@ -10,5 +10,5 @@ module eu.ggam.container.servlet.Impl {
     provides eu.ggam.container.api.event.ServerLifeCycleListener
             with eu.ggam.servlet.impl.deployment.DeploymentScanner;
     provides eu.ggam.container.api.http.HttpRequestHandler
-            with eu.ggam.servlet.impl.container.HttpServletRequestHandler;
+            with eu.ggam.servlet.impl.core.HttpServletRequestHandler;
 }

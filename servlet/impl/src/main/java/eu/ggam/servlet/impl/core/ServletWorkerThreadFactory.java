@@ -1,4 +1,4 @@
-package eu.ggam.servlet.impl.container;
+package eu.ggam.servlet.impl.core;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
