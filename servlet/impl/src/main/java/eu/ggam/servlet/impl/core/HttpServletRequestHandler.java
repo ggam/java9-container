@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,7 +26,7 @@ public class HttpServletRequestHandler implements HttpRequestHandler {
     private final ExecutorService executor;
 
     public HttpServletRequestHandler() {
-        executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new ServletWorkerThreadFactory());
+        executor = new ServletRequestExecutorService();
     }
 
     @Override
@@ -35,6 +34,10 @@ public class HttpServletRequestHandler implements HttpRequestHandler {
         CompletableFuture<HttpResponse> completableFuture = new CompletableFuture<>();
 
         executor.submit(() -> {
+            if(true) {
+                throw new NullPointerException();
+            }
+            
             HttpResponse response;
             try {
                 response = DeploymentRegistry.matches(request.getUri().getPath()).
