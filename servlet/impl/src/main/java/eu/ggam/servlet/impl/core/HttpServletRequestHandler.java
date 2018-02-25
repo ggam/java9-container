@@ -34,10 +34,6 @@ public class HttpServletRequestHandler implements HttpRequestHandler {
         CompletableFuture<HttpResponse> completableFuture = new CompletableFuture<>();
 
         executor.submit(() -> {
-            if(true) {
-                throw new NullPointerException();
-            }
-            
             HttpResponse response;
             try {
                 response = DeploymentRegistry.matches(request.getUri().getPath()).

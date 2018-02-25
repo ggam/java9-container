@@ -32,6 +32,7 @@ public class ServletWorkerThreadFactory implements ThreadFactory {
         @Override
         public void uncaughtException(Thread t, Throwable e) {
             LOGGER.log(Level.SEVERE, String.format("Error on thread thread %s", t.getName()), e);
+            t.interrupt();
         }
     }
 
