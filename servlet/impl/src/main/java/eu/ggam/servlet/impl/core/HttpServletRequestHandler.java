@@ -8,6 +8,7 @@ import eu.ggam.servlet.impl.deployer.DeploymentRegistry;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -31,15 +32,12 @@ public class HttpServletRequestHandler implements HttpRequestHandler {
 
     @Override
     public CompletionStage<HttpResponse> handle(HttpRequest request) throws IOException {
-        CompletableFuture<HttpResponse> completableFuture = new CompletableFuture<>();
-
-        executor.submit(() -> {
+        return CompletableFuture.supplyAsync(() -> {
             HttpResponse response;
             try {
                 response = DeploymentRegistry.matches(request.getUri().getPath()).
                         get().
                         process(request);
-
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Error processing request: ", e);
 
@@ -59,16 +57,11 @@ public class HttpServletRequestHandler implements HttpRequestHandler {
                 try {
                     response.getOutputStream().write(body);
                 } catch (IOException e2) {
-                    completableFuture.completeExceptionally(e2);
-                    return;
+                    throw new UncheckedIOException(e2);
                 }
             }
-
-            completableFuture.complete(response);
-        });
-
-        return completableFuture;
-
+            return response;
+        }, executor);
     }
 
 }

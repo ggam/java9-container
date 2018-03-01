@@ -62,8 +62,8 @@ public class ConnectionManager {
                                 connection.read();
 
                                 if (connection.readFinished()) {
-                                    requestHandler.handle(new HttpRequestImpl(connection.getInputStream()))
-                                            .thenAccept(response -> {
+                                    requestHandler.handle(new HttpRequestImpl(connection.getInputStream())).
+                                            thenAccept(response -> {
                                                 try {
                                                     OutputStream socketOutputStream = connection.getOutputStream();
                                                     ByteArrayOutputStream intermediateOutputStream = response.getOutputStream();
@@ -84,11 +84,20 @@ public class ConnectionManager {
 
                                                     intermediateOutputStream.writeTo(socketOutputStream);
                                                 } catch (IOException ex) {
-                                                    Logger.getLogger(ConnectionManager.class.getName()).log(Level.SEVERE, null, ex);
+                                                    LOGGER.log(Level.SEVERE, null, ex);
                                                 }
 
                                                 key.interestOps(SelectionKey.OP_WRITE);
                                                 selector.wakeup();
+                                            }).
+                                            exceptionally((Throwable t) -> {
+                                                LOGGER.log(Level.SEVERE, "Problem executing request", t);
+                                                try {
+                                                    connection.getChannel().close();
+                                                } catch (IOException ex) {
+                                                    LOGGER.log(Level.SEVERE, "Problem closing SocketChannel", ex);
+                                                }
+                                                return null;
                                             });
                                 }
                             } else if (key.isWritable()) {
