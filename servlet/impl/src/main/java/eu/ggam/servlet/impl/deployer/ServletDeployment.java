@@ -1,4 +1,4 @@
-package eu.ggam.servlet.impl.deployment;
+package eu.ggam.servlet.impl.deployer;
 
 import eu.ggam.container.api.http.HttpRequest;
 import eu.ggam.container.api.http.HttpResponse;

@@ -4,7 +4,7 @@ import eu.ggam.container.api.http.HttpRequest;
 import eu.ggam.container.api.http.HttpRequestHandler;
 import eu.ggam.container.api.http.HttpResponse;
 import eu.ggam.servlet.impl.container.ContainerHttpResponseImpl;
-import eu.ggam.servlet.impl.deployment.DeploymentRegistry;
+import eu.ggam.servlet.impl.deployer.DeploymentRegistry;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;

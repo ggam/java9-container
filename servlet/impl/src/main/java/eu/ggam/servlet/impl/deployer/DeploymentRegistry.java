@@ -1,4 +1,4 @@
-package eu.ggam.servlet.impl.deployment;
+package eu.ggam.servlet.impl.deployer;
 
 import java.util.Comparator;
 import java.util.HashSet;
