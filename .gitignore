@@ -19,3 +19,7 @@
 /integrationtests/target/
 /integrationtests/nbproject/
 /target/
+/integrationtests2/servlet/target/
+/integrationtests/servlet/target/
+/integrationtests/container-integrationtests-impl/target/
+/integrationtests/impl/target/
