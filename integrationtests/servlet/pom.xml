@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>eu.ggam</groupId>
-        <artifactId>container</artifactId>
+        <artifactId>integrationtests</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>container-integrationtests-servlet</artifactId>
