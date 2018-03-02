@@ -19,8 +19,7 @@ public class BrokenRequestHandler implements HttpRequestHandler {
     public CompletionStage<? extends HttpResponse> handle(HttpRequest request) throws IOException {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         return CompletableFuture.supplyAsync(() -> {
-           // throw new RuntimeException("Error!!");
-           return null;
+            throw new RuntimeException("Error!!");
         }, executor);
     }
 
