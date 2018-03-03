@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>api</module>
-        <module>impl</module>
         <module>root-webapp</module>
+        <module>impl</module>
     </modules>
 </project>
