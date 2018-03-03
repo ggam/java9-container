@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  *
@@ -73,8 +74,12 @@ public final class HttpRequestImpl implements HttpRequest {
     }
 
     @Override
-    public InputStream getInputStream() {
-        return inputStream;
+    public Optional<InputStream> getInputStream() {
+        if ("POST".equals(getMethod())) {
+            return Optional.of(inputStream);
+        } else {
+            return Optional.empty();
+        }
     }
 
 }

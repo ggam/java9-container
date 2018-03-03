@@ -68,7 +68,7 @@ public class ConnectionManager {
                                                     OutputStream socketOutputStream = connection.getOutputStream();
                                                     ByteArrayOutputStream intermediateOutputStream = response.getOutputStream();
 
-                                                    socketOutputStream.write(("HTTP/1.1 " + response.getResponseStatus() + " Unknown").getBytes());
+                                                    socketOutputStream.write(("HTTP/1.1 " + response.getStatus() + " Unknown").getBytes());
 
                                                     Iterator<Map.Entry<String, List<String>>> iterator = response.getHeaders().entrySet().iterator();
 

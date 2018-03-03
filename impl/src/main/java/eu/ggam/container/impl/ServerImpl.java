@@ -52,13 +52,14 @@ public class ServerImpl implements Server {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                LOGGER.info("*** SHUTTING DOWN ***");
-                changeState(ServerImpl.State.STOPPING);
+                ServerImpl.this.stop();
             }
         });
     }
 
     private synchronized void changeState(State newState) {
+        // TODO: ensure state change can be done
+        
         this.state = newState;
 
         switch (newState) {
@@ -79,6 +80,7 @@ public class ServerImpl implements Server {
         LOGGER.log(Level.INFO, "Server state changed from {0} to {1}", new Object[]{this.state, newState});
     }
 
+    @Override
     public void start() throws IOException {
         changeState(State.STARTING);
 
@@ -94,6 +96,13 @@ public class ServerImpl implements Server {
 
         ConnectionManager connectionManager = new ConnectionManager(requestHandler, selector);
         connectionManager.beginService();
+    }
+
+    @Override
+    public void stop() {
+        LOGGER.info("*** SHUTTING DOWN ***");
+        changeState(State.STOPPING);
+        changeState(State.STOPPED);
     }
 
     @Override
