@@ -19,6 +19,13 @@
             <outputDirectory>conf</outputDirectory>
         </fileSet>
         <fileSet>
+            <directory>.</directory>
+            <outputDirectory>logs</outputDirectory>
+            <excludes>
+                <exclude>*/**</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
             <directory>${basedir}/target/jre-dist2</directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>

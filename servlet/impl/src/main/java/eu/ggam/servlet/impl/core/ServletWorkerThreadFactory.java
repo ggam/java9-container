@@ -14,7 +14,6 @@ public class ServletWorkerThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable r) {
-        System.out.println("Created thread");
         Thread thread = new Thread(THREAD_GROUP, r, "http-worker-" + THREAD_COUNT.incrementAndGet());
 
         return thread;

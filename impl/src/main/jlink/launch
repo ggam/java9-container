@@ -1,4 +1,4 @@
 #!/bin/sh
 DIR=`dirname $0`
 BASEDIR=`pwd $0`
-java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006 -Dserver.basedir=$BASEDIR/.. -p ../modules -m eu.ggam.container.Impl/eu.ggam.container.impl.Launcher $@
+java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006 -Djava.util.logging.config.file=../conf/logging.properties -Dserver.basedir=$BASEDIR/.. -p ../modules -m eu.ggam.container.Impl/eu.ggam.container.impl.Launcher $@

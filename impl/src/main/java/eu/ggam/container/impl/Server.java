@@ -59,8 +59,7 @@ public class Server {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                System.out.println("");
-                System.out.println("*** SHUTTING DOWN ***");
+                LOGGER.info("*** SHUTTING DOWN ***");
                 changeState(Server.State.STOPPING);
             }
         });

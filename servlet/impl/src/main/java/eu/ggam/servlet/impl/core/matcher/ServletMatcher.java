@@ -50,14 +50,14 @@ public class ServletMatcher {
                         findAny();
 
                 if (findAny.isPresent()) {
-                    LOGGER.log(Level.INFO, "Request to {0} will be processed by Servlet {1} ({2} match)", new Object[]{pathInfo, servletDescriptor.getServletName(), matchType});
+                    LOGGER.log(Level.FINE, "Request to {0} will be processed by Servlet {1} ({2} match)", new Object[]{pathInfo, servletDescriptor.getServletName(), matchType});
 
                     return getServletInstance(servletDescriptor);
                 }
             }
         }
 
-        LOGGER.log(Level.INFO, "Request to {0} will be processed by default Servlet, {1}", new Object[]{pathInfo, defaultServlet.getServletName()});
+        LOGGER.log(Level.FINE, "Request to {0} will be processed by default Servlet, {1}", new Object[]{pathInfo, defaultServlet.getServletName()});
         return getServletInstance(defaultServlet);
     }
 
