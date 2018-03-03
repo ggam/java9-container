@@ -57,7 +57,7 @@ public class ContainerHttpResponseImpl implements HttpResponse {
     }
 
     @Override
-    public int getResponseStatus() {
+    public int getStatus() {
         return status;
     }
 
