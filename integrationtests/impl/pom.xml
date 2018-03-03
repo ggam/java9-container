@@ -77,31 +77,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>2.5</version>
-                <executions>
-                    <execution>
-                        <id>remove-servlet</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                        <configuration>
-                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
-                            <filesets>
-                                <fileset>
-                                    <directory>${project.build.directory}/jre-dist2/modules</directory>
-                                    <includes>
-                                        <include>servlet-api*</include>
-                                        <include>servlet-impl*</include>
-                                    </includes>
-                                </fileset>
-                            </filesets>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
     

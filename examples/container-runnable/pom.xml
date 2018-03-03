@@ -21,13 +21,14 @@
                 <version>3.0.2</version>
                 <executions>
                     <execution>
-                        <id>unpack</id>
+                        <id>prepare-server</id>
                         <phase>install</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
                         <configuration>
                             <artifactItems>
+                                <!-- Prepare the server -->               
                                 <artifactItem>
                                     <groupId>eu.ggam</groupId>
                                     <artifactId>container-impl</artifactId>
@@ -36,7 +37,67 @@
                                     <type>zip</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/jre-dist/</outputDirectory>
-                                </artifactItem>                  
+                                </artifactItem> 
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-servlet</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <!-- Put Servlet implementation in place-->
+                                <artifactItem>
+                                    <groupId>eu.ggam</groupId>
+                                    <artifactId>servlet-api</artifactId>
+                                    <version>2.5</version>
+                                    <overWrite>true</overWrite>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/jre-dist/modules</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>eu.ggam</groupId>
+                                    <artifactId>servlet-impl</artifactId>
+                                    <version>1.0-SNAPSHOT</version>
+                                    <overWrite>true</overWrite>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/jre-dist/modules</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-root-webapp</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <!-- Default (root) web application -->
+                                <artifactItem>
+                                    <groupId>eu.ggam</groupId>
+                                    <artifactId>container-root-webapp</artifactId>
+                                    <version>1.0-SNAPSHOT</version>
+                                    <overWrite>true</overWrite>
+                                    <type>war</type>
+                                    <outputDirectory>${project.build.directory}/jre-dist/webapps/ROOT</outputDirectory>
+                                </artifactItem> 
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <!-- Deploy examples -->               
                                 <artifactItem>
                                     <groupId>eu.ggam</groupId>
                                     <artifactId>container-example-plugin</artifactId>

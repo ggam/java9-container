@@ -7,6 +7,8 @@ cd integrationtests/servlet
 mvn test
 pgrep -f eu.ggam.container | xargs kill -9
 
+sleep 1
+
 # Server implementation Tests
 
 cd ../impl
