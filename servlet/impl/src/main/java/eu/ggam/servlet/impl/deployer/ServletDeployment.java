@@ -7,6 +7,7 @@ import eu.ggam.servlet.impl.core.FilterChainFactory;
 import eu.ggam.servlet.impl.descriptor.EffectiveWebXml;
 import eu.ggam.servlet.impl.jsr154.HttpServletRequestImpl;
 import eu.ggam.servlet.impl.jsr154.HttpServletResponseImpl;
+import eu.ggam.servlet.impl.jsr154.ServletContextImpl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -18,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -91,7 +93,8 @@ public class ServletDeployment {
         warModule = moduleLayer.findModule(warModuleName).get();
 
         try (InputStream is = Files.newInputStream(appPath.resolve(Paths.get("WEB-INF", "web.xml")))) {
-            webXml = new EffectiveWebXml(contextPath, is, warModule.getClassLoader());
+            webXml = new EffectiveWebXml(contextPath, is, warModule.getClassLoader(), Map.of(ServletContextImpl.InitParams.WEBAPP_PATH,
+                    appPath.toAbsolutePath().toString()));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

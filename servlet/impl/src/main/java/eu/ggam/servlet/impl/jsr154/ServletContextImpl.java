@@ -26,7 +26,14 @@ public class ServletContextImpl implements ServletContext {
 
     private static final Logger LOGGER = Logger.getLogger(ServletContextImpl.class.getName());
 
-    private ClassLoader warClassLoader;
+    public static class InitParams {
+
+        private static final String BASE = ServletContextImpl.class.getPackageName();
+
+        public static final String WEBAPP_PATH = BASE + "webapp_path";
+    }
+
+    private final ClassLoader warClassLoader;
     private final String contextPath;
     private final Map<String, String> initParams;
     private final List<ServletContextAttributeListener> attributeListeners;
@@ -38,11 +45,11 @@ public class ServletContextImpl implements ServletContext {
         this.warClassLoader = warClassLoader;
         this.contextPath = contextPath;
         this.attributeListeners = Collections.unmodifiableList(attributeListeners);
-        this.initParams = Collections.unmodifiableMap(initParams);
+        this.initParams = Collections.unmodifiableMap(new HashMap<>(initParams));
 
         this.attributes = new HashMap<>();
     }
-
+    
     @Override
     public String getContextPath() {
         return contextPath;
@@ -194,7 +201,7 @@ public class ServletContextImpl implements ServletContext {
             if (value == null) {
                 return;
             }
-            
+
             attributes.remove(name);
 
             ServletContextAttributeEvent event = new ServletContextAttributeEvent(this, name, value);

@@ -1,6 +1,5 @@
 package eu.ggam.servlet.impl.descriptor;
 
-import eu.ggam.servlet.impl.jsr154.ServletContextImpl;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterMappingType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ListenerType;
@@ -8,6 +7,7 @@ import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ObjectFactory;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ServletMappingType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.WebApp;
+import eu.ggam.servlet.impl.jsr154.ServletContextImpl;
 import eu.ggam.servlet.impl.rootwebapp.FileServlet;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -36,13 +36,13 @@ public class EffectiveWebXml {
     private final Set<FilterDescriptor> filterDescriptors;
     private ServletContextImpl servletContext;
 
-    public EffectiveWebXml(String contextPath, InputStream webXmlPath, ClassLoader warClassLoader) {
+    public EffectiveWebXml(String contextPath, InputStream webXmlPath, ClassLoader warClassLoader, Map<String, String> servletContextParams) {
         try {
             WebApp webApp = (WebApp) JAXBContext.newInstance(ObjectFactory.class.getPackageName()).
                     createUnmarshaller().
                     unmarshal(webXmlPath);
 
-            servletContext = createServletContext(webApp, contextPath, warClassLoader);
+            servletContext = createServletContext(webApp, contextPath, warClassLoader, new HashMap<>(servletContextParams));
 
             servletDescriptors = findServlets(servletContext, webApp);
             filterDescriptors = findFilters(servletContext, webApp);
@@ -53,7 +53,7 @@ public class EffectiveWebXml {
         }
     }
 
-    private ServletContextImpl createServletContext(WebApp webApp, String contextPath, ClassLoader classLoader) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    private ServletContextImpl createServletContext(WebApp webApp, String contextPath, ClassLoader classLoader, Map<String, String> additionalInitParams) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         List<ListenerType> listenerTypes = webApp.getListeners();
 
         List<ServletContextAttributeListener> attributeListeners = new ArrayList<>();
@@ -68,6 +68,8 @@ public class EffectiveWebXml {
         for (ParamValueType contextParams : webApp.getContextParams()) {
             initParams.put(contextParams.getParamName().getValue(), contextParams.getParamValue().getValue());
         }
+        
+        initParams.putAll(additionalInitParams);
 
         return new ServletContextImpl(classLoader, contextPath, attributeListeners, initParams);
     }

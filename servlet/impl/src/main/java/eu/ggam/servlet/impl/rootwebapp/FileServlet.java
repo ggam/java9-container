@@ -1,6 +1,10 @@
 package eu.ggam.servlet.impl.rootwebapp;
 
+import eu.ggam.servlet.impl.jsr154.ServletContextImpl;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -12,10 +16,25 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class FileServlet extends HttpServlet {
 
+    private Path deploymentPath;
+
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.sendError(HttpServletResponse.SC_NOT_FOUND, "File not found");
-        resp.setContentType("text/plain");
+    public void init() throws ServletException {
+        deploymentPath = Paths.get(getServletContext().getInitParameter(ServletContextImpl.InitParams.WEBAPP_PATH));
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String requestedFile = request.getRequestURI().substring(request.getContextPath().length());
+
+        Path resolve = deploymentPath.resolve(requestedFile);
+        if (!Files.exists(resolve)) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "File not found");
+            response.setContentType("text/html");
+        } else {
+            response.sendError(HttpServletResponse.SC_OK, "File found");
+            response.setContentType("text/html");
+        }
     }
 
 }
