@@ -15,4 +15,8 @@ public interface ServerLifeCycleListener extends EventListener {
     default void serverStarted(ServerStartedEvent serverStartedEvent) {
 
     }
+    
+    default void serverStopping(ServerStoppingEvent serverStoppingEvent) {
+
+    }
 }

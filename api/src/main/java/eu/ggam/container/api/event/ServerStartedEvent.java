@@ -1,15 +1,22 @@
 package eu.ggam.container.api.event;
 
+import eu.ggam.container.api.Server;
 import java.util.EventObject;
 
 /**
  *
  * @author guillermo
  */
-public abstract class ServerStartedEvent extends EventObject {
+public class ServerStartedEvent extends EventObject {
 
-    public ServerStartedEvent(Object source) {
+    public ServerStartedEvent(Server source) {
         super(source);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Server getSource() {
+        return (Server) super.getSource();
     }
 
 }

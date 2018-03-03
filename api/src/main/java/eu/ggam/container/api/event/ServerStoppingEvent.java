@@ -7,9 +7,9 @@ import java.util.EventObject;
  *
  * @author guillermo
  */
-public class ServerStartingEvent extends EventObject {
+public class ServerStoppingEvent extends EventObject {
 
-    public ServerStartingEvent(Server source) {
+    public ServerStoppingEvent(Server source) {
         super(source);
     }
 

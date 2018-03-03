@@ -1,12 +1,12 @@
 package eu.ggam.container.impl;
 
+import eu.ggam.container.api.Server;
 import eu.ggam.container.api.event.ServerLifeCycleListener;
 import eu.ggam.container.api.event.ServerStartedEvent;
 import eu.ggam.container.api.event.ServerStartingEvent;
+import eu.ggam.container.api.event.ServerStoppingEvent;
 import eu.ggam.container.api.http.HttpRequestHandler;
 import eu.ggam.container.impl.connection.ConnectionManager;
-import eu.ggam.container.impl.lifecycle.ServerStartedEventImpl;
-import eu.ggam.container.impl.lifecycle.ServerStartingEventImpl;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -23,16 +23,9 @@ import static java.util.stream.Collectors.toList;
  *
  * @author guillermo
  */
-public class Server {
+public class ServerImpl implements Server {
 
-    public enum State {
-        STOPPED,
-        STARTING,
-        RUNNING,
-        STOPPING
-    }
-
-    private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ServerImpl.class.getName());
 
     private State state = State.STOPPED;
     private final int port;
@@ -40,7 +33,7 @@ public class Server {
 
     private HttpRequestHandler requestHandler;
 
-    public Server(int port) {
+    public ServerImpl(int port) {
         this.port = port;
 
         this.lifeCycleListeners = new ArrayList<>();
@@ -60,7 +53,7 @@ public class Server {
             @Override
             public void run() {
                 LOGGER.info("*** SHUTTING DOWN ***");
-                changeState(Server.State.STOPPING);
+                changeState(ServerImpl.State.STOPPING);
             }
         });
     }
@@ -70,12 +63,16 @@ public class Server {
 
         switch (newState) {
             case STARTING:
-                ServerStartingEvent startingEvent = new ServerStartingEventImpl(this);
+                ServerStartingEvent startingEvent = new ServerStartingEvent(this);
                 lifeCycleListeners.forEach(listener -> listener.serverStarting(startingEvent));
                 break;
             case RUNNING:
-                ServerStartedEvent startedEvent = new ServerStartedEventImpl(this);
+                ServerStartedEvent startedEvent = new ServerStartedEvent(this);
                 lifeCycleListeners.forEach(listener -> listener.serverStarted(startedEvent));
+                break;
+            case STOPPING:
+                ServerStoppingEvent stoppingEvent = new ServerStoppingEvent(this);
+                lifeCycleListeners.forEach(listener -> listener.serverStopping(stoppingEvent));
                 break;
         }
 
@@ -98,4 +95,10 @@ public class Server {
         ConnectionManager connectionManager = new ConnectionManager(requestHandler, selector);
         connectionManager.beginService();
     }
+
+    @Override
+    public State getState() {
+        return state;
+    }
+
 }
