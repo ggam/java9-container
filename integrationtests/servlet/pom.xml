@@ -7,7 +7,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>container-integrationtests-servlet</artifactId>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
     <properties>
         <maven.compiler.source>9</maven.compiler.source>
         <maven.compiler.target>9</maven.compiler.target>
@@ -30,35 +30,89 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>unpack-server</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>eu.ggam</groupId>
+                                    <artifactId>servlet-impl</artifactId>
+                                    <version>1.0-SNAPSHOT</version>
+                                    <overWrite>true</overWrite>
+                                    <classifier>runnable</classifier>
+                                    <type>zip</type>
+                                    <outputDirectory>${project.build.directory}/jre-dist2</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>eu.ggam</groupId>
+                                    <artifactId>container-integrationtests-servlet</artifactId>
+                                    <version>1.0-SNAPSHOT</version>
+                                    <type>war</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/jre-dist2/webapps/test</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     
     <dependencies>
         <dependency>
+            <groupId>eu.ggam</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>eu.ggam</groupId>
+            <artifactId>container-examplelibrary</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.0.2</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.0.2</version>
+            <scope>test</scope>
         </dependency>
         
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
             <version>2.26</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
             <version>2.26</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
             <version>1.1.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

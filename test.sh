@@ -1,9 +1,26 @@
 #!/bin/bash
 
+cd integrationtests
+
 # Servlet Tests
-./run.sh &
-sleep 3 # Give some time for the server to start
-cd integrationtests/servlet
+cd servlet
+
+home=$(pwd)
+log="$home/target/jre-dist2/logs/server.log"
+
+cd target/jre-dist2/bin/
+./launch &
+
+cd $home
+
+sleep 1
+
+#touch $log || exit
+#echo 'Waiting for server to start...'
+#echo $log
+#tail -F $log | grep -q "Server is running on port 8282"
+#echo 'Server started!'
+
 mvn test
 pgrep -f eu.ggam.container | xargs kill -9
 
@@ -21,10 +38,10 @@ cd target/jre-dist2/bin/
 
 cd $home
 
-touch $log || exit
-echo 'Waiting for server to start...'
-tail -F $log | grep -q "Server is running on port 8282"
-echo 'Server started!'
+#touch $log || exit
+#echo 'Waiting for server to start...'
+#tail -F $log | grep -q "Server is running on port 8282"
+#echo 'Server started!'
 
 mvn test
 pgrep -f eu.ggam.container | xargs kill -9
