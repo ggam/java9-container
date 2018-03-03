@@ -16,23 +16,27 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class FileServlet extends HttpServlet {
 
-    private Path deploymentPath;
+    private String deploymentPath;
 
     @Override
     public void init() throws ServletException {
-        deploymentPath = Paths.get(getServletContext().getInitParameter(ServletContextImpl.InitParams.WEBAPP_PATH));
+        deploymentPath = getServletContext().getInitParameter(ServletContextImpl.InitParams.WEBAPP_PATH);
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String requestedFile = request.getRequestURI().substring(request.getContextPath().length());
+        String requestedFile = request.getPathInfo();
 
-        Path resolve = deploymentPath.resolve(requestedFile);
-        if (!Files.exists(resolve)) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "File not found");
+        Path resolve = Paths.get(deploymentPath, requestedFile);
+
+        if (Files.exists(resolve)) {
+            Files.newInputStream(resolve).
+                    transferTo(response.getOutputStream());
+
+            response.setStatus(HttpServletResponse.SC_OK);
             response.setContentType("text/html");
         } else {
-            response.sendError(HttpServletResponse.SC_OK, "File found");
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "File not found");
             response.setContentType("text/html");
         }
     }

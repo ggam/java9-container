@@ -1,8 +1,9 @@
 package eu.ggam.servlet.impl.jsr154;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,8 +20,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class HttpServletResponseImpl implements HttpServletResponse {
 
+    private final ServletOutputStreamImpl outputStream;
     private final PrintWriter printWriter;
-    private final StringWriter stringWriter;
 
     private int status;
     private String statusMessage;
@@ -33,8 +34,8 @@ public class HttpServletResponseImpl implements HttpServletResponse {
     private boolean errorSent;
 
     public HttpServletResponseImpl() {
-        this.stringWriter = new StringWriter();
-        this.printWriter = new PrintWriter(stringWriter);
+        this.outputStream = new ServletOutputStreamImpl(new ByteArrayOutputStream());
+        this.printWriter = new PrintWriter(new OutputStreamWriter(outputStream));
         this.status = SC_OK;
         this.cookies = new ArrayList<>();
         this.headers = new HashMap<>();
@@ -139,7 +140,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
     @Override
     public String getCharacterEncoding() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return characterEncoding;
     }
 
     @Override
@@ -149,7 +150,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return outputStream;
     }
 
     @Override
@@ -218,10 +219,11 @@ public class HttpServletResponseImpl implements HttpServletResponse {
      **********************
      */
     public byte[] getResponseBody() {
-         if (errorSent && statusMessage != null) {
+        if (errorSent && statusMessage != null) {
             return statusMessage.getBytes();
         } else {
-            return stringWriter.toString().getBytes();
+            printWriter.flush(); // Flushes the buffer just in case
+            return outputStream.toByteArray();
         }
     }
 }

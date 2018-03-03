@@ -60,7 +60,7 @@ public class ServletMatcher {
         }
 
         LOGGER.log(Level.FINE, "Request to {0} will be processed by default Servlet, {1}", new Object[]{uri, defaultServlet.getServletName()});
-        return new ServletMatch(getServletInstance(defaultServlet), new MatchingPattern.UriMatch(uri, null));
+        return new ServletMatch(getServletInstance(defaultServlet), new MatchingPattern.UriMatch("", uri));
     }
 
     private Servlet getServletInstance(ServletDescriptor descriptor) throws ServletException {
