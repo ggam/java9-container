@@ -40,7 +40,7 @@ public class FilterMatcher {
                 Optional<MatchingPattern> findAny = filterDescriptor.getMatchingMatterns().
                         stream().
                         filter(p -> p.getMatchType() == matchType).
-                        filter(p -> p.matchesPathInfo(pathInfo)).
+                        filter(p -> p.matchesUri(pathInfo)).
                         findAny();
 
                 if (findAny.isPresent()) {

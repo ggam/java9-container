@@ -1,15 +1,14 @@
 package eu.ggam.servlet.impl.core;
 
-import eu.ggam.servlet.impl.jsr154.FilterChainImpl;
 import eu.ggam.servlet.impl.core.matcher.FilterMatcher;
+import eu.ggam.servlet.impl.core.matcher.ServletMatch;
 import eu.ggam.servlet.impl.core.matcher.ServletMatcher;
 import eu.ggam.servlet.impl.descriptor.FilterDescriptor;
 import eu.ggam.servlet.impl.descriptor.ServletDescriptor;
+import eu.ggam.servlet.impl.jsr154.FilterChainImpl;
 import java.util.Queue;
 import java.util.Set;
 import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
 /**
@@ -26,10 +25,10 @@ public class FilterChainFactory {
         filterMatcher = new FilterMatcher(filters);
     }
 
-    public FilterChain create(String pathInfo) {
+    public FilterChainImpl create(String pathInfo) {
         try {
-            Servlet servletMatch = servletMatcher.match(pathInfo);
-            Queue<Filter> filterMatches = filterMatcher.match(pathInfo, (ServletDescriptor) servletMatch.getServletConfig());
+            ServletMatch servletMatch = servletMatcher.match(pathInfo);
+            Queue<Filter> filterMatches = filterMatcher.match(pathInfo, (ServletDescriptor) servletMatch.getServlet().getServletConfig());
 
             return new FilterChainImpl(filterMatches, servletMatch);
         } catch (ServletException ex) {

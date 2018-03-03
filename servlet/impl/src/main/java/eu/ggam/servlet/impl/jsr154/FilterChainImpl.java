@@ -1,5 +1,7 @@
 package eu.ggam.servlet.impl.jsr154;
 
+import eu.ggam.servlet.impl.core.matcher.ServletMatch;
+import eu.ggam.servlet.impl.descriptor.MatchingPattern;
 import java.io.IOException;
 import java.util.Queue;
 import javax.servlet.Filter;
@@ -18,9 +20,13 @@ public class FilterChainImpl implements FilterChain {
     private final Queue<Filter> filters;
     private final Servlet servlet;
 
-    public FilterChainImpl(Queue<Filter> filters, Servlet servlet) {
+    private final MatchingPattern.UriMatch uriMatch;
+
+    public FilterChainImpl(Queue<Filter> filters, ServletMatch servletMatch) {
         this.filters = filters;
-        this.servlet = servlet;
+        this.servlet = servletMatch.getServlet();
+
+        this.uriMatch = servletMatch.getUriMatch();
     }
 
     @Override
@@ -33,7 +39,10 @@ public class FilterChainImpl implements FilterChain {
             // No more filters, go for the Servlet
             servlet.service(request, response);
         }
+    }
 
+    public MatchingPattern.UriMatch getUriMatch() {
+        return uriMatch;
     }
 
 }

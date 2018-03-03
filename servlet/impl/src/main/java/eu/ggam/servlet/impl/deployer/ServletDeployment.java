@@ -5,6 +5,7 @@ import eu.ggam.container.api.http.HttpResponse;
 import eu.ggam.servlet.impl.container.ContainerHttpResponseImpl;
 import eu.ggam.servlet.impl.core.FilterChainFactory;
 import eu.ggam.servlet.impl.descriptor.EffectiveWebXml;
+import eu.ggam.servlet.impl.jsr154.FilterChainImpl;
 import eu.ggam.servlet.impl.jsr154.HttpServletRequestImpl;
 import eu.ggam.servlet.impl.jsr154.HttpServletResponseImpl;
 import eu.ggam.servlet.impl.jsr154.ServletContextImpl;
@@ -24,7 +25,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static java.util.stream.Collectors.toSet;
-import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
@@ -111,16 +111,20 @@ public class ServletDeployment {
     }
 
     public HttpResponse process(HttpRequest containerRequest) throws IOException, ServletException {
-        // TODO: process entity body
-        HttpServletRequestImpl servletRequest = new HttpServletRequestImpl(servletContext, containerRequest.getMethod(), containerRequest.getUri(), containerRequest.getHeaders());
-        HttpServletResponseImpl servletResponse = new HttpServletResponseImpl();
-
-        if (!matches(servletRequest.getRequestURI())) {
+        String uriPath = containerRequest.getUri().getPath();
+        if (!matches(uriPath)) {
             throw new IllegalArgumentException("Url cannot be matched to this application");
         }
 
-        FilterChain filterChain = filterChainFactory.create(servletRequest.getPathInfo());
-
+        
+        String appUri = uriPath.substring(contextPath.length()); // URI without contextPath
+        
+        FilterChainImpl filterChain = filterChainFactory.create(appUri);
+        
+        // TODO: process entity body
+        HttpServletRequestImpl servletRequest = new HttpServletRequestImpl(servletContext, containerRequest.getMethod(), containerRequest.getUri(), filterChain.getUriMatch(), containerRequest.getHeaders());
+        HttpServletResponseImpl servletResponse = new HttpServletResponseImpl();
+        
         filterChain.doFilter(servletRequest, servletResponse);
 
         HttpResponse containerResponse = new ContainerHttpResponseImpl();

@@ -1,12 +1,15 @@
 package eu.ggam.servlet.impl.descriptor;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
  * @author guillermo
  */
-public class MatchingPattern {
+public final class MatchingPattern {
 
     public enum MatchType {
 
@@ -17,10 +20,10 @@ public class MatchingPattern {
     }
 
     private final String servletName;
-    private final String pattern;
+    private final Pattern pattern;
     private final MatchType matchType;
 
-    private MatchingPattern(String servletName, String pattern, MatchType matchType) {
+    private MatchingPattern(String servletName, Pattern pattern, MatchType matchType) {
         if (matchType == MatchType.SERVLET_NAME && (servletName == null || pattern != null)) {
             throw new IllegalArgumentException("Cannot create " + matchType + " matching pattern");
         }
@@ -53,7 +56,7 @@ public class MatchingPattern {
             // Exact match
             matchType = MatchingPattern.MatchType.EXACT;
         } else {
-            pattern = pattern.replace("*", ".*");
+            pattern = pattern.replace("*", "(.*)");
             if (pattern.startsWith("/")) {
                 // Prefix
                 matchType = MatchingPattern.MatchType.PREFIX;
@@ -63,28 +66,32 @@ public class MatchingPattern {
             }
         }
 
-        return new MatchingPattern(null, pattern, matchType);
+        return new MatchingPattern(null, Pattern.compile(pattern), matchType);
     }
 
     public static MatchingPattern createServletNamePattern(String servletName) {
         return new MatchingPattern(servletName, null, MatchType.SERVLET_NAME);
     }
 
-    public String getPattern() {
-        return pattern;
-    }
-
     public MatchType getMatchType() {
         return matchType;
     }
 
-    public boolean matchesPathInfo(String pathInfo) {
+    public boolean matchesUri(String uri) {
+        return uriMatch(uri).isPresent();
+    }
+
+    public Optional<UriMatch> uriMatch(String uri) {
         if (matchType == MatchType.SERVLET_NAME) {
             throw new IllegalStateException("This pattern is of type " + matchType);
         }
 
-        // TODO: how to handle null pathInfo?
-        return pathInfo != null && pathInfo.matches(pattern);
+        Matcher m = pattern.matcher(uri);
+        if (m.find()) {
+            return Optional.of(new UriMatch(m.group(0), m.groupCount() == 2 ? m.group(1) : null));
+        }
+
+        return Optional.empty();
     }
 
     public boolean matchesServletName(String servletName) {
@@ -96,4 +103,23 @@ public class MatchingPattern {
         return this.servletName.equals(servletName);
     }
 
+    public static class UriMatch {
+
+        private final String servletInfo;
+        private final String pathInfo;
+
+        public UriMatch(String servletInfo, String pathInfo) {
+            this.servletInfo = servletInfo;
+            this.pathInfo = pathInfo;
+        }
+
+        public String getServletPath() {
+            return servletInfo;
+        }
+
+        public String getPathInfo() {
+            return pathInfo;
+        }
+
+    }
 }

@@ -1,5 +1,6 @@
 package eu.ggam.servlet.impl.jsr154;
 
+import eu.ggam.servlet.impl.descriptor.MatchingPattern;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -50,12 +51,13 @@ public class HttpServletRequestImpl implements HttpServletRequest {
     private HttpSession httpSession;
     private final Map<String, List<String>> headers;
 
-    public HttpServletRequestImpl(ServletContext servletContext, String method, URI uri, Map<String, List<String>> headers) {
+    public HttpServletRequestImpl(ServletContext servletContext, String method, URI uri, MatchingPattern.UriMatch uriMatch, Map<String, List<String>> headers) {
         this.servletContext = servletContext;
         this.method = method;
         this.requestURI = uri.getPath();
         this.headers = new HashMap<>(headers);
-        this.pathInfo = !"/".equals(servletContext.getContextPath()) ? requestURI.substring(servletContext.getContextPath().length(), requestURI.length()) : requestURI;
+        this.servletPath = uriMatch.getServletPath();
+        this.pathInfo = uriMatch.getPathInfo();
         this.queryString = uri.getQuery();
 
         // https://stackoverflow.com/a/37368660
@@ -272,7 +274,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
     @Override
     public String[] getParameterValues(String name) {
         // TODO: check for POST parameters
-        List<String> parameters = (List<String>)getParameterMap().get(name);
+        List<String> parameters = (List<String>) getParameterMap().get(name);
         return parameters != null ? parameters.toArray(new String[parameters.size()]) : null;
     }
 

@@ -40,25 +40,27 @@ public class ServletMatcher {
                 get();
     }
 
-    public Servlet match(String pathInfo) throws ServletException {
+    public ServletMatch match(String uri) throws ServletException {
         for (MatchType matchType : MATCHING_TYPES) {
             for (ServletDescriptor servletDescriptor : servletDescriptors) {
                 Optional<MatchingPattern> findAny = servletDescriptor.getUrlPatterns().
                         stream().
                         filter(p -> p.getMatchType() == matchType).
-                        filter(p -> p.matchesPathInfo(pathInfo)).
+                        filter(p -> p.matchesUri(uri)).
                         findAny();
 
                 if (findAny.isPresent()) {
-                    LOGGER.log(Level.FINE, "Request to {0} will be processed by Servlet {1} ({2} match)", new Object[]{pathInfo, servletDescriptor.getServletName(), matchType});
+                    Optional<MatchingPattern.UriMatch> uriMatch = findAny.get().uriMatch(uri);
+                    
+                    LOGGER.log(Level.FINE, "Request to {0} will be processed by Servlet {1} ({2} match)", new Object[]{uri, servletDescriptor.getServletName(), matchType});
 
-                    return getServletInstance(servletDescriptor);
+                    return new ServletMatch(getServletInstance(servletDescriptor), uriMatch.get());
                 }
             }
         }
 
-        LOGGER.log(Level.FINE, "Request to {0} will be processed by default Servlet, {1}", new Object[]{pathInfo, defaultServlet.getServletName()});
-        return getServletInstance(defaultServlet);
+        LOGGER.log(Level.FINE, "Request to {0} will be processed by default Servlet, {1}", new Object[]{uri, defaultServlet.getServletName()});
+        return new ServletMatch(getServletInstance(defaultServlet), new MatchingPattern.UriMatch(uri, null));
     }
 
     private Servlet getServletInstance(ServletDescriptor descriptor) throws ServletException {
