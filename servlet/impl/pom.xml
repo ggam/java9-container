@@ -16,6 +16,100 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>prepare-server</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <!-- Prepare the server -->               
+                                <artifactItem>
+                                    <groupId>eu.ggam</groupId>
+                                    <artifactId>container-impl</artifactId>
+                                    <version>1.0-SNAPSHOT</version>
+                                    <classifier>resources</classifier>
+                                    <type>zip</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/jre-dist/</outputDirectory>
+                                </artifactItem> 
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-servlet</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <!-- Put Servlet implementation in place-->
+                                <artifactItem>
+                                    <groupId>eu.ggam</groupId>
+                                    <artifactId>servlet-api</artifactId>
+                                    <version>2.5</version>
+                                    <overWrite>true</overWrite>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/jre-dist/modules</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>eu.ggam</groupId>
+                                    <artifactId>servlet-impl</artifactId>
+                                    <version>1.0-SNAPSHOT</version>
+                                    <overWrite>true</overWrite>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/jre-dist/modules</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-root-webapp</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <!-- Default (root) web application -->
+                                <artifactItem>
+                                    <groupId>eu.ggam</groupId>
+                                    <artifactId>container-root-webapp</artifactId>
+                                    <version>1.0-SNAPSHOT</version>
+                                    <overWrite>true</overWrite>
+                                    <type>war</type>
+                                    <outputDirectory>${project.build.directory}/jre-dist/webapps/ROOT</outputDirectory>
+                                </artifactItem> 
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>Create zip</id>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/runnable-zip.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     

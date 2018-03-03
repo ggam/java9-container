@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+    <id>runnable</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>${basedir}/target/jre-dist/bin</directory>
+            <outputDirectory>${basedir}/target/jre-dist/bin</outputDirectory>
+            <includes>
+                <include>launch</include>
+            </includes>
+            <fileMode>0744</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/target/jre-dist</directory>
+            <outputDirectory>.</outputDirectory>
+        </fileSet>
+    </fileSets>
+</assembly>
