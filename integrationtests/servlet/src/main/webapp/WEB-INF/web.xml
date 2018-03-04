@@ -146,4 +146,17 @@
     <listener>
         <listener-class>eu.ggam.container.integrationtests.servlet.servletcontext.SCAttributeListener</listener-class>
     </listener>
+    
+    <!-- HttpServletRequest -->
+    <servlet>
+        <servlet-name>HttpServletRequestTest</servlet-name>
+        <servlet-class>eu.ggam.container.integrationtests.servlet.httpservletrequest.ServletPathPathInfoServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>HttpServletRequestTest</servlet-name>
+        <url-pattern>/lawn/*</url-pattern>
+        <url-pattern>/garden/*</url-pattern>
+        <url-pattern>*.jsp</url-pattern>
+        <url-pattern>/pathInfo_exact</url-pattern>
+    </servlet-mapping>
 </web-app>

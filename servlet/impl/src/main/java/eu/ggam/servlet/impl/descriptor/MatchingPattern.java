@@ -56,14 +56,22 @@ public final class MatchingPattern {
             // Exact match
             matchType = MatchingPattern.MatchType.EXACT;
         } else {
-            pattern = pattern.replace("*", "(.*)");
             if (pattern.startsWith("/")) {
                 // Prefix
+
+                pattern = "(" + pattern;
+
+                int indexOf = pattern.indexOf("*");
+
+                pattern = pattern.substring(0, indexOf) + ")" + pattern.substring(indexOf, pattern.length());
+
                 matchType = MatchingPattern.MatchType.PREFIX;
             } else {
                 // Extension
                 matchType = MatchingPattern.MatchType.EXTENSION;
             }
+
+            pattern = pattern.replace("*", "(.*)");
         }
 
         return new MatchingPattern(null, Pattern.compile(pattern), matchType);
@@ -88,7 +96,13 @@ public final class MatchingPattern {
 
         Matcher m = pattern.matcher(uri);
         if (m.find()) {
-            return Optional.of(new UriMatch(m.group(0), m.groupCount() == 2 ? m.group(1) : null));
+            if (matchType == MatchType.EXTENSION || matchType == MatchType.EXACT) {
+                return Optional.of(new UriMatch(m.group(0), null));
+            }
+
+            String servletPath = m.group(1);
+            String pathInfo = m.group(2);
+            return Optional.of(new UriMatch(servletPath.substring(0, servletPath.length() - 1), "/" + pathInfo));
         }
 
         return Optional.empty();
