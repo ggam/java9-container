@@ -1,10 +1,10 @@
 package eu.ggam.servlet.impl.descriptor;
 
-import eu.ggam.servlet.impl.jsr154.ServletContextImpl;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterMappingType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.UrlPatternType;
+import eu.ggam.servlet.impl.jsr154.ServletContextImpl;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -31,7 +31,7 @@ public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterCon
 
     private final Map<String, String> initParams = new HashMap<>();
 
-    public FilterDescriptor(ServletContextImpl servletContext, FilterType filterType, List<FilterMappingType> filterMappingTypes, int position) throws ClassNotFoundException {
+    private FilterDescriptor(ServletContextImpl servletContext, FilterType filterType, List<FilterMappingType> filterMappingTypes, int position) throws ClassNotFoundException {
         this.filterName = filterType.getFilterName().getValue();
         this.filterClass = (Class<Filter>) Class.forName(filterType.getFilterClass().getValue(), true, servletContext.getWarClassLoader());
         this.servletContext = servletContext;
@@ -50,6 +50,10 @@ public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterCon
                 matchingMatterns.add(MatchingPattern.createUrlPattern(urlPattern.getValue()));
             }
         }
+    }
+
+    public static FilterDescriptor createFromWebXml(ServletContextImpl servletContext, FilterType filterType, List<FilterMappingType> filterMappingTypes, int position) throws ClassNotFoundException {
+        return new FilterDescriptor(servletContext, filterType, filterMappingTypes, position);
     }
 
     @Override

@@ -46,14 +46,14 @@
     </filter-mapping>
     
     <!-- Servlet matching -->
-    <!--<servlet>
+    <servlet>
         <servlet-name>DefaultServlet</servlet-name>
         <servlet-class>eu.ggam.container.testwebapp.servletmatch.DefaultServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>DefaultServlet</servlet-name>
         <url-pattern>/</url-pattern>
-    </servlet-mapping>-->
+    </servlet-mapping>
     
     <servlet>
         <servlet-name>ExactPatternServlet</servlet-name>

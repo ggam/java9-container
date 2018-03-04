@@ -68,7 +68,7 @@ public class EffectiveWebXml {
         for (ParamValueType contextParams : webApp.getContextParams()) {
             initParams.put(contextParams.getParamName().getValue(), contextParams.getParamValue().getValue());
         }
-        
+
         initParams.putAll(additionalInitParams);
 
         return new ServletContextImpl(classLoader, contextPath, attributeListeners, initParams);
@@ -83,7 +83,7 @@ public class EffectiveWebXml {
                 stream().
                 map(st -> {
                     try {
-                        return new ServletDescriptor(servletContext, st, collect.getOrDefault(st.getServletName().getValue(), Collections.emptyList()));
+                        return ServletDescriptor.createFromWebXml(servletContext, st, collect.getOrDefault(st.getServletName().getValue(), Collections.emptyList()));
                     } catch (ClassNotFoundException ex) {
                         throw new WebXmlProcessingException(ex);
                     }
@@ -95,15 +95,15 @@ public class EffectiveWebXml {
                 stream().
                 collect(Collectors.groupingBy(s -> s.getFilterName().getValue()));
 
-        Set<FilterDescriptor> filterDescriptors = new HashSet<>();
+        Set<FilterDescriptor> filters = new HashSet<>();
 
         // TODO: Check whether position counts from definition or mapping of filters
         int position = 0;
         for (FilterType filter : webApp.getFilters()) {
-            filterDescriptors.add(new FilterDescriptor(servletContext, filter, collect.getOrDefault(filter.getFilterName().getValue(), Collections.emptyList()), ++position));
+            filters.add(FilterDescriptor.createFromWebXml(servletContext, filter, collect.getOrDefault(filter.getFilterName().getValue(), Collections.emptyList()), ++position));
         }
 
-        return filterDescriptors;
+        return filters;
     }
 
     private void validate() {
@@ -112,14 +112,15 @@ public class EffectiveWebXml {
                 collect(counting()).
                 intValue();
 
+        Class<FileServlet> fileServlet = eu.ggam.servlet.impl.rootwebapp.FileServlet.class;
         switch (count) {
             case 1:
-                // Default Servlet is already set
+                // Default Servlet is already set. FileServlet is just another Servlet
+                servletDescriptors.add(ServletDescriptor.createWithoutMappings(servletContext, fileServlet.getSimpleName(), fileServlet));
                 break;
             case 0:
                 // No default Servlet. Add a new one with the server ClassLoader
-                Class<FileServlet> fileServlet = eu.ggam.servlet.impl.rootwebapp.FileServlet.class;
-                servletDescriptors.add(new ServletDescriptor(servletContext, fileServlet.getSimpleName(), fileServlet));
+                servletDescriptors.add(ServletDescriptor.createDefault(servletContext, fileServlet.getSimpleName(), fileServlet));
                 break;
             default:
                 // More than one default Servlet

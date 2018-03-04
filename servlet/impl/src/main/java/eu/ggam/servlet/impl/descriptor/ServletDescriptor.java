@@ -1,11 +1,10 @@
 package eu.ggam.servlet.impl.descriptor;
 
-import eu.ggam.servlet.impl.jsr154.ServletContextImpl;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ServletMappingType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ServletType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.UrlPatternType;
-import eu.ggam.servlet.impl.descriptor.EffectiveWebXml;
+import eu.ggam.servlet.impl.jsr154.ServletContextImpl;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -34,21 +33,14 @@ public class ServletDescriptor implements ServletConfig {
 
     private final ServletContextImpl servletContext;
 
-    /**
-     * Specific constructor for default Servlet via {@link EffectiveWebXml}
-     *
-     * @param servletContext
-     * @param servletName
-     * @param servletClass
-     */
-    public ServletDescriptor(ServletContextImpl servletContext, String servletName, Class<? extends Servlet> servletClass) {
+    private ServletDescriptor(ServletContextImpl servletContext, String servletName, Class<? extends Servlet> servletClass, boolean defaultServlet) {
         this.servletName = servletName;
         this.servletClass = servletClass;
-        this.defaultServlet = true;
+        this.defaultServlet = defaultServlet;
         this.servletContext = servletContext;
     }
 
-    public ServletDescriptor(ServletContextImpl servletContext, ServletType servletType, List<ServletMappingType> mappings) throws ClassNotFoundException {
+    private ServletDescriptor(ServletContextImpl servletContext, ServletType servletType, List<ServletMappingType> mappings) throws ClassNotFoundException {
         this.servletName = servletType.getServletName().getValue();
         this.servletClass = (Class<Servlet>) Class.forName(servletType.getServletClass().getValue(), true, servletContext.getWarClassLoader());
         this.servletContext = servletContext;
@@ -74,6 +66,18 @@ public class ServletDescriptor implements ServletConfig {
         }
 
         defaultServlet = isDefault;
+    }
+
+    public static ServletDescriptor createDefault(ServletContextImpl servletContext, String servletName, Class<? extends Servlet> servletClass) {
+        return new ServletDescriptor(servletContext, servletName, servletClass, true);
+    }
+
+    public static ServletDescriptor createWithoutMappings(ServletContextImpl servletContext, String servletName, Class<? extends Servlet> servletClass) {
+        return new ServletDescriptor(servletContext, servletName, servletClass, false);
+    }
+    
+    public static ServletDescriptor createFromWebXml(ServletContextImpl servletContext, ServletType servletType, List<ServletMappingType> mappings) throws ClassNotFoundException {
+        return new ServletDescriptor(servletContext, servletType, mappings);
     }
 
     @Override

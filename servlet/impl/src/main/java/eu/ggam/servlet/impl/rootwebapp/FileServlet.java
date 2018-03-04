@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,21 +17,11 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class FileServlet extends HttpServlet {
 
-    private String deploymentPath;
-
-    @Override
-    public void init() throws ServletException {
-        deploymentPath = getServletContext().getInitParameter(ServletContextImpl.InitParams.WEBAPP_PATH);
-    }
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String requestedFile = request.getPathInfo();
-
-        Path resolve = Paths.get(deploymentPath, requestedFile);
-
-        if (Files.exists(resolve)) {
-            Files.newInputStream(resolve).
+        Path path = createPath(getServletContext(), request.getPathInfo());
+        if (Files.exists(path)) {
+            Files.newInputStream(path).
                     transferTo(response.getOutputStream());
 
             response.setStatus(HttpServletResponse.SC_OK);
@@ -41,4 +32,12 @@ public class FileServlet extends HttpServlet {
         }
     }
 
+    public static boolean fileExists(ServletContext servletContext, String pathInfo) {
+        return Files.exists(createPath(servletContext, pathInfo));
+    }
+    
+    private static Path createPath(ServletContext servletContext, String pathInfo) {
+        String deploymentPath = servletContext.getInitParameter(ServletContextImpl.InitParams.WEBAPP_PATH);
+        return Paths.get(deploymentPath, pathInfo);
+    }
 }
