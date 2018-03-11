@@ -2,6 +2,8 @@ package eu.ggam.servlet.impl.deployer;
 
 import eu.ggam.container.api.http.HttpRequest;
 import eu.ggam.container.api.http.HttpResponse;
+import eu.ggam.servlet.impl.api.Deployment;
+import eu.ggam.servlet.impl.api.DeploymentState;
 import eu.ggam.servlet.impl.container.ContainerHttpResponseImpl;
 import eu.ggam.servlet.impl.core.FilterChainFactory;
 import eu.ggam.servlet.impl.descriptor.EffectiveWebXml;
@@ -32,7 +34,7 @@ import javax.servlet.ServletException;
  *
  * @author guillermo
  */
-public class ServletDeployment {
+public class ServletDeployment implements Deployment {
 
     private static final Logger LOGGER = Logger.getLogger(ServletDeployment.class.getName());
 
@@ -45,7 +47,7 @@ public class ServletDeployment {
 
     private final String contextPath;
     private final Path appPath;
-    private DeploymentState state = DeploymentState.UNDEPLOYED;
+    private volatile DeploymentState state = DeploymentState.UNDEPLOYED;
     private Module warModule;
 
     private EffectiveWebXml webXml;
@@ -68,6 +70,7 @@ public class ServletDeployment {
         this.state = newState;
     }
 
+    @Override
     public void deploy() {
         changeState(DeploymentState.DEPLOYING);
         ModuleFinder warModuleFinder = ModuleFinder.of(appPath.resolve(RELATIVE_CLASSES_PATH));
@@ -106,25 +109,38 @@ public class ServletDeployment {
         changeState(DeploymentState.DEPLOYED);
     }
 
+    @Override
+    public void undeploy() {
+        failIfNotDeployed();
+        changeState(DeploymentState.UNDEPLOYING);
+
+        filterChainFactory.close();
+        
+        changeState(DeploymentState.UNDEPLOYED);
+    }
+
+    @Override
     public boolean matches(String url) {
         return url.startsWith(getContextPath());
     }
 
+    @Override
     public HttpResponse process(HttpRequest containerRequest) throws IOException, ServletException {
+        failIfNotDeployed();
+
         String uriPath = containerRequest.getUri().getPath();
         if (!matches(uriPath)) {
             throw new IllegalArgumentException("Url cannot be matched to this application");
         }
 
-        
         String appUri = uriPath.substring(contextPath.length()); // URI without contextPath
-        
+
         FilterChainImpl filterChain = filterChainFactory.create(appUri);
-        
+
         // TODO: process entity body
         HttpServletRequestImpl servletRequest = new HttpServletRequestImpl(servletContext, containerRequest.getMethod(), containerRequest.getUri(), filterChain.getUriMatch(), containerRequest.getHeaders());
         HttpServletResponseImpl servletResponse = new HttpServletResponseImpl();
-        
+
         filterChain.doFilter(servletRequest, servletResponse);
 
         HttpResponse containerResponse = new ContainerHttpResponseImpl();
@@ -144,11 +160,25 @@ public class ServletDeployment {
         containerResponse.getOutputStream().write(responseBody);
     }
 
-    public synchronized DeploymentState getState() {
+    @Override
+    public DeploymentState getState() {
         return state;
     }
 
+    @Override
+    public String getModuleName() {
+        return warModuleName;
+    }
+
+    @Override
     public String getContextPath() {
         return contextPath;
+    }
+
+    private void failIfNotDeployed() {
+        DeploymentState currentState = state;
+        if (currentState != DeploymentState.DEPLOYED) {
+            throw new IllegalStateException(warModuleName + " is not deployed. Currently " + currentState);
+        }
     }
 }

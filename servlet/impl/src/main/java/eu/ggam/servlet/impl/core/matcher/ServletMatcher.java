@@ -96,4 +96,8 @@ public class ServletMatcher {
             throw e;
         }
     }
+    
+    public void destroyAll() {
+        servletInstances.values().forEach(s -> s.destroy());
+    }
 }

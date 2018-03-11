@@ -2,6 +2,7 @@ package eu.ggam.servlet.impl.deployer;
 
 import eu.ggam.container.api.event.ServerLifeCycleListener;
 import eu.ggam.container.api.event.ServerStartingEvent;
+import eu.ggam.container.api.event.ServerStoppingEvent;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -33,6 +34,11 @@ public class DeploymentScanner implements ServerLifeCycleListener {
         }
 
         DeploymentRegistry.deployAll();
+    }
+
+    @Override
+    public void serverStopping(ServerStoppingEvent serverStoppingEvent) {
+        DeploymentRegistry.undeployAll();
     }
 
 }

@@ -83,4 +83,8 @@ public class FilterMatcher {
             throw e;
         }
     }
+    
+    public void destroyAll() {
+        filterInstances.values().forEach(f -> f.destroy());
+    }
 }

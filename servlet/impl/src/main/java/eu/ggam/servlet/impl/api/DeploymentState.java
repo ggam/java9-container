@@ -1,4 +1,4 @@
-package eu.ggam.servlet.impl.deployer;
+package eu.ggam.servlet.impl.api;
 
 /**
  *

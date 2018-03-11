@@ -15,7 +15,7 @@ import javax.servlet.ServletException;
  *
  * @author guillermo
  */
-public class FilterChainFactory {
+public class FilterChainFactory implements AutoCloseable {
 
     private final ServletMatcher servletMatcher;
     private final FilterMatcher filterMatcher;
@@ -34,5 +34,11 @@ public class FilterChainFactory {
         } catch (ServletException ex) {
             throw new RuntimeException(ex);
         }
+    }
+    
+    @Override
+    public void close() {
+        servletMatcher.destroyAll();
+        filterMatcher.destroyAll();
     }
 }
