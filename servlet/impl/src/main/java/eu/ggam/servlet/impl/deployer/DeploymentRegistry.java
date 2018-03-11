@@ -5,6 +5,9 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  *
@@ -14,57 +17,85 @@ public final class DeploymentRegistry {
 
     private static final Set<Deployment> DEPLOYMENTS = new HashSet<>();
 
+    private static final ReadWriteLock lock = new ReentrantReadWriteLock();
+
     private static boolean deployed = false;
 
     private DeploymentRegistry() {
     }
 
-    public static synchronized void registerDeployment(Deployment deployment) {
-        if (deployed) {
-            throw new IllegalStateException("Applications were already deployed");
-        }
+    public static void registerDeployment(Deployment deployment) {
+        Lock writeLock = lock.writeLock();
+        try {
+            if (deployed) {
+                throw new IllegalStateException("Applications were already deployed");
+            }
 
-        DEPLOYMENTS.add(deployment);
+            DEPLOYMENTS.add(deployment);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
-    public static synchronized void deployAll() {
-        if (deployed) {
-            throw new IllegalStateException("Applications were already deployed");
-        }
+    public static void deployAll() {
+        Lock writeLock = lock.writeLock();
+        try {
+            if (deployed) {
+                throw new IllegalStateException("Applications were already deployed");
+            }
 
-        deployed = true;
-        DEPLOYMENTS.forEach(Deployment::deploy);
-    }
-    
-    public static synchronized void undeployAll() {
-        if (!deployed) {
-            throw new IllegalStateException("Applications were already deployed");
+            deployed = true;
+            DEPLOYMENTS.forEach(Deployment::deploy);
+        } finally {
+            writeLock.unlock();
         }
-
-        deployed = true;
-        DEPLOYMENTS.forEach(Deployment::undeploy);
     }
 
-    public static synchronized void undeploy(String moduleName) {
-        // There must be only one
-        Optional<Deployment> deployment = DEPLOYMENTS.stream().
-                filter(d -> d.getModuleName().equals(moduleName)).
-                findFirst();
+    public static void undeployAll() {
+        Lock writeLock = lock.writeLock();
+        try {
+            if (!deployed) {
+                throw new IllegalStateException("Applications were already deployed");
+            }
 
-        deployment.orElseThrow(() -> new IllegalArgumentException(moduleName + " not found")).
-                undeploy();
+            deployed = true;
+            DEPLOYMENTS.forEach(Deployment::undeploy);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
-    public synchronized static Optional<Deployment> matches(String uri) {
-        if (!deployed) {
-            throw new IllegalStateException("Applications are still not deployed");
-        }
+    public static void undeploy(String moduleName) {
+        Lock writeLock = lock.writeLock();
+        try {
+            // There will be only one
+            Optional<Deployment> deployment = DEPLOYMENTS.stream().
+                    filter(d -> d.getModuleName().equals(moduleName)).
+                    findFirst();
 
-        // Will return all deployments, even undeployed ones
-        return DEPLOYMENTS.
-                stream().
-                filter(app -> app.matches(uri)).
-                max(Comparator.comparingInt((app) -> app.getContextPath().length()));
+            deployment.orElseThrow(() -> new IllegalArgumentException(moduleName + " not found")).
+                    undeploy();
+
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    public static Optional<Deployment> matches(String uri) {
+        Lock readLock = lock.readLock();
+        try {
+            if (!deployed) {
+                throw new IllegalStateException("Applications are still not deployed");
+            }
+
+            // Will return all deployments, even undeployed ones
+            return DEPLOYMENTS.
+                    stream().
+                    filter(app -> app.matches(uri)).
+                    max(Comparator.comparingInt((app) -> app.getContextPath().length()));
+        } finally {
+            readLock.unlock();
+        }
     }
 
 }
