@@ -68,7 +68,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "web-appType")
 @XmlRootElement(name = "web-app")
-public class WebApp {
+public class WebXml {
 
     @XmlElementRefs({
         @XmlElementRef(name = "description", namespace = "http://java.sun.com/xml/ns/javaee", type = JAXBElement.class, required = false),

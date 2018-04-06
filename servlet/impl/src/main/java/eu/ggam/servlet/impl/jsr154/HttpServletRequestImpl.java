@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -51,6 +52,10 @@ public class HttpServletRequestImpl implements HttpServletRequest {
     private HttpSession httpSession;
     private final Map<String, List<String>> headers;
 
+    private Map<String, Object> attributes;
+    private final int port;
+    private final String scheme;
+    
     public HttpServletRequestImpl(ServletContext servletContext, String method, URI uri, MatchingPattern.UriMatch uriMatch, Map<String, List<String>> headers) {
         this.servletContext = servletContext;
         this.method = method;
@@ -66,6 +71,10 @@ public class HttpServletRequestImpl implements HttpServletRequest {
                     .map(s -> Arrays.copyOf(s.split("="), 2))
                     .collect(groupingBy(s -> decode(s[0]), mapping(s -> decode(s[1]), toList())));
         }
+        
+        this.attributes = new ConcurrentHashMap<>();
+        this.port = uri.getPort();
+        this.scheme = uri.getScheme();
     }
 
     private String decode(final String encoded) {
@@ -223,12 +232,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
     @Override
     public Object getAttribute(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return attributes.get(name);
     }
 
     @Override
     public Enumeration getAttributeNames() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Collections.enumeration(attributes.keySet());
     }
 
     @Override
@@ -290,7 +299,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
     @Override
     public String getScheme() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return scheme;
     }
 
     @Override
@@ -300,7 +309,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
     @Override
     public int getServerPort() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return port;
     }
 
     @Override
@@ -320,12 +329,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
     @Override
     public void setAttribute(String name, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        attributes.put(name, o);
     }
 
     @Override
     public void removeAttribute(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        attributes.remove(name);
     }
 
     @Override

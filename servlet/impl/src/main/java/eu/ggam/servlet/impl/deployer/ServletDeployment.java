@@ -6,23 +6,19 @@ import eu.ggam.servlet.impl.api.Deployment;
 import eu.ggam.servlet.impl.api.DeploymentState;
 import eu.ggam.servlet.impl.container.ContainerHttpResponseImpl;
 import eu.ggam.servlet.impl.core.FilterChainFactory;
-import eu.ggam.servlet.impl.descriptor.EffectiveWebXml;
 import eu.ggam.servlet.impl.jsr154.FilterChainImpl;
 import eu.ggam.servlet.impl.jsr154.HttpServletRequestImpl;
 import eu.ggam.servlet.impl.jsr154.HttpServletResponseImpl;
 import eu.ggam.servlet.impl.jsr154.ServletContextImpl;
+import eu.ggam.servlet.impl.descriptor.materialized.MaterializedWebApp;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleDescriptor;
 import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReference;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,7 +46,7 @@ public class ServletDeployment implements Deployment {
     private volatile DeploymentState state = DeploymentState.UNDEPLOYED;
     private Module warModule;
 
-    private EffectiveWebXml webXml;
+    private MaterializedWebApp webApp;
 
     private ServletContext servletContext;
 
@@ -95,16 +91,15 @@ public class ServletDeployment implements Deployment {
         moduleLayer = parentLayer.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
         warModule = moduleLayer.findModule(warModuleName).get();
 
-        try (InputStream is = Files.newInputStream(appPath.resolve(Paths.get("WEB-INF", "web.xml")))) {
-            webXml = new EffectiveWebXml(contextPath, is, warModule.getClassLoader(), Map.of(ServletContextImpl.InitParams.WEBAPP_PATH,
-                    appPath.toAbsolutePath().toString()));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        // MATERIALIZED WEBAPP
+        webApp = new MaterializedWebApp.Builder(appPath, warModule.getClassLoader(), contextPath).
+                contextParam(ServletContextImpl.InitParams.WEBAPP_PATH, appPath.toAbsolutePath().toString()).
+                build();
+        // END
 
-        servletContext = webXml.getServletContext();
+        servletContext = webApp.getServletContext();
 
-        filterChainFactory = new FilterChainFactory(webXml.getServletDescriptors(), webXml.getFilterDescriptors());
+        filterChainFactory = new FilterChainFactory(webApp.getServletDescriptors(), webApp.getFilterDescriptors());
 
         changeState(DeploymentState.DEPLOYED);
     }

@@ -26,6 +26,7 @@ public final class DeploymentRegistry {
 
     public static void registerDeployment(Deployment deployment) {
         Lock writeLock = lock.writeLock();
+        writeLock.lock();
         try {
             if (deployed) {
                 throw new IllegalStateException("Applications were already deployed");
@@ -39,6 +40,7 @@ public final class DeploymentRegistry {
 
     public static void deployAll() {
         Lock writeLock = lock.writeLock();
+        writeLock.lock();
         try {
             if (deployed) {
                 throw new IllegalStateException("Applications were already deployed");
@@ -53,6 +55,7 @@ public final class DeploymentRegistry {
 
     public static void undeployAll() {
         Lock writeLock = lock.writeLock();
+        writeLock.lock();
         try {
             if (!deployed) {
                 throw new IllegalStateException("Applications were already deployed");
@@ -67,6 +70,7 @@ public final class DeploymentRegistry {
 
     public static void undeploy(String moduleName) {
         Lock writeLock = lock.writeLock();
+        writeLock.lock();
         try {
             // There will be only one
             Optional<Deployment> deployment = DEPLOYMENTS.stream().
@@ -83,6 +87,7 @@ public final class DeploymentRegistry {
 
     public static Optional<Deployment> matches(String uri) {
         Lock readLock = lock.readLock();
+        readLock.lock();
         try {
             if (!deployed) {
                 throw new IllegalStateException("Applications are still not deployed");

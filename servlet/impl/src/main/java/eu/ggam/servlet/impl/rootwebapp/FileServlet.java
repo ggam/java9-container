@@ -20,7 +20,7 @@ public class FileServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Path path = createPath(getServletContext(), request.getPathInfo());
-        if (Files.exists(path)) {
+        if (Files.exists(path) && Files.isRegularFile(path)) {
             Files.newInputStream(path).
                     transferTo(response.getOutputStream());
 
