@@ -2,7 +2,7 @@ package eu.ggam.container.integrationtests;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class Constants {
 

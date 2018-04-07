@@ -2,7 +2,7 @@ package eu.ggam.servlet.impl.descriptor;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class WebXmlProcessingException extends RuntimeException {
 

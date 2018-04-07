@@ -2,7 +2,7 @@ package eu.ggam.servlet.impl.api;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public enum DeploymentState {
     UNDEPLOYED,

@@ -13,7 +13,7 @@ import javax.servlet.Filter;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class FilterDescriptor implements Comparable<FilterDescriptor> {
 

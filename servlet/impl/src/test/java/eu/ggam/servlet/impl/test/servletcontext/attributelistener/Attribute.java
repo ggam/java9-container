@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class Attribute {
 

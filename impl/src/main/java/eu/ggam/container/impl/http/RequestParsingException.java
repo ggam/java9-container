@@ -4,7 +4,7 @@ import java.io.IOException;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class RequestParsingException extends IOException {
 

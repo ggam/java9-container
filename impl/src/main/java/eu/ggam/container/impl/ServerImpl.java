@@ -21,7 +21,7 @@ import static java.util.stream.Collectors.toList;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class ServerImpl implements Server {
 

@@ -24,7 +24,7 @@ import javax.xml.bind.JAXBException;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public final class MaterializedWebApp {
 

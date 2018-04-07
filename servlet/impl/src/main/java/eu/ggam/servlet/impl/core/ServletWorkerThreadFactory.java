@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class ServletWorkerThreadFactory implements ThreadFactory {
 

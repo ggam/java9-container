@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public final class FiltersParser {
 

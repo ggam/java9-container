@@ -13,7 +13,7 @@ import javax.servlet.ServletResponse;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class FilterChainImpl implements FilterChain {
 

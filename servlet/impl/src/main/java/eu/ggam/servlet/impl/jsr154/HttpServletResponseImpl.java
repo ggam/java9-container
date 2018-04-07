@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class HttpServletResponseImpl implements HttpServletResponse {
 

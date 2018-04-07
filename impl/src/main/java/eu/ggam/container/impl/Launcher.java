@@ -9,7 +9,7 @@ import java.util.Properties;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class Launcher {
 

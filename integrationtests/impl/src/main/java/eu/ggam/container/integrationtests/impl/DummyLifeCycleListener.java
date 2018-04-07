@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class DummyLifeCycleListener implements ServerLifeCycleListener {
 

@@ -32,7 +32,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class HttpServletRequestImpl implements HttpServletRequest {
 

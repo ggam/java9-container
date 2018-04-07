@@ -13,7 +13,7 @@ import static java.util.stream.Collectors.toSet;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public final class ServletsParser {
 

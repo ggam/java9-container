@@ -12,7 +12,7 @@ import javax.servlet.http.HttpSessionBindingListener;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class SessionListeners {
 

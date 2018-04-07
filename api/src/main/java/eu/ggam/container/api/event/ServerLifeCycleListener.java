@@ -11,7 +11,7 @@ import java.util.EventListener;
  * Exceptions occurred during the execution of any lifecycle method must be
  * propagated to caller and prevent the change state
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public interface ServerLifeCycleListener extends EventListener {
 

@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class DeploymentScanner implements ServerLifeCycleListener {
 

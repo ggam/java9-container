@@ -8,7 +8,7 @@ import java.util.Optional;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public interface HttpRequest {
 

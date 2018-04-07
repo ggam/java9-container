@@ -10,7 +10,7 @@ import java.util.Map;
  * No changes will be allowed on the headers or status once the server has
  * started to send the response to the client.
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public interface HttpResponse {
 

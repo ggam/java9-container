@@ -4,7 +4,7 @@ import javax.servlet.http.HttpServlet;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class DummyFileServlet extends HttpServlet {
 

@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * The interface that must be implemented by complaint servers
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public interface Server {
 

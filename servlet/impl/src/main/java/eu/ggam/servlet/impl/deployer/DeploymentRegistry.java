@@ -11,7 +11,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public final class DeploymentRegistry {
 

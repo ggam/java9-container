@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class DefaultServlet extends HttpServlet {
     

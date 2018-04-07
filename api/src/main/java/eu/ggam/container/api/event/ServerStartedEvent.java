@@ -5,7 +5,7 @@ import java.util.EventObject;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class ServerStartedEvent extends EventObject {
 

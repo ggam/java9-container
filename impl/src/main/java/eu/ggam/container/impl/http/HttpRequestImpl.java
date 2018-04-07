@@ -14,7 +14,7 @@ import java.util.Optional;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public final class HttpRequestImpl implements HttpRequest {
 

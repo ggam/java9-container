@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class BrokenRequestHandler implements HttpRequestHandler {
 

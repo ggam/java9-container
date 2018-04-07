@@ -6,7 +6,7 @@ import javax.servlet.ServletOutputStream;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class ServletOutputStreamImpl extends ServletOutputStream {
 

@@ -5,7 +5,7 @@ import javax.servlet.Servlet;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class ServletMatch {
 

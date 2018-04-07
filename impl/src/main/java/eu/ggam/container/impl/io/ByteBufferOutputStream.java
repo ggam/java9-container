@@ -7,7 +7,7 @@ import java.util.Queue;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class ByteBufferOutputStream extends OutputStream {
 

@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class ServletContext_ContextAttributeListenerTest {
 

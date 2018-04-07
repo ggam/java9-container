@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class ContainerHttpResponseImpl implements HttpResponse {
 

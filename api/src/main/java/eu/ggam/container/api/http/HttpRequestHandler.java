@@ -12,7 +12,7 @@ import java.util.concurrent.CompletionStage;
  * Calling {@link Server#start()} with none or multiple implementations of this
  * interface discoverable by the ServerLoader API will result in an exception.
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public interface HttpRequestHandler {
 

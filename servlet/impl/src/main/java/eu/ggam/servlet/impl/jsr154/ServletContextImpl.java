@@ -22,7 +22,7 @@ import javax.servlet.ServletException;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class ServletContextImpl implements ServletContext {
 

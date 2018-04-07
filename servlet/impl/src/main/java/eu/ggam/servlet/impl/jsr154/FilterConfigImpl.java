@@ -10,7 +10,7 @@ import javax.servlet.ServletContext;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class FilterConfigImpl implements FilterConfig {
 

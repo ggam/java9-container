@@ -11,7 +11,7 @@ import javax.servlet.ServletRequestListener;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class RequestListeners {
 

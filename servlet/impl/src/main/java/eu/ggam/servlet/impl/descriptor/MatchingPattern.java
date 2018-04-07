@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public final class MatchingPattern {
 

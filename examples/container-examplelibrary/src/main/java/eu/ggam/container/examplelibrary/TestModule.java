@@ -2,7 +2,7 @@ package eu.ggam.container.examplelibrary;
 
 /**
  *
- * @author guillermo
+ * @author Guillermo González de Agüero
  */
 public class TestModule {
     
