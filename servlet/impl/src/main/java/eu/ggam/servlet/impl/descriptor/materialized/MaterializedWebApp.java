@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import static java.util.stream.Collectors.counting;
-import javax.servlet.Servlet;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
@@ -32,7 +31,6 @@ public final class MaterializedWebApp {
 
         private final Path appPath;
         private final ClassLoader classLoader;
-        private final String contextPath;
 
         private final Map<String, String> contextParams = new HashMap<>();
 
@@ -41,10 +39,9 @@ public final class MaterializedWebApp {
 
         private boolean built;
 
-        public Builder(Path appPath, ClassLoader classLoader, String contextPath) {
+        public Builder(Path appPath, ClassLoader classLoader) {
             this.appPath = appPath;
             this.classLoader = classLoader;
-            this.contextPath = contextPath;
         }
 
         public Builder contextParam(String param, String value) {
@@ -80,7 +77,7 @@ public final class MaterializedWebApp {
                 throw new RuntimeException(e); // TODO: Deployment exception
             }
 
-            return new MaterializedWebApp(webXml, contextPath, classLoader, contextParams, fileServletName, fileServletClassName);
+            return new MaterializedWebApp(webXml, classLoader, contextParams, fileServletName, fileServletClassName);
         }
 
         private void ensureNotBuilt() {
@@ -91,7 +88,6 @@ public final class MaterializedWebApp {
     }
 
     private final ClassLoader classLoader;
-    private final String contextPath;
     private final Map<String, String> contextParams;
     private final Set<ServletDescriptor> servletDescriptors;
     private final Set<FilterDescriptor> filterDescriptors;
@@ -100,10 +96,9 @@ public final class MaterializedWebApp {
     private final RequestListeners requestListeners;
     private final SessionListeners sessionListeners;
 
-    private MaterializedWebApp(WebXml webXml, String contextPath, ClassLoader warClassLoader, Map<String, String> servletContextParams, String fileServletName, String fileServletClassName) {
+    private MaterializedWebApp(WebXml webXml, ClassLoader warClassLoader, Map<String, String> servletContextParams, String fileServletName, String fileServletClassName) {
         try {
             this.classLoader = warClassLoader;
-            this.contextPath = contextPath;
             this.contextParams = Collections.unmodifiableMap(createServletContext(webXml.getContextParams(), servletContextParams));
             this.contextListeners = new ContextListeners(webXml.getListeners(), warClassLoader);
 
@@ -137,15 +132,17 @@ public final class MaterializedWebApp {
                 collect(counting()).
                 intValue();
 
-        Class<? extends Servlet> fileServlet = (Class<? extends Servlet>) Class.forName(fileServletClassName, true, classLoader);
         switch (count) {
             case 1:
                 // Default Servlet is already set. FileServlet is just another Servlet
-                servletDescriptors.add(ServletDescriptor.createWithoutMappings(fileServletName, fileServlet));
+                servletDescriptors.add(new ServletDescriptor.Builder(fileServletName, fileServletClassName, classLoader).
+                        build());
                 break;
             case 0:
                 // No default Servlet. Add a new one with the server ClassLoader
-                servletDescriptors.add(ServletDescriptor.createDefault(fileServletClassName, fileServlet));
+                servletDescriptors.add(new ServletDescriptor.Builder(fileServletName, fileServletClassName, classLoader).
+                        defaultServlet().
+                        build());
                 break;
             default:
                 // More than one default Servlet

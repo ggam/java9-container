@@ -92,7 +92,7 @@ public class ServletDeployment implements Deployment {
         moduleLayer = parentLayer.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
         warModule = moduleLayer.findModule(warModuleName).get();
 
-        webApp = new MaterializedWebApp.Builder(appPath, warModule.getClassLoader(), contextPath).
+        webApp = new MaterializedWebApp.Builder(appPath, warModule.getClassLoader()).
                 contextParam(ServletContextImpl.InitParams.WEBAPP_PATH, appPath.toAbsolutePath().toString()).
                 fileServlet(FileServlet.class.getSimpleName(), FileServlet.class.getName()).
                 build();

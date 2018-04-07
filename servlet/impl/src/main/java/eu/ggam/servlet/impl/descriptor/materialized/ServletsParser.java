@@ -1,7 +1,9 @@
 package eu.ggam.servlet.impl.descriptor.materialized;
 
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ServletMappingType;
+import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.UrlPatternType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.WebXml;
+import eu.ggam.servlet.impl.descriptor.MatchingPattern;
 import eu.ggam.servlet.impl.descriptor.ServletDescriptor;
 import eu.ggam.servlet.impl.descriptor.WebXmlProcessingException;
 import java.util.Collections;
@@ -29,10 +31,26 @@ public final class ServletsParser {
                 stream().
                 map(st -> {
                     try {
-                        return ServletDescriptor.createFromWebXml(st, collect.getOrDefault(st.getServletName().getValue(), Collections.emptyList()), classLoader);
-                    } catch (ClassNotFoundException ex) {
-                        throw new WebXmlProcessingException(ex);
+                        Set<MatchingPattern> urlPatterns = collect.getOrDefault(st.getServletName().getValue(), Collections.emptyList()).
+                                stream().
+                                map(ServletMappingType::getUrlPatterns).
+                                flatMap(List::stream).
+                                map(UrlPatternType::getValue).
+                                map(MatchingPattern::createUrlPattern).
+                                collect(toSet());
+
+                        Map<String, String> initParams = st.getInitParams().
+                                stream().
+                                collect(Collectors.toMap(it -> it.getParamName().getValue(), it -> it.getParamValue().getValue()));
+
+                        return new ServletDescriptor.Builder(st.getServletName().getValue(), st.getServletClass().getValue(), classLoader).
+                                addMappings(urlPatterns).
+                                addInitParams(initParams).
+                                build();
+                    } catch (ClassNotFoundException e) {
+                        throw new WebXmlProcessingException(e);
                     }
-                }).collect(toSet());
+                }).
+                collect(toSet());
     }
 }

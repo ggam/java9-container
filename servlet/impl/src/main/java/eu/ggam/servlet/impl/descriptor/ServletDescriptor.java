@@ -1,13 +1,9 @@
 package eu.ggam.servlet.impl.descriptor;
 
-import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
-import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ServletMappingType;
-import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ServletType;
-import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.UrlPatternType;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.servlet.Servlet;
 
@@ -17,58 +13,80 @@ import javax.servlet.Servlet;
  */
 public class ServletDescriptor {
 
+    private static final MatchingPattern DEFAULT_SERVLET_PATTERN = MatchingPattern.createUrlPattern("/");
+
+    public static final class Builder {
+
+        private final String servletName;
+        private final String className;
+        private ClassLoader classLoader;
+        private final Set<MatchingPattern> patterns;
+
+        private final Map<String, String> initParams = new HashMap<>();
+
+        public Builder(String servletName, String className, ClassLoader classLoader) {
+            this.servletName = servletName;
+            this.className = className;
+            this.classLoader = classLoader;
+
+            this.patterns = new HashSet<>();
+        }
+
+        public Builder addMapping(MatchingPattern pattern) {
+            this.patterns.add(pattern);
+            return this;
+        }
+
+        public Builder addMappings(Set<MatchingPattern> patterns) {
+            this.patterns.addAll(patterns);
+            return this;
+        }
+
+        public Builder addInitParams(Map<String, String> initParams) {
+            this.initParams.putAll(initParams);
+            return this;
+        }
+
+        public Builder defaultServlet() {
+            patterns.add(DEFAULT_SERVLET_PATTERN);
+
+            return this;
+        }
+
+        public ServletDescriptor build() throws ClassNotFoundException {
+            ServletDescriptor servletDescriptor = new ServletDescriptor(servletName, className, patterns, initParams, classLoader);
+
+            classLoader = null; // Remove references to classLoader
+
+            return servletDescriptor;
+        }
+    }
+
     private final String servletName;
     private final Class<? extends Servlet> servletClass;
 
-    private final Set<MatchingPattern> urlPatterns = new HashSet<>();
-
-    private final Map<String, String> initParams = new HashMap<>();
+    private final Set<MatchingPattern> urlPatterns;
+    private final Map<String, String> initParams;
 
     private final boolean defaultServlet;
 
-    private ServletDescriptor(String servletName, Class<? extends Servlet> servletClass, boolean defaultServlet) {
+    private ServletDescriptor(String servletName, String className, Set<MatchingPattern> patterns, Map<String, String> initParams, ClassLoader classLoader) throws ClassNotFoundException {
         this.servletName = servletName;
-        this.servletClass = servletClass;
-        this.defaultServlet = defaultServlet;
-    }
+        this.servletClass = (Class<Servlet>) Class.forName(className, true, classLoader);
+        this.initParams = new HashMap<>(initParams);
 
-    private ServletDescriptor(ServletType servletType, List<ServletMappingType> mappings, ClassLoader classLoader) throws ClassNotFoundException {
-        this.servletName = servletType.getServletName().getValue();
-        this.servletClass = (Class<Servlet>) Class.forName(servletType.getServletClass().getValue(), true, classLoader);
+        Optional<MatchingPattern> defaultMapping = patterns.stream().
+                filter(p -> p.getMatchType() == MatchingPattern.MatchType.EXACT && p.matchesUri("/")).
+                findAny();
 
-        for (ParamValueType initParamTypes : servletType.getInitParams()) {
-            initParams.put(initParamTypes.getParamName().getValue(), initParamTypes.getParamValue().getValue());
+        if (defaultMapping.isPresent()) {
+            patterns.remove(defaultMapping.get());
+            this.defaultServlet = true;
+        } else {
+            this.defaultServlet = false;
         }
 
-        boolean isDefault = false;
-
-        // TODO: categorize using RegEx to also validate correctness
-        for (ServletMappingType servletMapping : mappings) {
-            for (UrlPatternType urlPattern : servletMapping.getUrlPatterns()) {
-                String pattern = urlPattern.getValue();
-
-                if ("/".equals(pattern)) {
-                    isDefault = true;
-                    continue;
-                }
-
-                urlPatterns.add(MatchingPattern.createUrlPattern(pattern));
-            }
-        }
-
-        defaultServlet = isDefault;
-    }
-
-    public static ServletDescriptor createDefault(String servletName, Class<? extends Servlet> servletClass) {
-        return new ServletDescriptor(servletName, servletClass, true);
-    }
-
-    public static ServletDescriptor createWithoutMappings(String servletName, Class<? extends Servlet> servletClass) {
-        return new ServletDescriptor(servletName, servletClass, false);
-    }
-
-    public static ServletDescriptor createFromWebXml(ServletType servletType, List<ServletMappingType> mappings, ClassLoader classLoader) throws ClassNotFoundException {
-        return new ServletDescriptor(servletType, mappings, classLoader);
+        this.urlPatterns = new HashSet<>(patterns);
     }
 
     public String getServletName() {

@@ -136,4 +136,13 @@ public final class MatchingPattern {
         }
 
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 97 * hash + Objects.hashCode(this.servletName);
+        hash = 97 * hash + Objects.hashCode(this.pattern);
+        hash = 97 * hash + Objects.hashCode(this.matchType);
+        return hash;
+    }
 }
