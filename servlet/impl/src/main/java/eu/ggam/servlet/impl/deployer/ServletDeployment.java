@@ -6,11 +6,11 @@ import eu.ggam.servlet.impl.api.Deployment;
 import eu.ggam.servlet.impl.api.DeploymentState;
 import eu.ggam.servlet.impl.container.ContainerHttpResponseImpl;
 import eu.ggam.servlet.impl.core.FilterChainFactory;
+import eu.ggam.servlet.impl.descriptor.materialized.MaterializedWebApp;
 import eu.ggam.servlet.impl.jsr154.FilterChainImpl;
 import eu.ggam.servlet.impl.jsr154.HttpServletRequestImpl;
 import eu.ggam.servlet.impl.jsr154.HttpServletResponseImpl;
 import eu.ggam.servlet.impl.jsr154.ServletContextImpl;
-import eu.ggam.servlet.impl.descriptor.materialized.MaterializedWebApp;
 import java.io.IOException;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleDescriptor;
@@ -91,15 +91,13 @@ public class ServletDeployment implements Deployment {
         moduleLayer = parentLayer.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
         warModule = moduleLayer.findModule(warModuleName).get();
 
-        // MATERIALIZED WEBAPP
         webApp = new MaterializedWebApp.Builder(appPath, warModule.getClassLoader(), contextPath).
                 contextParam(ServletContextImpl.InitParams.WEBAPP_PATH, appPath.toAbsolutePath().toString()).
                 build();
-        // END
 
-        servletContext = webApp.getServletContext();
+        servletContext = new ServletContextImpl(webApp);
 
-        filterChainFactory = new FilterChainFactory(webApp.getServletDescriptors(), webApp.getFilterDescriptors());
+        filterChainFactory = new FilterChainFactory(servletContext, webApp);
 
         changeState(DeploymentState.DEPLOYED);
     }
@@ -110,7 +108,7 @@ public class ServletDeployment implements Deployment {
         changeState(DeploymentState.UNDEPLOYING);
 
         filterChainFactory.close();
-        
+
         changeState(DeploymentState.UNDEPLOYED);
     }
 

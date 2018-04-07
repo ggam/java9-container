@@ -1,8 +1,10 @@
 package eu.ggam.servlet.impl.jsr154;
 
+import eu.ggam.servlet.impl.descriptor.materialized.MaterializedWebApp;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -41,15 +43,16 @@ public class ServletContextImpl implements ServletContext {
     private final Map<String, Object> attributes;
     private final Object attributeLock = new Object(); // Object to hold the lock when accessing the attributes
 
-    public ServletContextImpl(ClassLoader warClassLoader, String contextPath, List<ServletContextAttributeListener> attributeListeners, Map<String, String> initParams) {
-        this.warClassLoader = warClassLoader;
-        this.contextPath = contextPath;
-        this.attributeListeners = Collections.unmodifiableList(attributeListeners);
-        this.initParams = Collections.unmodifiableMap(new HashMap<>(initParams));
+    public ServletContextImpl(MaterializedWebApp webApp) {
+        this.warClassLoader = webApp.getClassLoader();
+        this.contextPath = null;
+        this.attributeListeners = Collections.unmodifiableList(new ArrayList<>(webApp.getContextListeners().getContextAttributeListeners()));
+        //this.listeners = webApp.getContextListeners().getContextListeners(); // TODO: not supported yet
+        this.initParams = Collections.unmodifiableMap(new HashMap<>(webApp.getContextParams()));
 
         this.attributes = new HashMap<>();
     }
-    
+
     @Override
     public String getContextPath() {
         return contextPath;

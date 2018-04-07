@@ -4,37 +4,30 @@ import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterMappingType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.ParamValueType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.UrlPatternType;
-import eu.ggam.servlet.impl.jsr154.ServletContextImpl;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.Filter;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
 
 /**
  *
  * @author guillermo
  */
-public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterConfig {
+public class FilterDescriptor implements Comparable<FilterDescriptor> {
 
     private final String filterName;
     private final Class<? extends Filter> filterClass;
-    private final ServletContextImpl servletContext;
     private final int position;
 
     private final Set<MatchingPattern> matchingMatterns = new HashSet<>();
 
     private final Map<String, String> initParams = new HashMap<>();
 
-    private FilterDescriptor(ServletContextImpl servletContext, FilterType filterType, List<FilterMappingType> filterMappingTypes, int position) throws ClassNotFoundException {
+    private FilterDescriptor(FilterType filterType, List<FilterMappingType> filterMappingTypes, int position, ClassLoader classLoader) throws ClassNotFoundException {
         this.filterName = filterType.getFilterName().getValue();
-        this.filterClass = (Class<Filter>) Class.forName(filterType.getFilterClass().getValue(), true, servletContext.getWarClassLoader());
-        this.servletContext = servletContext;
+        this.filterClass = (Class<Filter>) Class.forName(filterType.getFilterClass().getValue(), true, classLoader);
         this.position = position;
 
         for (ParamValueType initParamTypes : filterType.getInitParams()) {
@@ -52,11 +45,10 @@ public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterCon
         }
     }
 
-    public static FilterDescriptor createFromWebXml(ServletContextImpl servletContext, FilterType filterType, List<FilterMappingType> filterMappingTypes, int position) throws ClassNotFoundException {
-        return new FilterDescriptor(servletContext, filterType, filterMappingTypes, position);
+    public static FilterDescriptor createFromWebXml(FilterType filterType, List<FilterMappingType> filterMappingTypes, int position, ClassLoader classLoader) throws ClassNotFoundException {
+        return new FilterDescriptor(filterType, filterMappingTypes, position, classLoader);
     }
 
-    @Override
     public String getFilterName() {
         return filterName;
     }
@@ -78,19 +70,8 @@ public class FilterDescriptor implements Comparable<FilterDescriptor>, FilterCon
         return Integer.compare(this.position, other.position);
     }
 
-    @Override
-    public ServletContext getServletContext() {
-        return servletContext;
-    }
-
-    @Override
-    public String getInitParameter(String name) {
-        return initParams.get(name);
-    }
-
-    @Override
-    public Enumeration getInitParameterNames() {
-        return Collections.enumeration(initParams.keySet());
+    public Map<String, String> getInitParams() {
+        return new HashMap<>(initParams);
     }
 
 }

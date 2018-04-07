@@ -3,6 +3,7 @@ package eu.ggam.servlet.impl.core.matcher;
 import eu.ggam.servlet.impl.descriptor.MatchingPattern;
 import eu.ggam.servlet.impl.descriptor.MatchingPattern.MatchType;
 import eu.ggam.servlet.impl.descriptor.ServletDescriptor;
+import eu.ggam.servlet.impl.jsr154.ServletConfigImpl;
 import eu.ggam.servlet.impl.rootwebapp.FileServlet;
 import java.lang.reflect.InvocationTargetException;
 import java.util.EnumSet;
@@ -13,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 /**
@@ -22,6 +24,7 @@ import javax.servlet.ServletException;
 public class ServletMatcher {
 
     private static final Logger LOGGER = Logger.getLogger(ServletMatcher.class.getName());
+    private final ServletContext servletContext;
 
     private final Set<ServletDescriptor> servletDescriptors;
     private final ServletDescriptor defaultServlet;
@@ -31,7 +34,8 @@ public class ServletMatcher {
 
     private static final EnumSet<MatchType> MATCHING_TYPES = EnumSet.of(MatchType.EXACT, MatchType.EXTENSION, MatchType.PREFIX);
 
-    public ServletMatcher(Set<ServletDescriptor> servletDescriptors) {
+    public ServletMatcher(ServletContext servletContext, Set<ServletDescriptor> servletDescriptors) {
+        this.servletContext = servletContext;
         this.servletDescriptors = new HashSet<>(servletDescriptors);
         this.servletInstances = new ConcurrentHashMap<>();
 
@@ -66,7 +70,7 @@ public class ServletMatcher {
             }
         }
 
-        if (!defaultServlet.equals(fileServlet) && FileServlet.fileExists(fileServlet.getServletContext(), uri)) {
+        if (!defaultServlet.equals(fileServlet) && FileServlet.fileExists(servletContext, uri)) {
             // FileServlet is not the default Servlet, but a file exists. The file should be sent
             LOGGER.log(Level.FINE, "Request to {0} will be processed by " + FileServlet.class.getSimpleName(), new Object[]{uri});
             return new ServletMatch(getServletInstance(fileServlet), new MatchingPattern.UriMatch("", uri));
@@ -82,7 +86,7 @@ public class ServletMatcher {
                 try {
                     Servlet newInstance = descriptor.getServletClass().getDeclaredConstructor().newInstance();
 
-                    newInstance.init(descriptor);
+                    newInstance.init(new ServletConfigImpl(servletContext, descriptor));
 
                     return newInstance;
                 } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ServletException ex) {
@@ -96,7 +100,7 @@ public class ServletMatcher {
             throw e;
         }
     }
-    
+
     public void destroyAll() {
         servletInstances.values().forEach(s -> s.destroy());
     }

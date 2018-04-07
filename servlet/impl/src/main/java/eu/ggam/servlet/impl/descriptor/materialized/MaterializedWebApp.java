@@ -6,7 +6,6 @@ import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.WebXml;
 import eu.ggam.servlet.impl.descriptor.FilterDescriptor;
 import eu.ggam.servlet.impl.descriptor.ServletDescriptor;
 import eu.ggam.servlet.impl.descriptor.WebXmlProcessingException;
-import eu.ggam.servlet.impl.jsr154.ServletContextImpl;
 import eu.ggam.servlet.impl.rootwebapp.FileServlet;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +13,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import static java.util.stream.Collectors.counting;
@@ -73,7 +74,9 @@ public final class MaterializedWebApp {
         }
     }
 
-    private ServletContextImpl servletContext;
+    private final ClassLoader classLoader;
+    private final String contextPath;
+    private final Map<String, String> contextParams;
     private final Set<ServletDescriptor> servletDescriptors;
     private final Set<FilterDescriptor> filterDescriptors;
 
@@ -83,15 +86,16 @@ public final class MaterializedWebApp {
 
     private MaterializedWebApp(WebXml webXml, String contextPath, ClassLoader warClassLoader, Map<String, String> servletContextParams) {
         try {
+            this.classLoader = warClassLoader;
+            this.contextPath = contextPath;
+            this.contextParams = Collections.unmodifiableMap(createServletContext(webXml.getContextParams(), servletContextParams));
+            this.contextListeners = new ContextListeners(webXml.getListeners(), warClassLoader);
 
-            contextListeners = new ContextListeners(webXml.getListeners(), warClassLoader);
-            requestListeners = new RequestListeners(webXml.getListeners(), warClassLoader);
-            sessionListeners = new SessionListeners(webXml.getListeners(), warClassLoader);
+            this.requestListeners = new RequestListeners(webXml.getListeners(), warClassLoader);
+            this.sessionListeners = new SessionListeners(webXml.getListeners(), warClassLoader);
 
-            servletContext = createServletContext(webXml, contextPath, warClassLoader, new HashMap<>(servletContextParams));
-            
-            servletDescriptors = ServletsParser.findServlets(servletContext, webXml);
-            filterDescriptors = FiltersParser.findFilters(servletContext, webXml);
+            this.servletDescriptors = ServletsParser.findServlets(webXml, warClassLoader);
+            this.filterDescriptors = FiltersParser.findFilters(webXml, warClassLoader);
 
             validate();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException e) {
@@ -99,15 +103,16 @@ public final class MaterializedWebApp {
         }
     }
 
-    private ServletContextImpl createServletContext(WebXml webApp, String contextPath, ClassLoader classLoader, Map<String, String> additionalInitParams) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    private Map<String, String> createServletContext(List<ParamValueType> xmlContextParams, Map<String, String> additionalInitParams) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         Map<String, String> initParams = new HashMap<>();
-        for (ParamValueType contextParams : webApp.getContextParams()) {
-            initParams.put(contextParams.getParamName().getValue(), contextParams.getParamValue().getValue());
+        for (ParamValueType xmlContextParam : xmlContextParams) {
+            initParams.put(xmlContextParam.getParamName().getValue(), xmlContextParam.getParamValue().getValue());
         }
 
+        // Override user provided params with our own
         initParams.putAll(additionalInitParams);
-
-        return new ServletContextImpl(classLoader, contextPath, contextListeners.getContextAttributeListeners(), initParams);
+        
+        return initParams;
     }
 
     private void validate() {
@@ -120,11 +125,11 @@ public final class MaterializedWebApp {
         switch (count) {
             case 1:
                 // Default Servlet is already set. FileServlet is just another Servlet
-                servletDescriptors.add(ServletDescriptor.createWithoutMappings(servletContext, fileServlet.getSimpleName(), fileServlet));
+                servletDescriptors.add(ServletDescriptor.createWithoutMappings(fileServlet.getSimpleName(), fileServlet));
                 break;
             case 0:
                 // No default Servlet. Add a new one with the server ClassLoader
-                servletDescriptors.add(ServletDescriptor.createDefault(servletContext, fileServlet.getSimpleName(), fileServlet));
+                servletDescriptors.add(ServletDescriptor.createDefault(fileServlet.getSimpleName(), fileServlet));
                 break;
             default:
                 // More than one default Servlet
@@ -132,8 +137,12 @@ public final class MaterializedWebApp {
         }
     }
 
-    public ServletContextImpl getServletContext() {
-        return servletContext;
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+
+    public Map<String, String> getContextParams() {
+        return contextParams;
     }
 
     public Set<ServletDescriptor> getServletDescriptors() {

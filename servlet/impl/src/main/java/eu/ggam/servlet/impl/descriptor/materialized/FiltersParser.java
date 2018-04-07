@@ -4,12 +4,10 @@ import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterMappingType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.FilterType;
 import eu.ggam.servlet.impl.com.sun.java.xml.ns.javaee.WebXml;
 import eu.ggam.servlet.impl.descriptor.FilterDescriptor;
-import eu.ggam.servlet.impl.jsr154.ServletContextImpl;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,10 +21,8 @@ public final class FiltersParser {
 
     }
 
-    public static Set<FilterDescriptor> findFilters(ServletContextImpl servletContext, WebXml webApp) throws ClassNotFoundException {
-        Objects.requireNonNull(servletContext);
-        
-        Map<String, List<FilterMappingType>> collect = webApp.getFilterMappings().
+    public static Set<FilterDescriptor> findFilters(WebXml webXml, ClassLoader classLoader) throws ClassNotFoundException {
+        Map<String, List<FilterMappingType>> collect = webXml.getFilterMappings().
                 stream().
                 collect(Collectors.groupingBy(s -> s.getFilterName().getValue()));
 
@@ -34,8 +30,8 @@ public final class FiltersParser {
 
         // TODO: Check whether position counts from definition or mapping of filters
         int position = 0;
-        for (FilterType filter : webApp.getFilters()) {
-            filters.add(FilterDescriptor.createFromWebXml(servletContext, filter, collect.getOrDefault(filter.getFilterName().getValue(), Collections.emptyList()), ++position));
+        for (FilterType filter : webXml.getFilters()) {
+            filters.add(FilterDescriptor.createFromWebXml(filter, collect.getOrDefault(filter.getFilterName().getValue(), Collections.emptyList()), ++position, classLoader));
         }
 
         return filters;

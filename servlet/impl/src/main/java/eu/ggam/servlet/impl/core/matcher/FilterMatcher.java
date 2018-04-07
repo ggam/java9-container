@@ -4,6 +4,7 @@ import eu.ggam.servlet.impl.descriptor.FilterDescriptor;
 import eu.ggam.servlet.impl.descriptor.MatchingPattern;
 import eu.ggam.servlet.impl.descriptor.MatchingPattern.MatchType;
 import eu.ggam.servlet.impl.descriptor.ServletDescriptor;
+import eu.ggam.servlet.impl.jsr154.FilterConfigImpl;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
 import java.util.EnumSet;
@@ -13,6 +14,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.Filter;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 /**
@@ -21,12 +23,15 @@ import javax.servlet.ServletException;
  */
 public class FilterMatcher {
 
+    private final ServletContext servletContext;
+
     private final TreeSet<FilterDescriptor> filterDescriptors;
     private final ConcurrentHashMap<String, Filter> filterInstances;
 
     private static final EnumSet<MatchType> URL_MATCHING_TYPES = EnumSet.of(MatchType.EXACT, MatchType.EXTENSION, MatchType.PREFIX);
 
-    public FilterMatcher(Set<FilterDescriptor> filterDescriptors) {
+    public FilterMatcher(ServletContext servletContext, Set<FilterDescriptor> filterDescriptors) {
+        this.servletContext = servletContext;
         this.filterDescriptors = new TreeSet<>(filterDescriptors);
         this.filterInstances = new ConcurrentHashMap<>();
     }
@@ -69,7 +74,7 @@ public class FilterMatcher {
                 try {
                     Filter newInstance = descriptor.getFilterClass().getDeclaredConstructor().newInstance();
 
-                    newInstance.init(descriptor);
+                    newInstance.init(new FilterConfigImpl(servletContext, descriptor));
 
                     return newInstance;
                 } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ServletException ex) {
@@ -83,7 +88,7 @@ public class FilterMatcher {
             throw e;
         }
     }
-    
+
     public void destroyAll() {
         filterInstances.values().forEach(f -> f.destroy());
     }
