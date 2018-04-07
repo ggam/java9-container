@@ -11,6 +11,7 @@ import eu.ggam.servlet.impl.jsr154.FilterChainImpl;
 import eu.ggam.servlet.impl.jsr154.HttpServletRequestImpl;
 import eu.ggam.servlet.impl.jsr154.HttpServletResponseImpl;
 import eu.ggam.servlet.impl.jsr154.ServletContextImpl;
+import eu.ggam.servlet.impl.rootwebapp.FileServlet;
 import java.io.IOException;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleDescriptor;
@@ -93,6 +94,7 @@ public class ServletDeployment implements Deployment {
 
         webApp = new MaterializedWebApp.Builder(appPath, warModule.getClassLoader(), contextPath).
                 contextParam(ServletContextImpl.InitParams.WEBAPP_PATH, appPath.toAbsolutePath().toString()).
+                fileServlet(FileServlet.class.getSimpleName(), FileServlet.class.getName()).
                 build();
 
         servletContext = new ServletContextImpl(webApp);
