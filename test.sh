@@ -2,6 +2,8 @@
 
 cd integrationtests
 
+mvn clean install -DskipTests
+
 # Servlet Tests
 cd servlet
 

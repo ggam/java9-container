@@ -1,1 +1,1 @@
-mvn clean install -DskipTests && ./run.sh
+mvn clean install && ./run.sh
