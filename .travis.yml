@@ -1,7 +1,10 @@
 language: java
 jdk:
 - oraclejdk9
-script: "./test.sh"
+install: true
+script:
+- mvn install
+- ./test.sh
 after_success:
 - "./publish-api.sh"
 env:
