@@ -21,10 +21,10 @@ public class ServletContext_ContextAttributeListenerTest {
 
     @BeforeEach
     public void init() throws URISyntaxException {
-        Path get = Paths.get(getClass().getResource("/servletcontext.contextattributelistener").toURI());
+        Path webAppPath = Paths.get(getClass().getResource("/servletcontext.contextattributelistener").toURI());
 
-        MaterializedWebApp webApp = new MaterializedWebApp.Builder(get, getClass().getClassLoader()).
-                fileServlet("dummy", DummyFileServlet.class.getName()).
+        MaterializedWebApp webApp = new MaterializedWebApp.Builder(webAppPath, getClass().getClassLoader()).
+                fileServlet(DummyFileServlet.class.getName()).
                 build();
 
         sc = new ServletContextImpl(webApp);

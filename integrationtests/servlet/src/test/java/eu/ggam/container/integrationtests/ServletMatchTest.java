@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Guillermo González de Agüero
  */
+@Deprecated
 public class ServletMatchTest {
 
     @Test

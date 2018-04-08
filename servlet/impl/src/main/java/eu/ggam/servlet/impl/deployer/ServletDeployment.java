@@ -94,7 +94,7 @@ public class ServletDeployment implements Deployment {
 
         webApp = new MaterializedWebApp.Builder(appPath, warModule.getClassLoader()).
                 contextParam(ServletContextImpl.InitParams.WEBAPP_PATH, appPath.toAbsolutePath().toString()).
-                fileServlet(FileServlet.class.getSimpleName(), FileServlet.class.getName()).
+                fileServlet(FileServlet.class.getName()).
                 build();
 
         servletContext = new ServletContextImpl(webApp);

@@ -24,7 +24,7 @@ public class ServletContext_ContextParamTest {
         Path get = Paths.get(getClass().getResource("/servletcontext.contextparam").toURI());
 
         MaterializedWebApp webApp = new MaterializedWebApp.Builder(get, getClass().getClassLoader()).
-                fileServlet("dummy", DummyFileServlet.class.getName()).
+                fileServlet(DummyFileServlet.class.getName()).
                 build();
 
         sc = new ServletContextImpl(webApp);

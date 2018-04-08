@@ -27,6 +27,8 @@ import javax.xml.bind.JAXBException;
  */
 public final class MaterializedWebApp {
 
+    public static final String FILE_SERVLET_NAME = "eu.ggam.servlet.FileServlet";
+
     public static class Builder {
 
         private final Path appPath;
@@ -34,7 +36,6 @@ public final class MaterializedWebApp {
 
         private final Map<String, String> contextParams = new HashMap<>();
 
-        private String fileServletName;
         private String fileServletClassName;
 
         private boolean built;
@@ -52,17 +53,16 @@ public final class MaterializedWebApp {
             return this;
         }
 
-        public Builder fileServlet(String servletName, String className) {
+        public Builder fileServlet(String className) {
             ensureNotBuilt();
 
-            fileServletName = servletName;
             fileServletClassName = className;
 
             return this;
         }
 
         public MaterializedWebApp build() {
-            if (fileServletName == null || fileServletClassName == null) {
+            if (fileServletClassName == null) {
                 throw new IllegalStateException("File Servlet not set");
             }
 
@@ -77,7 +77,7 @@ public final class MaterializedWebApp {
                 throw new RuntimeException(e); // TODO: Deployment exception
             }
 
-            return new MaterializedWebApp(webXml, classLoader, contextParams, fileServletName, fileServletClassName);
+            return new MaterializedWebApp(webXml, classLoader, contextParams, fileServletClassName);
         }
 
         private void ensureNotBuilt() {
@@ -96,7 +96,7 @@ public final class MaterializedWebApp {
     private final RequestListeners requestListeners;
     private final SessionListeners sessionListeners;
 
-    private MaterializedWebApp(WebXml webXml, ClassLoader warClassLoader, Map<String, String> servletContextParams, String fileServletName, String fileServletClassName) {
+    private MaterializedWebApp(WebXml webXml, ClassLoader warClassLoader, Map<String, String> servletContextParams, String fileServletClassName) {
         try {
             this.classLoader = warClassLoader;
             this.contextParams = Collections.unmodifiableMap(createServletContext(webXml.getContextParams(), servletContextParams));
@@ -108,7 +108,7 @@ public final class MaterializedWebApp {
             this.servletDescriptors = ServletsParser.findServlets(webXml, warClassLoader);
             this.filterDescriptors = FiltersParser.findFilters(webXml, warClassLoader);
 
-            validate(fileServletName, fileServletClassName);
+            validate(fileServletClassName);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException e) {
             throw new WebXmlProcessingException(e);
         }
@@ -126,7 +126,7 @@ public final class MaterializedWebApp {
         return initParams;
     }
 
-    private void validate(String fileServletName, String fileServletClassName) throws ClassNotFoundException {
+    private void validate(String fileServletClassName) throws ClassNotFoundException {
         int count = servletDescriptors.stream().
                 filter(ServletDescriptor::isDefaultServlet).
                 collect(counting()).
@@ -135,12 +135,12 @@ public final class MaterializedWebApp {
         switch (count) {
             case 1:
                 // Default Servlet is already set. FileServlet is just another Servlet
-                servletDescriptors.add(new ServletDescriptor.Builder(fileServletName, fileServletClassName, classLoader).
+                servletDescriptors.add(new ServletDescriptor.Builder(FILE_SERVLET_NAME, fileServletClassName, classLoader).
                         build());
                 break;
             case 0:
                 // No default Servlet. Add a new one with the server ClassLoader
-                servletDescriptors.add(new ServletDescriptor.Builder(fileServletName, fileServletClassName, classLoader).
+                servletDescriptors.add(new ServletDescriptor.Builder(FILE_SERVLET_NAME, fileServletClassName, classLoader).
                         defaultServlet().
                         build());
                 break;

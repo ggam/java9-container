@@ -3,6 +3,7 @@ package eu.ggam.servlet.impl.core.matcher;
 import eu.ggam.servlet.impl.descriptor.MatchingPattern;
 import eu.ggam.servlet.impl.descriptor.MatchingPattern.MatchType;
 import eu.ggam.servlet.impl.descriptor.ServletDescriptor;
+import eu.ggam.servlet.impl.descriptor.materialized.MaterializedWebApp;
 import eu.ggam.servlet.impl.jsr154.ServletConfigImpl;
 import eu.ggam.servlet.impl.rootwebapp.FileServlet;
 import java.lang.reflect.InvocationTargetException;
@@ -46,7 +47,7 @@ public class ServletMatcher {
                 get();
 
         fileServlet = servletDescriptors.stream().
-                filter(sd -> sd.getServletClass().equals(FileServlet.class)).
+                filter(sd -> MaterializedWebApp.FILE_SERVLET_NAME.equals(sd.getServletName())).
                 findAny().
                 get();
     }
