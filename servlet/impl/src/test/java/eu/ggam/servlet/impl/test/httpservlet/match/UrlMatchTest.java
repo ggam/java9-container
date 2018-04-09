@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,7 @@ public class UrlMatchTest {
         Path get = Paths.get(getClass().getResource("/httpservlet.match").toURI());
 
         MaterializedWebApp webApp = new MaterializedWebApp.Builder(get, getClass().getClassLoader()).
-                fileServlet(DummyFileServlet.class.getName()).
+                defaultServlet(DummyFileServlet.class.getName()).
                 build();
 
         ServletContext sc = new ServletContextImpl(webApp);
@@ -79,13 +78,6 @@ public class UrlMatchTest {
         ServletMatch match = servletMatcher.match("/non-existing-url-default-executes");
         
         assertEquals(DefaultServlet.class, match.getServlet().getClass());
-    }
-
-    @Test
-    public void fileServlet() throws ServletException {
-        ServletMatch match = servletMatcher.match("/file.html");
-        
-        Assertions.assertEquals(DummyFileServlet.class, match.getServlet().getClass());
     }
 
 }

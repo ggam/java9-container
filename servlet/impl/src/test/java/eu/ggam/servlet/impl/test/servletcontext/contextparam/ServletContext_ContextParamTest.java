@@ -23,8 +23,7 @@ public class ServletContext_ContextParamTest {
     public void init() throws URISyntaxException {
         Path get = Paths.get(getClass().getResource("/servletcontext.contextparam").toURI());
 
-        MaterializedWebApp webApp = new MaterializedWebApp.Builder(get, getClass().getClassLoader()).
-                fileServlet(DummyFileServlet.class.getName()).
+        MaterializedWebApp webApp = new MaterializedWebApp.Builder(get, getClass().getClassLoader()).defaultServlet(DummyFileServlet.class.getName()).
                 build();
 
         sc = new ServletContextImpl(webApp);

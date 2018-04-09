@@ -78,24 +78,4 @@ public class ServletMatchTest {
         Assertions.assertEquals("default Servlet", get);
     }
 
-    @Test
-    public void fileServlet() {
-        String get = ClientBuilder.newClient().
-                target(BASE_URL).
-                path("/file.html").
-                request().
-                get(String.class);
-
-        Assertions.assertEquals("<!DOCTYPE html>\n"
-                + "<html>\n"
-                + "    <head>\n"
-                + "        <title>HTML file</title>\n"
-                + "    </head>\n"
-                + "    <body>\n"
-                + "        <div>This is an HTML file!</div>\n"
-                + "    </body>\n"
-                + "</html>\n"
-                + "", get);
-    }
-
 }

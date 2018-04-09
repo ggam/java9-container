@@ -3,9 +3,7 @@ package eu.ggam.servlet.impl.core.matcher;
 import eu.ggam.servlet.impl.descriptor.MatchingPattern;
 import eu.ggam.servlet.impl.descriptor.MatchingPattern.MatchType;
 import eu.ggam.servlet.impl.descriptor.ServletDescriptor;
-import eu.ggam.servlet.impl.descriptor.materialized.MaterializedWebApp;
 import eu.ggam.servlet.impl.jsr154.ServletConfigImpl;
-import eu.ggam.servlet.impl.rootwebapp.FileServlet;
 import java.lang.reflect.InvocationTargetException;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -29,7 +27,6 @@ public class ServletMatcher {
 
     private final Set<ServletDescriptor> servletDescriptors;
     private final ServletDescriptor defaultServlet;
-    private final ServletDescriptor fileServlet;
 
     private final ConcurrentHashMap<String, Servlet> servletInstances;
 
@@ -43,11 +40,6 @@ public class ServletMatcher {
         // There will always be one and only one default Servlet at this point of time
         defaultServlet = servletDescriptors.stream().
                 filter(ServletDescriptor::isDefaultServlet).
-                findAny().
-                get();
-
-        fileServlet = servletDescriptors.stream().
-                filter(sd -> MaterializedWebApp.FILE_SERVLET_NAME.equals(sd.getServletName())).
                 findAny().
                 get();
     }
@@ -69,12 +61,6 @@ public class ServletMatcher {
                     return new ServletMatch(getServletInstance(servletDescriptor), uriMatch.get());
                 }
             }
-        }
-
-        if (!defaultServlet.equals(fileServlet) && FileServlet.fileExists(servletContext, uri)) {
-            // FileServlet is not the default Servlet, but a file exists. The file should be sent
-            LOGGER.log(Level.FINE, "Request to {0} will be processed by " + FileServlet.class.getSimpleName(), new Object[]{uri});
-            return new ServletMatch(getServletInstance(fileServlet), new MatchingPattern.UriMatch("", uri));
         }
 
         LOGGER.log(Level.FINE, "Request to {0} will be processed by default Servlet, {1}", new Object[]{uri, defaultServlet.getServletName()});

@@ -32,11 +32,11 @@ public class FileServlet extends HttpServlet {
         }
     }
 
-    public static boolean fileExists(ServletContext servletContext, String pathInfo) {
+    private boolean fileExists(ServletContext servletContext, String pathInfo) {
         return Files.exists(createPath(servletContext, pathInfo));
     }
     
-    private static Path createPath(ServletContext servletContext, String pathInfo) {
+    private Path createPath(ServletContext servletContext, String pathInfo) {
         String deploymentPath = servletContext.getInitParameter(ServletContextImpl.InitParams.WEBAPP_PATH);
         return Paths.get(deploymentPath, pathInfo);
     }

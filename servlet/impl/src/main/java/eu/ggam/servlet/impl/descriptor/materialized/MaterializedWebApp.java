@@ -27,7 +27,7 @@ import javax.xml.bind.JAXBException;
  */
 public final class MaterializedWebApp {
 
-    public static final String FILE_SERVLET_NAME = "eu.ggam.servlet.FileServlet";
+    public static final String DEFAULT_SERVLET_NAME = "eu.ggam.servlet.DefaultServlet";
 
     public static class Builder {
 
@@ -36,7 +36,7 @@ public final class MaterializedWebApp {
 
         private final Map<String, String> contextParams = new HashMap<>();
 
-        private String fileServletClassName;
+        private String defaultServletClassName;
 
         private boolean built;
 
@@ -53,19 +53,15 @@ public final class MaterializedWebApp {
             return this;
         }
 
-        public Builder fileServlet(String className) {
+        public Builder defaultServlet(String className) {
             ensureNotBuilt();
 
-            fileServletClassName = className;
+            defaultServletClassName = className;
 
             return this;
         }
 
         public MaterializedWebApp build() {
-            if (fileServletClassName == null) {
-                throw new IllegalStateException("File Servlet not set");
-            }
-
             built = true;
 
             WebXml webXml;
@@ -77,7 +73,7 @@ public final class MaterializedWebApp {
                 throw new RuntimeException(e); // TODO: Deployment exception
             }
 
-            return new MaterializedWebApp(webXml, classLoader, contextParams, fileServletClassName);
+            return new MaterializedWebApp(webXml, classLoader, contextParams, defaultServletClassName);
         }
 
         private void ensureNotBuilt() {
@@ -126,27 +122,25 @@ public final class MaterializedWebApp {
         return initParams;
     }
 
-    private void validate(String fileServletClassName) throws ClassNotFoundException {
+    private void validate(String defaultServletClassName) throws ClassNotFoundException {
         int count = servletDescriptors.stream().
                 filter(ServletDescriptor::isDefaultServlet).
                 collect(counting()).
                 intValue();
 
-        switch (count) {
-            case 1:
-                // Default Servlet is already set. FileServlet is just another Servlet
-                servletDescriptors.add(new ServletDescriptor.Builder(FILE_SERVLET_NAME, fileServletClassName, classLoader).
-                        build());
-                break;
-            case 0:
-                // No default Servlet. Add a new one with the server ClassLoader
-                servletDescriptors.add(new ServletDescriptor.Builder(FILE_SERVLET_NAME, fileServletClassName, classLoader).
-                        defaultServlet().
-                        build());
-                break;
-            default:
-                // More than one default Servlet
-                throw new WebXmlProcessingException("Multiple Servlets mapped as default");
+        if (count > 1) {
+            throw new WebXmlProcessingException("Multiple Servlets mapped as default");
+        }
+        
+        if(count == 0 && defaultServletClassName == null) {
+            throw new WebXmlProcessingException("No default Servlet provided");
+        }
+
+        if (count == 0) {
+            // No default Servlet. Add a new one with the server ClassLoader
+            servletDescriptors.add(new ServletDescriptor.Builder(DEFAULT_SERVLET_NAME, defaultServletClassName, classLoader).
+                    defaultServlet().
+                    build());
         }
     }
 
