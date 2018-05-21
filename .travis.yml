@@ -3,10 +3,13 @@ jdk:
 - oraclejdk9
 install: true
 script:
-- mvn install
+- mvn install sonar:sonar
 - ./test.sh
 after_success:
 - "./publish-api.sh"
 env:
   global:
     secure: FbQ2GOrg8FbAmjnvsBJVx8WGh0CxuCreCXiXjwSw+bsqn28nG62aMEh4YWnT5B0jLSAm4XRuQVVxePOjlMN07oiUVPTizA6Cej9ZhTwVpgiVlix2P1glFffLokjXXNGtd6/Bx8jivlfo+7eSNbBSjf+s5wf3KX5sYXdIAkgpC5iKMyKZgIoJ4jFqyBzJnh7l5/0u4Am3ULWm8K4I5ZpgZxrh5T3ws47FouJVcX39YJyqPPnqi9CI6MVLgCkUZW+OryOLMY+LiFu5h5BVBx0jcGyF1cBVnJQgNXE4qYSFhssfnyBqKMZp27gv9ncsNvx2w4/cTIQoI58mTdzDvThIfDM6H97KmYauSlYK/kpWdpBRfLiGw7px3yXr05chqk1unAVPPsrPfD2+y3lHVbdeGcwu9pUa8X8oBBTJ5pcR3ZuSgOQmzq6LfvJ0M8j8gZYNiG/TpSjgjXYB/ktBlYIjMZ7c7LGDuZHOJYHYzhSJKOP9I7v4nAEz35LbrWX2vOE7rf0LMpbMRzKhxlDZwUo8VNfbdXGn53OKUE/ABpBzmYJJjJxuGz2si0Fs0A7EI816eO+Ny52gwH2ahWDANDgn66cwWCzEzDQPQPz8yD5d2GylBnpsw7eyxWnB7edgwuNmvZ+oMu4E0ZbTGasBSTMN3m8zMMGCiWPGeDt6nGEbxMQ=
+addons:
+  sonarcloud:
+    organization: ggam-github
