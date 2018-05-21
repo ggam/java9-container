@@ -3,6 +3,7 @@ jdk:
 - oraclejdk9
 install: true
 script:
+- if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 - mvn install sonar:sonar
 - ./test.sh
 after_success:
