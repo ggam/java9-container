@@ -15,3 +15,5 @@ env:
 addons:
   sonarcloud:
     organization: ggam-github
+  token:
+    secure: ${SONAR_TOKEN}
