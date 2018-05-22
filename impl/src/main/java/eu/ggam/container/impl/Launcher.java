@@ -21,9 +21,8 @@ public class Launcher {
         try (Reader reader = Files.newBufferedReader(baseDir.resolve("conf").resolve("app.properties"))) {
             properties.load(reader);
         }
-        int port = Integer.valueOf(String.valueOf(properties.getOrDefault("port", 8383)));
+        int port = Integer.parseInt(String.valueOf(properties.getOrDefault("port", 8383)));
 
-        //new Server(port).start();
         new ServerImpl(port).start();
     }
 }

@@ -26,5 +26,5 @@ public interface HttpRequestHandler {
      * @return Response to be sent to the user
      * @throws IOException
      */
-    CompletionStage<? extends HttpResponse> handle(HttpRequest request) throws IOException;
+    CompletionStage<HttpResponse> handle(HttpRequest request) throws IOException;
 }

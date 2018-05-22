@@ -1,7 +1,6 @@
 package eu.ggam.container.integrationtests.servlet;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -17,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class TestFilter implements Filter {
 
-    private static final Logger LOGGER = Logger.getLogger(TestFilter.class.getName());
     private String forbiddenParam;
     
     @Override
@@ -29,8 +27,6 @@ public class TestFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        
-        //LOGGER.log(Level.INFO, "Intercepting request to {0}", httpRequest.getRequestURI());
         
         if (httpRequest.getParameterMap().containsKey(forbiddenParam)) {
             httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Fobidden!");

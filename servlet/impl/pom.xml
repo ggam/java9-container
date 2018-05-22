@@ -10,6 +10,10 @@
     <artifactId>servlet-impl</artifactId>
     <packaging>jar</packaging>
     
+    <properties>
+        <sonar.exclusions>eu/ggam/servlet/impl/com.sun.java.xml.ns.javaee</sonar.exclusions>
+    </properties>
+    
     <build>
         <plugins>
             <plugin>

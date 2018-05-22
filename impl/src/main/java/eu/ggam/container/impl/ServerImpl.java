@@ -75,6 +75,9 @@ public class ServerImpl implements Server {
                 ServerStoppingEvent stoppingEvent = new ServerStoppingEvent(this);
                 lifeCycleListeners.forEach(listener -> listener.serverStopping(stoppingEvent));
                 break;
+            default:
+                // No actions to take on other states
+                break;
         }
 
         LOGGER.log(Level.INFO, "Server state changed from {0} to {1}", new Object[]{this.state, newState});

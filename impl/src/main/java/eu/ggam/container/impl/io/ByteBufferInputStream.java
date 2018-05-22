@@ -32,10 +32,8 @@ public class ByteBufferInputStream extends InputStream {
             return -1;
         }
 
-        if (!current.hasRemaining()) {
-            if ((current = queue.poll()) == null || !current.hasRemaining()) {
-                return -1;
-            }
+        if (!current.hasRemaining() && ((current = queue.poll()) == null || !current.hasRemaining())) {
+            return -1;
         }
 
         return current.get() & 0xFF;
@@ -47,10 +45,8 @@ public class ByteBufferInputStream extends InputStream {
             return -1;
         }
 
-        if (!current.hasRemaining()) {
-            if ((current = queue.poll()) == null || !current.hasRemaining()) {
-                return -1;
-            }
+        if (!current.hasRemaining() && ((current = queue.poll()) == null || !current.hasRemaining())) {
+            return -1;
         }
 
         length = Math.min(length, current.remaining());

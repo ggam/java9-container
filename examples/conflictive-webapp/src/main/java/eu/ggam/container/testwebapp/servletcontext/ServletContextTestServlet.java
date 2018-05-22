@@ -57,6 +57,8 @@ public class ServletContextTestServlet extends HttpServlet {
                 resp.getWriter().print("OriginalValue: " + original); // newAddedReplaced
                 resp.getWriter().print(" - CurrentValue: " + sc.getAttribute(ATTR_TEST_REPLACE_ATTRIBUTE)); // replacement
                 break;
+            default:
+                throw new IllegalArgumentException("Unrecognized option: " + test);
         }
     }
 

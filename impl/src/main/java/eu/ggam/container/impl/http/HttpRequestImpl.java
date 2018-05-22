@@ -31,11 +31,11 @@ public final class HttpRequestImpl implements HttpRequest {
         try {
             requestLine = reader.readLine().split(" ");
 
-            String method = requestLine[0];
+            String parsedMethod = requestLine[0];
 
-            URI uri = new URI(URLDecoder.decode(requestLine[1], "UTF-8"));
+            URI parsedUri = new URI(URLDecoder.decode(requestLine[1], "UTF-8"));
 
-            Map<String, List<String>> headers = new HashMap<>();
+            Map<String, List<String>> parsedHeaders = new HashMap<>();
 
             String line;
             while ((line = reader.readLine()) != null) {
@@ -45,13 +45,13 @@ public final class HttpRequestImpl implements HttpRequest {
                 }
 
                 String[] header = line.split(":");
-                List<String> headerValues = headers.computeIfAbsent(header[0], k -> new ArrayList<>());
+                List<String> headerValues = parsedHeaders.computeIfAbsent(header[0], k -> new ArrayList<>());
                 headerValues.add(header[1]);
             }
 
-            this.method = method;
-            this.uri = uri;
-            this.headers = headers;
+            this.method = parsedMethod;
+            this.uri = parsedUri;
+            this.headers = parsedHeaders;
             this.inputStream = input;
         } catch (Exception e) {
             throw new RequestParsingException(e);
