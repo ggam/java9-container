@@ -10,6 +10,10 @@
     <artifactId>servlet-api</artifactId>
     <packaging>jar</packaging>
     <version>2.5</version>
+
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
     
     <build>
         <plugins>
