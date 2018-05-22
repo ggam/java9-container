@@ -16,4 +16,4 @@ addons:
   sonarcloud:
     organization: "ggam-github"
     token:
-      secure: $SONAR_TOKEN
+      secure: Lv8vA6SkPOzMZXMNxPvSqPskV99lYQIZ+BNYzb3g2O/cOBtBWkOlUDUs/PpfSskZi2Jrtvgi3cW4M3rpCLqo+LYmEvfu83F7eXEHmLiX7vn2H8pKWrjB6LLt53sSwvy9rvT+WDOLaDrP8GlsQTTgthNld/7cS/hS52T1KGCpzZ+ACY6PUXR/awuseMx2tgqK2WuEuod1rH55AqWO3lGteTtCPdJgrUXUBvegfTd9q3KHfcc80CnQQJVscrEEWtFEnHLvAlNLQNEv6ywpb1QEJHR3Sl3hTxyUELcdWlIM3tsboncDxI/k6Hi/jOnnzeOe6+Hz7+ay3VSireiXPa+5BhTqbY/ykSO/wADkLQU8z6AxaT9BAfemmG2Zm3udzWaBx75ZyOi1+hXm2YGNKmlz0cKdOQI4uzrSFa8l1XN4TitkPcjvZSif21HUWPez3i+KkLV6CVeHRpAodhpZ40yjvws1oUzrzz8Pt3s/XMyqLQfup33woiqZLY6mZdAPETAgcApEGrASFXxoYCAEicqZ7c+KaDkSdHSrLS6ORpyGkNp06c1ou4aQOl6DseeHco4aC37Td/7uTpWPo1aDTte0Zo1+O8j+io82hFzjHHxotDSCIohyvT7hrYeC1idfGuXFnV5hNuluzD6Gqqxelp/gHdIyjFW1tHJTyFbldclB/mE=
