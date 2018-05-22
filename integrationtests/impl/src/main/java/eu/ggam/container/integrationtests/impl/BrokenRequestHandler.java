@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
 public class BrokenRequestHandler implements HttpRequestHandler {
 
     @Override
-    public CompletionStage<? extends HttpResponse> handle(HttpRequest request) throws IOException {
+    public CompletionStage<HttpResponse> handle(HttpRequest request) throws IOException {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         return CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException("Error!!");
