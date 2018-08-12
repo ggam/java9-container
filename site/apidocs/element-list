@@ -1,3 +1,4 @@
+module:eu.ggam.container.Api
 eu.ggam.container.api
 eu.ggam.container.api.event
 eu.ggam.container.api.http
