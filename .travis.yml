@@ -1,6 +1,6 @@
 language: java
 jdk:
-- oraclejdk9
+- oraclejdk10
 install: true
 script:
 - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi

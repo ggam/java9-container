@@ -24,3 +24,4 @@
 /integrationtests/container-integrationtests-impl/target/
 /integrationtests/impl/target/
 /integrationtests/servlet/example-webapp/target/
+/examples/container-jlink/target/

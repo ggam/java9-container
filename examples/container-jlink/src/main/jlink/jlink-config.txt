@@ -1,0 +1,1 @@
+--module-path ./target/dependency:./target/wars/ROOT/WEB-INF/classes:./target/wars/example-plugin/WEB-INF/classes:./target/wars/test/WEB-INF/classes:/usr/java/jdk-10/jmods --add-modules eu.ggam.container.Api,eu.ggam.container.Impl,java.servlet,eu.ggam.container.servlet.Impl --compress 2 --vm=server --output target/jlink-output

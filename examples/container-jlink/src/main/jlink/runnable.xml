@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+    <id>runnable</id>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <formats>
+        <format>dir</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <directory>src/main/jlink</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>launch</include>
+            </includes>
+            <fileMode>0744</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/wars</directory>
+            <outputDirectory>webapps</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/jlink</directory>
+            <outputDirectory>conf</outputDirectory>
+            <includes>
+                <include>app.properties</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>
