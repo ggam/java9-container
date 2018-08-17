@@ -57,7 +57,7 @@ public class ServletDeployment implements Deployment {
         this.parentLayer = parentLayer;
         this.appPath = appPath;
 
-        String fileName = appPath.getFileName().toString();
+        String fileName = "ROOT";
 
         this.contextPath = ("ROOT".equals(fileName) ? "" : "/" + fileName);
     }

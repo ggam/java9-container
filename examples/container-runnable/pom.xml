@@ -49,22 +49,13 @@
                         </goals>
                         <configuration>
                             <artifactItems>
-                                <!-- Deploy examples -->               
-                                <artifactItem>
-                                    <groupId>eu.ggam</groupId>
-                                    <artifactId>container-example-plugin</artifactId>
-                                    <version>1.0-SNAPSHOT</version>
-                                    <type>war</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/jre-dist/webapps/example-plugin</outputDirectory>
-                                </artifactItem>
                                 <artifactItem>
                                     <groupId>eu.ggam</groupId>
                                     <artifactId>container-test-webapp</artifactId>
                                     <version>1.0-SNAPSHOT</version>
                                     <type>war</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/jre-dist/webapps/test</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/jre-dist/webapps</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
