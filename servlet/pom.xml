@@ -11,6 +11,5 @@
     <modules>
         <module>api</module>
         <module>root-webapp</module>
-        <module>impl</module>
     </modules>
 </project>

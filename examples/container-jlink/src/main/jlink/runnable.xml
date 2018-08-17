@@ -15,7 +15,7 @@
             <fileMode>0744</fileMode>
         </fileSet>
         <fileSet>
-            <directory>${project.build.directory}/wars</directory>
+            <directory>${project.build.directory}/war</directory>
             <outputDirectory>webapps</outputDirectory>
         </fileSet>
         <fileSet>

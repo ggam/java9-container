@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+    <servlet>
+        <servlet-name>DefaultServlet</servlet-name>
+        <servlet-class>eu.ggam.container.impl.servletcontainer.test.httpservlet.match.servlets.DefaultServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DefaultServlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>ExactPatternServlet</servlet-name>
+        <servlet-class>eu.ggam.container.impl.servletcontainer.test.httpservlet.match.servlets.ExactPatternServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ExactPatternServlet</servlet-name>
+        <url-pattern>/pattern/exact</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>PrefixPatternServlet</servlet-name>
+        <servlet-class>eu.ggam.container.impl.servletcontainer.test.httpservlet.match.servlets.PrefixPatternServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PrefixPatternServlet</servlet-name>
+        <url-pattern>/pattern/*</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>SufixPatternServlet</servlet-name>
+        <servlet-class>eu.ggam.container.impl.servletcontainer.test.httpservlet.match.servlets.SufixPatternServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SufixPatternServlet</servlet-name>
+        <url-pattern>*.php</url-pattern>
+    </servlet-mapping>
+</web-app>

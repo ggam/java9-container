@@ -31,7 +31,7 @@
                                 <!-- Prepare the server -->               
                                 <artifactItem>
                                     <groupId>eu.ggam</groupId>
-                                    <artifactId>servlet-impl</artifactId>
+                                    <artifactId>container-impl</artifactId>
                                     <version>1.0-SNAPSHOT</version>
                                     <classifier>runnable</classifier>
                                     <type>zip</type>

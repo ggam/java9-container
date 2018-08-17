@@ -1,5 +1,11 @@
 #!/bin/bash
 
+cd impl
+
+mvn clean test
+
+cd ..
+
 cd integrationtests
 
 mvn clean install -DskipTests
