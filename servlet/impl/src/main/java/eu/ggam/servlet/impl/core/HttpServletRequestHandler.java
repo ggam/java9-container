@@ -3,10 +3,10 @@ package eu.ggam.servlet.impl.core;
 import eu.ggam.container.api.http.HttpRequest;
 import eu.ggam.container.api.http.HttpRequestHandler;
 import eu.ggam.container.api.http.HttpResponse;
-import eu.ggam.servlet.impl.api.Deployment;
 import eu.ggam.servlet.impl.api.DeploymentState;
 import eu.ggam.servlet.impl.container.ContainerHttpResponseImpl;
-import eu.ggam.servlet.impl.deployer.DeploymentRegistry;
+import eu.ggam.servlet.impl.deployer.DeploymentManager;
+import eu.ggam.servlet.impl.deployer.ServletDeployment;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -36,8 +36,7 @@ public class HttpServletRequestHandler implements HttpRequestHandler {
     public CompletionStage<HttpResponse> handle(HttpRequest request) throws IOException {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                Deployment deployment = DeploymentRegistry.matches(request.getUri().getPath()).
-                        get();
+                ServletDeployment deployment = DeploymentManager.getDeployment();
                 
                 if(deployment.getState() == DeploymentState.DEPLOYED) {
                     return deployment.process(request);

@@ -2,7 +2,6 @@ package eu.ggam.servlet.impl.deployer;
 
 import eu.ggam.container.api.http.HttpRequest;
 import eu.ggam.container.api.http.HttpResponse;
-import eu.ggam.servlet.impl.api.Deployment;
 import eu.ggam.servlet.impl.api.DeploymentState;
 import eu.ggam.servlet.impl.container.ContainerHttpResponseImpl;
 import eu.ggam.servlet.impl.core.FilterChainFactory;
@@ -31,7 +30,24 @@ import javax.servlet.ServletException;
  *
  * @author Guillermo González de Agüero
  */
-public class ServletDeployment implements Deployment {
+public class ServletDeployment {
+
+    public static class ServletDeploymentBuilder {
+
+        private final ModuleLayer parentLayer;
+        private final Path appPath;
+
+        public ServletDeploymentBuilder(ModuleLayer parentLayer, Path appPath) {
+            this.parentLayer = parentLayer;
+            this.appPath = appPath;
+        }
+
+        public ServletDeployment deploy() {
+            ServletDeployment servletDeployment = new ServletDeployment(parentLayer, appPath);
+            servletDeployment.deploy();
+            return servletDeployment;
+        }
+    }
 
     private static final Logger LOGGER = Logger.getLogger(ServletDeployment.class.getName());
 
@@ -42,7 +58,7 @@ public class ServletDeployment implements Deployment {
     private ModuleLayer moduleLayer;
     private final ModuleLayer parentLayer;
 
-    private final String contextPath;
+    private final String contextPath = "/";
     private final Path appPath;
     private volatile DeploymentState state = DeploymentState.UNDEPLOYED;
     private Module warModule;
@@ -53,13 +69,9 @@ public class ServletDeployment implements Deployment {
 
     private FilterChainFactory filterChainFactory;
 
-    public ServletDeployment(ModuleLayer parentLayer, Path appPath) {
+    private ServletDeployment(ModuleLayer parentLayer, Path appPath) {
         this.parentLayer = parentLayer;
         this.appPath = appPath;
-
-        String fileName = "ROOT";
-
-        this.contextPath = ("ROOT".equals(fileName) ? "" : "/" + fileName);
     }
 
     private synchronized void changeState(DeploymentState newState) {
@@ -67,9 +79,7 @@ public class ServletDeployment implements Deployment {
         this.state = newState;
     }
 
-    @Override
-    public void deploy() {
-        changeState(DeploymentState.DEPLOYING);
+    private void deploy() {
         ModuleFinder warModuleFinder = ModuleFinder.of(appPath.resolve(RELATIVE_CLASSES_PATH));
         warModuleName = warModuleFinder.findAll().
                 stream().
@@ -104,7 +114,6 @@ public class ServletDeployment implements Deployment {
         changeState(DeploymentState.DEPLOYED);
     }
 
-    @Override
     public void undeploy() {
         failIfNotDeployed();
         changeState(DeploymentState.UNDEPLOYING);
@@ -114,20 +123,10 @@ public class ServletDeployment implements Deployment {
         changeState(DeploymentState.UNDEPLOYED);
     }
 
-    @Override
-    public boolean matches(String url) {
-        return url.startsWith(getContextPath());
-    }
-
-    @Override
     public HttpResponse process(HttpRequest containerRequest) throws IOException, ServletException {
         failIfNotDeployed();
 
         String uriPath = containerRequest.getUri().getPath();
-        if (!matches(uriPath)) {
-            throw new IllegalArgumentException("Url cannot be matched to this application");
-        }
-
         String appUri = uriPath.substring(contextPath.length()); // URI without contextPath
 
         FilterChainImpl filterChain = filterChainFactory.create(appUri);
@@ -155,17 +154,14 @@ public class ServletDeployment implements Deployment {
         containerResponse.getOutputStream().write(responseBody);
     }
 
-    @Override
     public DeploymentState getState() {
         return state;
     }
 
-    @Override
     public String getModuleName() {
         return warModuleName;
     }
 
-    @Override
     public String getContextPath() {
         return contextPath;
     }

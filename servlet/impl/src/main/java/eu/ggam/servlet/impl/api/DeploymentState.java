@@ -6,7 +6,6 @@ package eu.ggam.servlet.impl.api;
  */
 public enum DeploymentState {
     UNDEPLOYED,
-    DEPLOYING,
     DEPLOYED,
     UNDEPLOYING
 }
