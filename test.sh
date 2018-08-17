@@ -1,55 +1,110 @@
 #!/bin/bash
 
-cd impl
+function log() {
+    echo "$(date +%D-%H:%M:%S) - $1"    
+}
 
-mvn clean test
+function handle_error() {
+    EXIT_CODE=$1
+    if [ $EXIT_CODE -ne 0 ]
+    then
+        log "#### PROCESS FAILED WITH EXIT CODE $EXIT_CODE. SCRIPT WILL EXIT ####"
+        log "Description: $2"
+        log "### BEGIN PROCESS STDOUT ###"
+        echo "$(cat test.log)"
+        log "### END PROCESS STDOUT ###"
+        
+        pgrep -f eu.ggam.container | xargs kill -9 # Kill Any possibly running servers
+        exit 1
+    fi
+}
 
-cd ..
+####################################
+# IMPL UNIT TESTS
+####################################
 
-cd integrationtests
+log "Running Impl unit tests: start"
+(cd impl; mvn clean test) > test.log 2>&1
 
-mvn clean install -DskipTests
+handle_error $? "Error unit testing Impl"
 
-# Servlet Tests
-cd servlet
+log "Running Impl unit tests: SUCCESS"
 
-home=$(pwd)
-log="$home/target/jre-dist2/logs/server.log"
+####################################
+# COMPILE INTEGRATION TESTS
+####################################
 
-cd target/jre-dist2/bin/
-./launch &
+log "Compiling integration tests: start"
+(cd integrationtests; mvn clean install -DskipTests) >test.log 2>&1
 
-cd $home
+handle_error $? "Error compiling integration tests"
+
+log "Compiling integration tests: SUCCCESS"
+
+####################################
+# SERVLET INTEGRATION TESTS
+####################################
+
+log "Servlet integration tests: start"
+
+SERVLET_HOME="$(pwd)/integrationtests/servlet"
+SERVLET_LOG="$SERVLET_HOME/target/jre-dist2/logs/server.log"
+
+log "Starting server"
+
+CURRENT_DIR=$(pwd)
+cd "$SERVLET_HOME/target/jre-dist2/bin/"
+./launch >test.log 2>&1 &
+
+handle_error $? "Error starting server for Servlet integration tests"
+cd $CURRENT_DIR
+
+log "Server started"
 
 sleep 1
-
-#touch $log || exit
-#echo 'Waiting for server to start...'
-#echo $log
 #tail -F $log | grep -q "Server is running on port 8282"
-#echo 'Server started!'
 
-mvn test
+(cd $SERVLET_HOME; mvn test) >test.log 2>&1
+handle_error $? "Error executing Servlet integration tests"
+
+log "Killing server process $SERVLET_PROCESS"
+
 pgrep -f eu.ggam.container | xargs kill -9
+handle_error $? "Could not kill running server!"
 
-sleep 1
+log "Servlet integration tests: SUCCESS"
 
-# Server implementation Tests
+####################################
+# IMPL INTEGRATION TESTS
+####################################
 
-cd ../impl
+log "Impl integration tests: start"
 
-home=$(pwd)
-log="$home/target/jre-dist2/logs/server.log"
+IMPL_HOME="$(pwd)/integrationtests/impl"
+IMPL_LOG="$IMPL_HOME/target/jre-dist2/logs/server.log"
 
-cd target/jre-dist2/bin/
-./launch &
+log "Starting server"
 
-cd $home
+CURRENT_DIR=$(pwd)
+cd "$IMPL_HOME/target/jre-dist2/bin/"
+./launch >test.log 2>&1 &
 
-#touch $log || exit
-#echo 'Waiting for server to start...'
+handle_error $? "Error starting server for Impl integration tests"
+cd $CURRENT_DIR
+
+log "Server started"
+
+sleep 5
 #tail -F $log | grep -q "Server is running on port 8282"
-#echo 'Server started!'
 
-mvn test
+(cd $IMPL_HOME; mvn test) >test.log 2>&1
+handle_error $? "Error executing Impl integration tests"
+
+log "Killing server process"
+
 pgrep -f eu.ggam.container | xargs kill -9
+handle_error $? "Could not kill running server!"
+
+log "Impl integration tests: SUCCESS"
+
+rm test.log

@@ -59,7 +59,13 @@ public class ServerImpl implements Server {
 
     private synchronized void changeState(State newState) {
         // TODO: ensure state change can be done
-        
+
+        State oldState = this.state;
+
+        if (oldState == newState) {
+            throw new IllegalStateException("new state cannot be the same as the previous one");
+        }
+
         this.state = newState;
 
         switch (newState) {
@@ -80,7 +86,7 @@ public class ServerImpl implements Server {
                 break;
         }
 
-        LOGGER.log(Level.INFO, "Server state changed from {0} to {1}", new Object[]{this.state, newState});
+        LOGGER.log(Level.INFO, "Server state changed from {0} to {1}", new Object[]{oldState, this.state});
     }
 
     @Override

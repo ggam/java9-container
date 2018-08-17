@@ -54,6 +54,14 @@
                                     <type>zip</type>
                                     <outputDirectory>${project.build.directory}/jre-dist2</outputDirectory>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>eu.ggam</groupId>
+                                    <artifactId>container-integrationtests-servlet</artifactId>
+                                    <version>1.0-SNAPSHOT</version>
+                                    <type>war</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/jre-dist2/webapps</outputDirectory>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
