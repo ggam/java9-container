@@ -158,14 +158,6 @@ public class ServletDeployment {
         return state;
     }
 
-    public String getModuleName() {
-        return warModuleName;
-    }
-
-    public String getContextPath() {
-        return contextPath;
-    }
-
     private void failIfNotDeployed() {
         DeploymentState currentState = state;
         if (currentState != DeploymentState.DEPLOYED) {
