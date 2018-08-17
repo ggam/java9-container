@@ -35,7 +35,7 @@ public class ServletContainer implements ServerLifeCycleListener, HttpRequestHan
 
     private ServletDeployment deployment;
 
-    public static HttpRequestHandler provider() {
+    public static ServletContainer provider() {
         return new ServletContainer();
     }
 
