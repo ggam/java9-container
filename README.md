@@ -15,6 +15,6 @@ http://ggam.eu/java9-container/site/apidocs
 
 Compile: `mvn clean install -DskipTests`
 
-Run: ./examples/container-runnable/target/jre-dist/bin/launch
+Run: `./examples/container-runnable/target/jre-dist/bin/launch`
 
 Test: `./test.sh`
