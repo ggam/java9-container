@@ -19,11 +19,8 @@
             <outputDirectory>webapps</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>src/main/jlink</directory>
+            <directory>src/main/jlink/conf</directory>
             <outputDirectory>conf</outputDirectory>
-            <includes>
-                <include>app.properties</include>
-            </includes>
         </fileSet>
     </fileSets>
 </assembly>

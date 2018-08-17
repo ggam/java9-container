@@ -1,4 +1,5 @@
 #!/bin/sh
-JLINK_VM_OPTIONS=
-DIR=`dirname $0`
-$DIR/java $JLINK_VM_OPTIONS -Dserver.basedir=$(pwd)/.. -m eu.ggam.container.Impl/eu.ggam.container.impl.Launcher $@
+BASEDIR="$(pwd $0)/$(dirname $0)/../"
+cd $BASEDIR
+
+java -Djava.util.logging.config.file=conf/logging.properties -m eu.ggam.container.Impl/eu.ggam.container.impl.Launcher $@

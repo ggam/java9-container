@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 public class ServletContainer implements ServerLifeCycleListener, HttpRequestHandler {
 
     private static final Logger LOGGER = Logger.getLogger(ServletContainer.class.getName());
-    private static final Path WEBAPPS_PATH = Paths.get("..", "webapps");
+    private static final Path WEBAPPS_PATH = Paths.get("webapps");
     private static final ServletContainer INSTANCE = new ServletContainer();
 
     private ExecutorService executor;

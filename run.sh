@@ -1,1 +1,1 @@
-cd examples/container-runnable/target/jre-dist/bin/ && ./launch
+./examples/container-runnable/target/jre-dist/bin/launch

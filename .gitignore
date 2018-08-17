@@ -25,3 +25,5 @@
 /integrationtests/impl/target/
 /integrationtests/servlet/example-webapp/target/
 /examples/container-jlink/target/
+install_run.sh
+run.sh
