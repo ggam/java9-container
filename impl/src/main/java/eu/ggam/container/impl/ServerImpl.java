@@ -1,23 +1,16 @@
 package eu.ggam.container.impl;
 
 import eu.ggam.container.api.Server;
-import eu.ggam.container.api.event.ServerLifeCycleListener;
-import eu.ggam.container.api.event.ServerStartedEvent;
-import eu.ggam.container.api.event.ServerStartingEvent;
-import eu.ggam.container.api.event.ServerStoppingEvent;
-import eu.ggam.container.api.http.HttpRequestHandler;
-import eu.ggam.container.impl.connection.ConnectionManager;
+import eu.ggam.container.impl.connection.HttpConnectionManager;
+import eu.ggam.container.impl.servletcontainer.core.ServletContainer;
+import eu.ggam.jlink.launcher.spi.WebAppModule;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static java.util.stream.Collectors.toList;
 
 /**
  *
@@ -28,26 +21,13 @@ public class ServerImpl implements Server {
     private static final Logger LOGGER = Logger.getLogger(ServerImpl.class.getName());
 
     private State state = State.STOPPED;
-    private final int port;
-    private final List<ServerLifeCycleListener> lifeCycleListeners;
 
-    private HttpRequestHandler requestHandler;
+    private final Configuration config;
+    private final ServletContainer servletContainer;
 
-    public ServerImpl(int port) {
-        this.port = port;
-
-        this.lifeCycleListeners = new ArrayList<>();
-        ServiceLoader.load(ServerLifeCycleListener.class).
-                iterator().
-                forEachRemaining(lifeCycleListeners::add);
-
-        List<ServiceLoader.Provider<HttpRequestHandler>> requestHandlers = ServiceLoader.load(HttpRequestHandler.class).
-                stream().
-                collect(toList());
-        if (requestHandlers.size() != 1) {
-            throw new IllegalStateException("There must be exactly one " + HttpRequestHandler.class.getSimpleName() + ". (" + requestHandlers.size() + " found)");
-        }
-        requestHandler = requestHandlers.iterator().next().get();
+    public ServerImpl(WebAppModule module, Configuration config) {
+        this.config = config;
+        this.servletContainer = new ServletContainer(module);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -68,32 +48,16 @@ public class ServerImpl implements Server {
 
         this.state = newState;
 
-        switch (newState) {
-            case STARTING:
-                ServerStartingEvent startingEvent = new ServerStartingEvent(this);
-                lifeCycleListeners.forEach(listener -> listener.serverStarting(startingEvent));
-                break;
-            case RUNNING:
-                ServerStartedEvent startedEvent = new ServerStartedEvent(this);
-                lifeCycleListeners.forEach(listener -> listener.serverStarted(startedEvent));
-                break;
-            case STOPPING:
-                ServerStoppingEvent stoppingEvent = new ServerStoppingEvent(this);
-                lifeCycleListeners.forEach(listener -> listener.serverStopping(stoppingEvent));
-                break;
-            default:
-                // No actions to take on other states
-                break;
-        }
-
         LOGGER.log(Level.INFO, "Server state changed from {0} to {1}", new Object[]{oldState, this.state});
     }
 
     @Override
     public void start() throws IOException {
         changeState(State.STARTING);
+        servletContainer.start();
 
         changeState(State.RUNNING);
+        Integer port = config.getInteger(Configuration.Option.PORT);
         LOGGER.log(Level.INFO, "\n============================\nServer is running on port {0}", String.valueOf(port));
 
         final Selector selector = Selector.open();
@@ -103,7 +67,7 @@ public class ServerImpl implements Server {
         serverSocket.configureBlocking(false);
         serverSocket.register(selector, SelectionKey.OP_ACCEPT);
 
-        ConnectionManager connectionManager = new ConnectionManager(requestHandler, selector);
+        HttpConnectionManager connectionManager = new HttpConnectionManager(servletContainer, selector);
         connectionManager.beginService();
     }
 
@@ -111,6 +75,7 @@ public class ServerImpl implements Server {
     public void stop() {
         LOGGER.info("*** SHUTTING DOWN ***");
         changeState(State.STOPPING);
+        servletContainer.stop();
         changeState(State.STOPPED);
     }
 

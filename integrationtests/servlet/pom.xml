@@ -8,9 +8,9 @@
     </parent>
     <artifactId>container-integrationtests-servlet</artifactId>
     <packaging>war</packaging>
+
     <properties>
-        <maven.compiler.source>9</maven.compiler.source>
-        <maven.compiler.target>9</maven.compiler.target>
+        <server.basedir>${project.build.directory}/jre-dist2</server.basedir>
     </properties>
     
     <build>
@@ -51,7 +51,7 @@
                                     <overWrite>true</overWrite>
                                     <classifier>runnable</classifier>
                                     <type>zip</type>
-                                    <outputDirectory>${project.build.directory}/jre-dist2</outputDirectory>
+                                    <outputDirectory>${server.basedir}</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>eu.ggam</groupId>
@@ -59,9 +59,35 @@
                                     <version>1.0-SNAPSHOT</version>
                                     <type>war</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/jre-dist2/webapps</outputDirectory>
+                                    <outputDirectory>${server.basedir}/lib/modules/container-integrationtests-servlet</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <move todir="${server.basedir}/lib/modules">
+                                    <fileset dir="${server.basedir}/lib/modules/container-integrationtests-servlet/WEB-INF/lib" includes="**"/>  
+                                </move>
+                                <move todir="${server.basedir}/lib/modules/container-integrationtests-servlet/_ROOT_">
+                                    <fileset dir="${server.basedir}/lib/modules/container-integrationtests-servlet" includes="**"/>  
+                                </move>
+                                <move todir="${server.basedir}/lib/modules/container-integrationtests-servlet">
+                                    <fileset dir="${server.basedir}/lib/modules/container-integrationtests-servlet/_ROOT_/WEB-INF/classes" includes="**"/>  
+                                </move>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

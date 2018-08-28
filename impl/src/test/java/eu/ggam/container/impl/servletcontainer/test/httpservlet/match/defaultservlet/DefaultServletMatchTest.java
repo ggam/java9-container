@@ -1,23 +1,11 @@
 package eu.ggam.container.impl.servletcontainer.test.httpservlet.match.defaultservlet;
 
-import eu.ggam.container.impl.servletcontainer.core.matcher.ServletMatch;
-import eu.ggam.container.impl.servletcontainer.core.matcher.ServletMatcher;
-import eu.ggam.container.impl.servletcontainer.descriptor.WebXmlProcessingException;
-import eu.ggam.container.impl.servletcontainer.descriptor.materialized.MaterializedWebApp;
-import eu.ggam.container.impl.servletcontainer.jsr154.ServletContextImpl;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import javax.servlet.ServletException;
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
-
 /**
  *
  * @author Guillermo González de Agüero
  */
 public class DefaultServletMatchTest {
-
+/*
     @Test
     public void userProvidedDefaultServlet() throws URISyntaxException, ServletException {
         Path get = Paths.get(getClass().getResource("/httpservlet.match_default/user").toURI());
@@ -53,5 +41,5 @@ public class DefaultServletMatchTest {
             MaterializedWebApp webApp = new MaterializedWebApp.Builder(get, getClass().getClassLoader()).
                     build();
         });
-    }
+    }*/
 }

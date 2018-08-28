@@ -2,4 +2,8 @@
 BASEDIR="$(pwd $0)/$(dirname $0)/../"
 cd $BASEDIR
 
-java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006 -Djava.util.logging.config.file=conf/logging.properties -p modules -m eu.ggam.container.Impl/eu.ggam.container.impl.Launcher $@
+WAR_MODULE=$(jdeps --module-path ./lib/modules $(find ./lib/modules/*/_ROOT_ | head -n 1 | awk -F/ -v OFS="/" '{$NF=""}1') | head -n 1)
+
+echo "Deploying WAR module $WAR_MODULE"
+
+java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006 -Djava.util.logging.config.file=conf/logging.properties -p $BASEDIR/lib/modules --add-modules java.servlet,$WAR_MODULE, -Deu.ggam.jlink.war_module=$WAR_MODULE -m eu.ggam.jlink.launcher/eu.ggam.jlink.launcher.Bootstrap $@

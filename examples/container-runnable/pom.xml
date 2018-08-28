@@ -9,6 +9,10 @@
     <artifactId>container-runnable</artifactId>
     <packaging>pom</packaging>
     
+    <properties>
+        <server.basedir>${project.build.directory}/jre-dist</server.basedir>
+    </properties>
+    
     <build>
         <plugins>
             <plugin>
@@ -22,7 +26,7 @@
                 <executions>
                     <execution>
                         <id>prepare-server</id>
-                        <phase>install</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
@@ -36,28 +40,43 @@
                                     <classifier>runnable</classifier>
                                     <type>zip</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/jre-dist/</outputDirectory>
-                                </artifactItem> 
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
+                                    <outputDirectory>${server.basedir}</outputDirectory>
+                                </artifactItem>
                                 <artifactItem>
                                     <groupId>eu.ggam</groupId>
                                     <artifactId>container-test-webapp</artifactId>
                                     <version>1.0-SNAPSHOT</version>
                                     <type>war</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/jre-dist/webapps</outputDirectory>
+                                    <outputDirectory>${server.basedir}/lib/modules/container-test-webapp</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <move todir="${server.basedir}/lib/modules">
+                                    <fileset dir="${server.basedir}/lib/modules/container-test-webapp/WEB-INF/lib" includes="**"/>  
+                                </move>
+                                <move todir="${server.basedir}/lib/modules/container-test-webapp/_ROOT_">
+                                    <fileset dir="${server.basedir}/lib/modules/container-test-webapp" includes="**"/>  
+                                </move>
+                                <move todir="${server.basedir}/lib/modules/container-test-webapp">
+                                    <fileset dir="${server.basedir}/lib/modules/container-test-webapp/_ROOT_/WEB-INF/classes" includes="**"/>  
+                                </move>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

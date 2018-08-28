@@ -74,37 +74,4 @@ handle_error $? "Could not kill running server!"
 
 log "Servlet integration tests: SUCCESS"
 
-####################################
-# IMPL INTEGRATION TESTS
-####################################
-
-log "Impl integration tests: start"
-
-IMPL_HOME="$(pwd)/integrationtests/impl"
-IMPL_LOG="$IMPL_HOME/target/jre-dist2/logs/server.log"
-
-log "Starting server"
-
-CURRENT_DIR=$(pwd)
-cd "$IMPL_HOME/target/jre-dist2/bin/"
-./launch >test.log 2>&1 &
-
-handle_error $? "Error starting server for Impl integration tests"
-cd $CURRENT_DIR
-
-log "Server started"
-
-sleep 5
-#tail -F $log | grep -q "Server is running on port 8282"
-
-(cd $IMPL_HOME; mvn test) >test.log 2>&1
-handle_error $? "Error executing Impl integration tests"
-
-log "Killing server process"
-
-pgrep -f eu.ggam.container | xargs kill -9
-handle_error $? "Could not kill running server!"
-
-log "Impl integration tests: SUCCESS"
-
 rm test.log

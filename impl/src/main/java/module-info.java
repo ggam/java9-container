@@ -4,14 +4,12 @@ module eu.ggam.container.Impl {
     requires java.activation;
     requires java.servlet;
     requires java.xml.bind;
+    requires eu.ggam.jlink.launcher;
 
     opens eu.ggam.container.impl.servletcontainer.com.sun.java.xml.ns.javaee to java.xml.bind;
 
-    uses eu.ggam.container.api.event.ServerLifeCycleListener;
-    uses eu.ggam.container.api.http.HttpRequestHandler;
-
-    provides eu.ggam.container.api.event.ServerLifeCycleListener
-            with eu.ggam.container.impl.servletcontainer.core.ServletContainer;
-    provides eu.ggam.container.api.http.HttpRequestHandler
-            with eu.ggam.container.impl.servletcontainer.core.ServletContainer;
+    exports eu.ggam.container.impl;
+    
+    provides eu.ggam.jlink.launcher.spi.ServerLauncher
+            with eu.ggam.container.impl.Launcher;
 }

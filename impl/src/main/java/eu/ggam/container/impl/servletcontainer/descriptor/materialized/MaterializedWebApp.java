@@ -8,9 +8,9 @@ import eu.ggam.container.impl.servletcontainer.descriptor.ServletDescriptor;
 import eu.ggam.container.impl.servletcontainer.descriptor.WebXmlProcessingException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.module.ModuleReader;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,12 +27,13 @@ import javax.xml.bind.JAXBException;
  */
 public final class MaterializedWebApp {
 
+    private static final String WEB_XML_LOCATION = "_ROOT_/WEB-INF/web.xml";
+    
     public static final String DEFAULT_SERVLET_NAME = "eu.ggam.servlet.DefaultServlet";
 
     public static class Builder {
 
-        private final Path appPath;
-        private final ClassLoader classLoader;
+        private final Module module;
 
         private final Map<String, String> contextParams = new HashMap<>();
 
@@ -40,9 +41,8 @@ public final class MaterializedWebApp {
 
         private boolean built;
 
-        public Builder(Path appPath, ClassLoader classLoader) {
-            this.appPath = appPath;
-            this.classLoader = classLoader;
+        public Builder(Module module) {
+            this.module = module;
         }
 
         public Builder contextParam(String param, String value) {
@@ -65,15 +65,17 @@ public final class MaterializedWebApp {
             built = true;
 
             WebXml webXml;
-            try (InputStream is = Files.newInputStream(appPath.resolve(Paths.get("WEB-INF", "web.xml")))) {
-                webXml = (WebXml) JAXBContext.newInstance(ObjectFactory.class.getPackageName()).
+
+            try (ModuleReader reader = module.getLayer().configuration().findModule(module.getName()).get().reference().open();
+                    InputStream is = Files.newInputStream(Paths.get(reader.find(WEB_XML_LOCATION).get()))) {
+                webXml = (WebXml) JAXBContext.newInstance(ObjectFactory.class.getPackageName(), getClass().getClassLoader()).
                         createUnmarshaller().
                         unmarshal(is);
             } catch (JAXBException | IOException e) {
                 throw new RuntimeException(e); // TODO: Deployment exception
             }
 
-            return new MaterializedWebApp(webXml, classLoader, contextParams, defaultServletClassName);
+            return new MaterializedWebApp(webXml, getClass().getClassLoader(), contextParams, defaultServletClassName);
         }
 
         private void ensureNotBuilt() {
@@ -131,8 +133,8 @@ public final class MaterializedWebApp {
         if (count > 1) {
             throw new WebXmlProcessingException("Multiple Servlets mapped as default");
         }
-        
-        if(count == 0 && defaultServletClassName == null) {
+
+        if (count == 0 && defaultServletClassName == null) {
             throw new WebXmlProcessingException("No default Servlet provided");
         }
 

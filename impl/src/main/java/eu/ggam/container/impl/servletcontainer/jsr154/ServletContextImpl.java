@@ -32,7 +32,7 @@ public class ServletContextImpl implements ServletContext {
 
         private static final String BASE = ServletContextImpl.class.getPackageName();
 
-        public static final String WEBAPP_PATH = BASE + "webapp_path";
+        public static final String WEBAPP_MODULE = BASE + "webapp_module";
     }
 
     private final ClassLoader warClassLoader;

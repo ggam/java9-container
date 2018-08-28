@@ -1,14 +1,12 @@
 package eu.ggam.container.impl.servletcontainer.core;
 
-import eu.ggam.container.api.event.ServerLifeCycleListener;
-import eu.ggam.container.api.event.ServerStartingEvent;
-import eu.ggam.container.api.event.ServerStoppingEvent;
 import eu.ggam.container.api.http.HttpRequest;
 import eu.ggam.container.api.http.HttpRequestHandler;
 import eu.ggam.container.api.http.HttpResponse;
 import eu.ggam.container.impl.servletcontainer.api.DeploymentState;
 import eu.ggam.container.impl.servletcontainer.container.ContainerHttpResponseImpl;
 import eu.ggam.container.impl.servletcontainer.deployer.ServletDeployment;
+import eu.ggam.jlink.launcher.spi.WebAppModule;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -26,27 +24,23 @@ import java.util.logging.Logger;
  *
  * @author Guillermo González de Agüero
  */
-public class ServletContainer implements ServerLifeCycleListener, HttpRequestHandler {
+public class ServletContainer implements HttpRequestHandler {
 
     private static final Logger LOGGER = Logger.getLogger(ServletContainer.class.getName());
     private static final Path WEBAPPS_PATH = Paths.get("webapps");
-    private static final ServletContainer INSTANCE = new ServletContainer();
 
     private ExecutorService executor;
 
+    private WebAppModule module;
     private ServletDeployment deployment;
 
-    public static ServletContainer provider() {
-        return INSTANCE;
+    public ServletContainer(WebAppModule module) {
+        this.module = module;
     }
 
-    private ServletContainer() {
-    }
-
-    @Override
-    public void serverStarting(ServerStartingEvent serverStartingEvent) {
+    public void start() {
         executor = new ServletRequestExecutorService();
-        deployment = new ServletDeployment.ServletDeploymentBuilder(ModuleLayer.boot(), WEBAPPS_PATH).
+        deployment = new ServletDeployment.ServletDeploymentBuilder(module).
                 deploy();
     }
 
@@ -67,8 +61,8 @@ public class ServletContainer implements ServerLifeCycleListener, HttpRequestHan
         }, executor);
     }
 
-    @Override
-    public void serverStopping(ServerStoppingEvent serverStoppingEvent) {
+    public void stop() {
+        executor.shutdown();
         deployment.undeploy();
     }
 

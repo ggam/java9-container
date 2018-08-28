@@ -23,15 +23,15 @@ import java.util.logging.Logger;
  *
  * @author Guillermo González de Agüero
  */
-public class ConnectionManager {
+public class HttpConnectionManager {
 
-    private static final Logger LOGGER = Logger.getLogger(ConnectionManager.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(HttpConnectionManager.class.getName());
 
     private final Selector selector;
     private final Map<SocketChannel, SocketConnection> connections;
     private final HttpRequestHandler requestHandler;
 
-    public ConnectionManager(HttpRequestHandler requestHandler, Selector selector) {
+    public HttpConnectionManager(HttpRequestHandler requestHandler, Selector selector) {
         this.requestHandler = requestHandler;
         this.selector = selector;
         this.connections = new HashMap<>();
