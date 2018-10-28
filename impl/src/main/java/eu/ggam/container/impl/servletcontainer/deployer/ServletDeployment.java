@@ -64,7 +64,6 @@ public class ServletDeployment {
     }
 
     private void deploy() {
-        //module.getModule().getLayer().configuration().findModule(module.getModule().getName()).get().reference().open()
         webApp = new MaterializedWebApp.Builder(module.getModule()).
                 contextParam(ServletContextImpl.InitParams.WEBAPP_MODULE, module.getModule().getName()).
                 defaultServlet(FileServlet.class.getName()).

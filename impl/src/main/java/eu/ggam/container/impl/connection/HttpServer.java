@@ -2,10 +2,12 @@ package eu.ggam.container.impl.connection;
 
 import eu.ggam.container.api.http.HttpRequestHandler;
 import eu.ggam.container.impl.http.HttpRequestImpl;
+import eu.ggam.container.impl.util.NamedThreadFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -16,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,21 +27,37 @@ import java.util.logging.Logger;
  *
  * @author Guillermo González de Agüero
  */
-public class HttpConnectionManager {
+public class HttpServer {
 
-    private static final Logger LOGGER = Logger.getLogger(HttpConnectionManager.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(HttpServer.class.getName());
 
-    private final Selector selector;
     private final Map<SocketChannel, SocketConnection> connections;
-    private final HttpRequestHandler requestHandler;
+    private HttpRequestHandler requestHandler;
+    private final int port;
+    private Selector selector;
 
-    public HttpConnectionManager(HttpRequestHandler requestHandler, Selector selector) {
-        this.requestHandler = requestHandler;
-        this.selector = selector;
+    private ExecutorService nioPool;
+
+    public HttpServer(int port) {
         this.connections = new HashMap<>();
+        this.requestHandler = new DefaultHttpRequestHandler();
+        this.port = port;
     }
 
     public void beginService() throws IOException {
+        // Listen for requests on another thread
+        nioPool = Executors.newSingleThreadExecutor(new NamedThreadFactory("http-nio-pool"));
+        nioPool.submit(this::beginService2);
+    }
+
+    private Void beginService2() throws IOException {
+        selector = Selector.open();
+        ServerSocketChannel serverSocket = ServerSocketChannel.open();
+
+        serverSocket.bind(new InetSocketAddress("localhost", port));
+        serverSocket.configureBlocking(false);
+        serverSocket.register(selector, SelectionKey.OP_ACCEPT);
+
         while (true) {
             selector.select();
             Set<SelectionKey> keys = selector.selectedKeys();
@@ -137,9 +157,20 @@ public class HttpConnectionManager {
         return new SocketConnection(clientChannel);
     }
 
+    public void setRequestHandler(HttpRequestHandler requestHandler) {
+        this.requestHandler = requestHandler;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
     public void shutdown() {
         try {
-            selector.close();
+            nioPool.shutdown();
+            if (selector != null) {
+                selector.close();
+            }
             connections.clear();
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);

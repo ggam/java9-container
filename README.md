@@ -13,6 +13,8 @@ http://ggam.eu/java9-container/site/apidocs
 
 ## Running
 
+Install required dependency: `git clone https://github.com/ggam/java9-container-jlink; cd java9-container-jlink; mvn clean install`
+
 Compile: `mvn clean install -DskipTests`
 
 Test: `./test.sh`

@@ -12,7 +12,7 @@
         <servlet-name>ConflictiveServlet</servlet-name>
         <url-pattern>/conflictive.html</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>MonitoringServlet</servlet-name>
         <servlet-class>eu.ggam.container.examplelibrary.MonitoringServlet</servlet-class>
@@ -21,7 +21,7 @@
         <servlet-name>MonitoringServlet</servlet-name>
         <url-pattern>/monitoring.html</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>MonitoringServlet2</servlet-name>
         <servlet-class>eu.ggam.container.examplelibrary.MonitoringServlet</servlet-class>
@@ -30,7 +30,7 @@
         <servlet-name>MonitoringServlet2</servlet-name>
         <url-pattern>/monitoring2.html</url-pattern>
     </servlet-mapping>
-    
+
     <filter>
         <filter-name>Test</filter-name>
         <filter-class>eu.ggam.container.testwebapp.TestFilter</filter-class>
@@ -39,12 +39,12 @@
             <param-value>forbidden</param-value>
         </init-param>
     </filter>
-    
+
     <filter-mapping>
         <filter-name>Test</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    
+
     <!-- Servlet matching -->
     <servlet>
         <servlet-name>DefaultServlet</servlet-name>
@@ -54,7 +54,7 @@
         <servlet-name>DefaultServlet</servlet-name>
         <url-pattern>/</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>ExactPatternServlet</servlet-name>
         <servlet-class>eu.ggam.container.testwebapp.servletmatch.ExactPatternServlet</servlet-class>
@@ -63,7 +63,7 @@
         <servlet-name>ExactPatternServlet</servlet-name>
         <url-pattern>/pattern/exact</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>PrefixPatternServlet</servlet-name>
         <servlet-class>eu.ggam.container.testwebapp.servletmatch.PrefixPatternServlet</servlet-class>
@@ -72,7 +72,7 @@
         <servlet-name>PrefixPatternServlet</servlet-name>
         <url-pattern>/pattern/*</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>SufixPatternServlet</servlet-name>
         <servlet-class>eu.ggam.container.testwebapp.servletmatch.SufixPatternServlet</servlet-class>
@@ -81,7 +81,7 @@
         <servlet-name>SufixPatternServlet</servlet-name>
         <url-pattern>*.php</url-pattern>
     </servlet-mapping>
-    
+
     <!-- Filter Matchting -->
     <filter>
         <filter-name>ExactFilter</filter-name>
@@ -91,7 +91,7 @@
         <filter-name>ExactFilter</filter-name>
         <url-pattern>/filter_match/exact</url-pattern>
     </filter-mapping>
-    
+
     <filter>
         <filter-name>PrefixFilter</filter-name>
         <filter-class>eu.ggam.container.testwebapp.filtermatch.PrefixFilter</filter-class>
@@ -100,7 +100,7 @@
         <filter-name>PrefixFilter</filter-name>
         <url-pattern>/filter_match/prefix/*</url-pattern>
     </filter-mapping>
-    
+
     <filter>
         <filter-name>SufixFilter</filter-name>
         <filter-class>eu.ggam.container.testwebapp.filtermatch.SufixFilter</filter-class>
@@ -109,7 +109,7 @@
         <filter-name>SufixFilter</filter-name>
         <url-pattern>*.filtered</url-pattern>
     </filter-mapping>
-    
+
     <servlet>
         <servlet-name>SpecialServlet</servlet-name>
         <servlet-class>eu.ggam.container.testwebapp.filtermatch.SpecialServlet</servlet-class>
@@ -118,7 +118,7 @@
         <servlet-name>SpecialServlet</servlet-name>
         <url-pattern>/special-named-servlet</url-pattern>
     </servlet-mapping>
-    
+
     <filter>
         <filter-name>NamedServletFilter</filter-name>
         <filter-class>eu.ggam.container.testwebapp.filtermatch.NamedServletFilter</filter-class>
@@ -127,7 +127,7 @@
         <filter-name>NamedServletFilter</filter-name>
         <servlet-name>SpecialServlet</servlet-name>
     </filter-mapping>
-    
+
     <filter>
         <filter-name>FilterOne</filter-name>
         <filter-class>eu.ggam.container.testwebapp.filtermatch.order.FilterOne</filter-class>
@@ -144,13 +144,13 @@
         <filter-name>FilterTwo</filter-name>
         <url-pattern>/filters/ordered-filter</url-pattern>
     </filter-mapping>
-    
+
     <!-- ServletContext -->
     <context-param>
         <param-name>test_context_param</param-name>
         <param-value>It works!</param-value>
     </context-param>
-    
+
     <servlet>
         <servlet-name>ServletContextTestServlet</servlet-name>
         <servlet-class>eu.ggam.container.testwebapp.servletcontext.ServletContextTestServlet</servlet-class>
@@ -159,7 +159,7 @@
         <servlet-name>ServletContextTestServlet</servlet-name>
         <url-pattern>/servletcontext/dynamic-test.html</url-pattern>
     </servlet-mapping>
-    
+
     <listener>
         <listener-class>eu.ggam.container.testwebapp.servletcontext.SCAttributeListener</listener-class>
     </listener>

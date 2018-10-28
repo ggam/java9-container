@@ -14,21 +14,6 @@ import java.util.Properties;
  */
 public class Launcher implements ServerLauncher {
 
-    public static void main(String[] args) throws IOException {
-        Properties properties = new Properties();
-
-        try (Reader reader = Files.newBufferedReader(Paths.get("conf").resolve("app.properties"))) {
-            properties.load(reader);
-        }
-        Configuration config = new Configuration(properties);
-
-        WebAppModule webAppModule = WebAppModule.of(ModuleLayer.boot().
-                findModule(config.getString(Configuration.Option.WAR_MODULE)).
-                get());
-
-        new ServerImpl(webAppModule, config).start();
-    }
-
     @Override
     public void launch(WebAppModule webAppModule) throws IOException {
         Properties properties = new Properties();

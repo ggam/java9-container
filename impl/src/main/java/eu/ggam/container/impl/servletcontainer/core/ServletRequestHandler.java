@@ -6,16 +6,12 @@ import eu.ggam.container.api.http.HttpResponse;
 import eu.ggam.container.impl.servletcontainer.api.DeploymentState;
 import eu.ggam.container.impl.servletcontainer.container.ContainerHttpResponseImpl;
 import eu.ggam.container.impl.servletcontainer.deployer.ServletDeployment;
-import eu.ggam.jlink.launcher.spi.WebAppModule;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,49 +20,33 @@ import java.util.logging.Logger;
  *
  * @author Guillermo González de Agüero
  */
-public class ServletContainer implements HttpRequestHandler {
+public class ServletRequestHandler implements HttpRequestHandler {
 
-    private static final Logger LOGGER = Logger.getLogger(ServletContainer.class.getName());
-    private static final Path WEBAPPS_PATH = Paths.get("webapps");
+    private static final Logger LOGGER = Logger.getLogger(ServletRequestHandler.class.getName());
 
-    private ExecutorService executor;
+    private final ExecutorService executor;
+    private final ServletDeployment deployment;
 
-    private WebAppModule module;
-    private ServletDeployment deployment;
-
-    public ServletContainer(WebAppModule module) {
-        this.module = module;
-    }
-
-    public void start() {
-        executor = new ServletRequestExecutorService();
-        deployment = new ServletDeployment.ServletDeploymentBuilder(module).
-                deploy();
+    public ServletRequestHandler(ExecutorService executor, ServletDeployment deployment) {
+        this.executor = executor;
+        this.deployment = deployment;
     }
 
     @Override
-    public CompletionStage<HttpResponse> handle(HttpRequest request) throws IOException {
+    public CompletableFuture<HttpResponse> handle(HttpRequest request) throws IOException {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                if (deployment.getState() == DeploymentState.DEPLOYED) {
-                    return deployment.process(request);
+                if (deployment.getState() != DeploymentState.DEPLOYED) {
+                    // Application is there, but undeployed. 
+                    return unavailableResponse();
                 }
 
-                // Application is there, but undeployed. 
-                return unavailableResponse();
+                return deployment.process(request);
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Error processing request: ", e);
                 return failedResponse(e);
             }
         }, executor);
-    }
-
-    public void stop() {
-        executor.shutdown();
-        if(deployment != null) {
-            // Deployment might have failed
-            deployment.undeploy();   
-        }
     }
 
     private HttpResponse failedResponse(Exception e) {
@@ -110,4 +90,5 @@ public class ServletContainer implements HttpRequestHandler {
 
         return response;
     }
+
 }

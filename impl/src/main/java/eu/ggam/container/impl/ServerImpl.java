@@ -1,14 +1,10 @@
 package eu.ggam.container.impl;
 
 import eu.ggam.container.api.Server;
-import eu.ggam.container.impl.connection.HttpConnectionManager;
-import eu.ggam.container.impl.servletcontainer.core.ServletContainer;
+import eu.ggam.container.impl.connection.HttpServer;
+import eu.ggam.container.impl.servletcontainer.core.ServletEngine;
 import eu.ggam.jlink.launcher.spi.WebAppModule;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,11 +19,15 @@ public class ServerImpl implements Server {
     private State state = State.STOPPED;
 
     private final Configuration config;
-    private final ServletContainer servletContainer;
+    private final ServletEngine servletEngine;
+    private final HttpServer httpServer;
 
     public ServerImpl(WebAppModule module, Configuration config) {
         this.config = config;
-        this.servletContainer = new ServletContainer(module);
+        this.servletEngine = new ServletEngine(module);
+        
+        int port = config.getInteger(Configuration.Option.PORT);
+        this.httpServer = new HttpServer(port);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -54,28 +54,25 @@ public class ServerImpl implements Server {
     @Override
     public void start() throws IOException {
         changeState(State.STARTING);
-        servletContainer.start();
 
+        
+        LOGGER.log(Level.INFO, "\n============================\nStarting server on port {0}", httpServer.getPort());
+
+        httpServer.beginService();
+        
         changeState(State.RUNNING);
-        Integer port = config.getInteger(Configuration.Option.PORT);
-        LOGGER.log(Level.INFO, "\n============================\nServer is running on port {0}", String.valueOf(port));
 
-        final Selector selector = Selector.open();
-        ServerSocketChannel serverSocket = ServerSocketChannel.open();
-
-        serverSocket.bind(new InetSocketAddress("localhost", port));
-        serverSocket.configureBlocking(false);
-        serverSocket.register(selector, SelectionKey.OP_ACCEPT);
-
-        HttpConnectionManager connectionManager = new HttpConnectionManager(servletContainer, selector);
-        connectionManager.beginService();
+        servletEngine.start().
+                thenAccept(httpServer::setRequestHandler);
     }
 
     @Override
     public void stop() {
         LOGGER.info("*** SHUTTING DOWN ***");
         changeState(State.STOPPING);
-        servletContainer.stop();
+        
+        httpServer.shutdown();
+        servletEngine.stop();
         changeState(State.STOPPED);
     }
 
