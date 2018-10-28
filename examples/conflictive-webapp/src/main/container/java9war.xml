@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+    <id>java9war</id>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <formats>
+        <format>jar</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <directory>${project.build.directory}/${project.build.finalName}/WEB-INF/classes</directory>
+            <outputDirectory>.</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/${project.build.finalName}</directory>
+            <outputDirectory>_ROOT_</outputDirectory>
+            <excludes>
+                <exclude>WEB-INF/lib/**/*</exclude>
+                <exclude>WEB-INF/classes/**/*</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+</assembly>

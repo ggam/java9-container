@@ -5,6 +5,7 @@
     <artifactId>container</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+    <name>Java 9 Container</name>
     <modules>
         <module>api</module>
         <module>impl</module>

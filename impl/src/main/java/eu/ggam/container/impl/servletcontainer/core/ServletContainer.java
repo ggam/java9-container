@@ -63,7 +63,10 @@ public class ServletContainer implements HttpRequestHandler {
 
     public void stop() {
         executor.shutdown();
-        deployment.undeploy();
+        if(deployment != null) {
+            // Deployment might have failed
+            deployment.undeploy();   
+        }
     }
 
     private HttpResponse failedResponse(Exception e) {

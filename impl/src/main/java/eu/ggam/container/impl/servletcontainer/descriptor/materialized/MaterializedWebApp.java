@@ -6,12 +6,11 @@ import eu.ggam.container.impl.servletcontainer.com.sun.java.xml.ns.javaee.WebXml
 import eu.ggam.container.impl.servletcontainer.descriptor.FilterDescriptor;
 import eu.ggam.container.impl.servletcontainer.descriptor.ServletDescriptor;
 import eu.ggam.container.impl.servletcontainer.descriptor.WebXmlProcessingException;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.module.ModuleReader;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -65,12 +64,13 @@ public final class MaterializedWebApp {
             built = true;
 
             WebXml webXml;
-
+            
             try (ModuleReader reader = module.getLayer().configuration().findModule(module.getName()).get().reference().open();
-                    InputStream is = Files.newInputStream(Paths.get(reader.find(WEB_XML_LOCATION).get()))) {
+                    InputStream is = reader.open(WEB_XML_LOCATION).get();
+                    BufferedInputStream bis = new BufferedInputStream(is)) {
                 webXml = (WebXml) JAXBContext.newInstance(ObjectFactory.class.getPackageName(), getClass().getClassLoader()).
                         createUnmarshaller().
-                        unmarshal(is);
+                        unmarshal(bis);
             } catch (JAXBException | IOException e) {
                 throw new RuntimeException(e); // TODO: Deployment exception
             }
