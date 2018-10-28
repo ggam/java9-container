@@ -1,1 +1,1 @@
-packageSearchIndex = [{"m":"eu.ggam.container.Api","l":"eu.ggam.container.api"},{"m":"eu.ggam.container.Api","l":"eu.ggam.container.api.event"},{"m":"eu.ggam.container.Api","l":"eu.ggam.container.api.http"}]
+packageSearchIndex = [{"m":"eu.ggam.container.Api","l":"eu.ggam.container.api"},{"m":"eu.ggam.container.Api","l":"eu.ggam.container.api.http"}]
