@@ -3,7 +3,7 @@ jdk:
 - openjdk10
 install: true
 script:
-- git clone https://github.com/ggam/java9-container-jlink; cd java9-container-jlink; mvn clean install
+- git clone https://github.com/ggam/java9-container-jlink; cd java9-container-jlink; mvn clean install; cd ..
 - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 - mvn install -DskipTests
 - "./test.sh"
