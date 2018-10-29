@@ -25,7 +25,7 @@ public class ServerImpl implements Server {
     public ServerImpl(WebAppModule module, Configuration config) {
         this.config = config;
         this.servletEngine = new ServletEngine(module);
-        
+
         int port = config.getInteger(Configuration.Option.PORT);
         this.httpServer = new HttpServer(port);
 
@@ -55,22 +55,26 @@ public class ServerImpl implements Server {
     public void start() throws IOException {
         changeState(State.STARTING);
 
-        
         LOGGER.log(Level.INFO, "\n============================\nStarting server on port {0}", httpServer.getPort());
 
         httpServer.beginService();
-        
+
         changeState(State.RUNNING);
 
         servletEngine.start().
-                thenAccept(httpServer::setRequestHandler);
+                thenAccept(httpServer::setRequestHandler).
+                exceptionally(t -> {
+                    t.printStackTrace();
+                    stop();
+                    return null;
+                });
     }
 
     @Override
     public void stop() {
         LOGGER.info("*** SHUTTING DOWN ***");
         changeState(State.STOPPING);
-        
+
         httpServer.shutdown();
         servletEngine.stop();
         changeState(State.STOPPED);

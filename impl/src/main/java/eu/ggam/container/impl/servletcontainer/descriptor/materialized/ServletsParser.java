@@ -1,11 +1,10 @@
 package eu.ggam.container.impl.servletcontainer.descriptor.materialized;
 
-import eu.ggam.container.impl.servletcontainer.com.sun.java.xml.ns.javaee.ServletMappingType;
-import eu.ggam.container.impl.servletcontainer.com.sun.java.xml.ns.javaee.UrlPatternType;
-import eu.ggam.container.impl.servletcontainer.com.sun.java.xml.ns.javaee.WebXml;
 import eu.ggam.container.impl.servletcontainer.descriptor.MatchingPattern;
 import eu.ggam.container.impl.servletcontainer.descriptor.ServletDescriptor;
 import eu.ggam.container.impl.servletcontainer.descriptor.WebXmlProcessingException;
+import eu.ggam.container.impl.servletcontainer.descriptor.metamodel.ServletMappingMetamodel;
+import eu.ggam.container.impl.servletcontainer.descriptor.metamodel.WebXml;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -23,27 +22,26 @@ public final class ServletsParser {
     }
 
     public static Set<ServletDescriptor> findServlets(WebXml webXml, ClassLoader classLoader) {
-        Map<String, List<ServletMappingType>> collect = webXml.getServletMappings().
+        Map<String, List<ServletMappingMetamodel>> collect = webXml.getServletMappings().
                 stream().
-                collect(Collectors.groupingBy(smt -> smt.getServletName().getValue()));
+                collect(Collectors.groupingBy(smt -> smt.getServletName()));
 
         return webXml.getServlets().
                 stream().
                 map(st -> {
                     try {
-                        Set<MatchingPattern> urlPatterns = collect.getOrDefault(st.getServletName().getValue(), Collections.emptyList()).
+                        Set<MatchingPattern> urlPatterns = collect.getOrDefault(st.getServletName(), Collections.emptyList()).
                                 stream().
-                                map(ServletMappingType::getUrlPatterns).
-                                flatMap(List::stream).
-                                map(UrlPatternType::getValue).
+                                map(ServletMappingMetamodel::getUrlPatterns).
+                                flatMap(Set::stream).
                                 map(MatchingPattern::createUrlPattern).
                                 collect(toSet());
 
                         Map<String, String> initParams = st.getInitParams().
                                 stream().
-                                collect(Collectors.toMap(it -> it.getParamName().getValue(), it -> it.getParamValue().getValue()));
+                                collect(Collectors.toMap(it -> it.getParamName(), it -> it.getParamValue()));
 
-                        return new ServletDescriptor.Builder(st.getServletName().getValue(), st.getServletClass().getValue(), classLoader).
+                        return new ServletDescriptor.Builder(st.getServletName(), st.getServletClass(), classLoader).
                                 addMappings(urlPatterns).
                                 addInitParams(initParams).
                                 build();

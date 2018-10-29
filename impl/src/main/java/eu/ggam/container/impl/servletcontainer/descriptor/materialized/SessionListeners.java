@@ -1,11 +1,12 @@
 package eu.ggam.container.impl.servletcontainer.descriptor.materialized;
 
-import eu.ggam.container.impl.servletcontainer.com.sun.java.xml.ns.javaee.ListenerType;
 import eu.ggam.container.impl.servletcontainer.descriptor.WebXmlProcessingException;
+import eu.ggam.container.impl.servletcontainer.descriptor.metamodel.ListenerMetamodel;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import javax.servlet.http.HttpSessionActivationListener;
 import javax.servlet.http.HttpSessionAttributeListener;
 import javax.servlet.http.HttpSessionBindingListener;
@@ -20,15 +21,15 @@ public class SessionListeners {
     private final List<HttpSessionAttributeListener> sessionAttributeListeners;
     private final List<HttpSessionBindingListener> sessionBindingListeners;
 
-    SessionListeners(List<ListenerType> listenerTypes, ClassLoader classLoader) {
+    SessionListeners(Set<ListenerMetamodel> listenerTypes, ClassLoader classLoader) {
         final List<HttpSessionActivationListener> sessionActivationListenersTemp = new ArrayList<>();
         final List<HttpSessionAttributeListener> sessionAttributeListenersTemp = new ArrayList<>();
         final List<HttpSessionBindingListener> sessionBindingListenersTemp = new ArrayList<>();
 
-        for (ListenerType listenerType : listenerTypes) {
-            String className = listenerType.getListenerClass().getValue();
+        for (ListenerMetamodel listenerType : listenerTypes) {
+            String className = listenerType.getListenerClass();
             try {
-                Class<?> forName = Class.forName(listenerType.getListenerClass().getValue(), false, classLoader);
+                Class<?> forName = Class.forName(listenerType.getListenerClass(), false, classLoader);
 
                 if (HttpSessionActivationListener.class.isAssignableFrom(forName)) {
                     sessionActivationListenersTemp.add((HttpSessionActivationListener) forName.getDeclaredConstructor().newInstance());

@@ -1,11 +1,10 @@
 package eu.ggam.container.impl.servletcontainer.descriptor.materialized;
 
-import eu.ggam.container.impl.servletcontainer.com.sun.java.xml.ns.javaee.ObjectFactory;
-import eu.ggam.container.impl.servletcontainer.com.sun.java.xml.ns.javaee.ParamValueType;
-import eu.ggam.container.impl.servletcontainer.com.sun.java.xml.ns.javaee.WebXml;
 import eu.ggam.container.impl.servletcontainer.descriptor.FilterDescriptor;
 import eu.ggam.container.impl.servletcontainer.descriptor.ServletDescriptor;
 import eu.ggam.container.impl.servletcontainer.descriptor.WebXmlProcessingException;
+import eu.ggam.container.impl.servletcontainer.descriptor.metamodel.ContextParamMetamodel;
+import eu.ggam.container.impl.servletcontainer.descriptor.metamodel.WebXml;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,12 +12,10 @@ import java.lang.module.ModuleReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import static java.util.stream.Collectors.counting;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamException;
 
 /**
  *
@@ -63,19 +60,17 @@ public final class MaterializedWebApp {
         public MaterializedWebApp build() {
             built = true;
 
-            WebXml webXml;
             
             try (ModuleReader reader = module.getLayer().configuration().findModule(module.getName()).get().reference().open();
                     InputStream is = reader.open(WEB_XML_LOCATION).get();
                     BufferedInputStream bis = new BufferedInputStream(is)) {
-                webXml = (WebXml) JAXBContext.newInstance(ObjectFactory.class.getPackageName(), getClass().getClassLoader()).
-                        createUnmarshaller().
-                        unmarshal(bis);
-            } catch (JAXBException | IOException e) {
-                throw new RuntimeException(e); // TODO: Deployment exception
+                
+                WebXml webXml = new WebXml(bis);
+                
+                return new MaterializedWebApp(webXml, getClass().getClassLoader(), contextParams, defaultServletClassName);
+            } catch (IOException | XMLStreamException e) {
+                throw new WebXmlProcessingException(e);
             }
-
-            return new MaterializedWebApp(webXml, getClass().getClassLoader(), contextParams, defaultServletClassName);
         }
 
         private void ensureNotBuilt() {
@@ -112,10 +107,10 @@ public final class MaterializedWebApp {
         }
     }
 
-    private Map<String, String> createServletContext(List<ParamValueType> xmlContextParams, Map<String, String> additionalInitParams) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    private Map<String, String> createServletContext(Set<ContextParamMetamodel> xmlContextParams, Map<String, String> additionalInitParams) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         Map<String, String> initParams = new HashMap<>();
-        for (ParamValueType xmlContextParam : xmlContextParams) {
-            initParams.put(xmlContextParam.getParamName().getValue(), xmlContextParam.getParamValue().getValue());
+        for (ContextParamMetamodel xmlContextParam : xmlContextParams) {
+            initParams.put(xmlContextParam.getParamName(), xmlContextParam.getParamValue());
         }
 
         // Override user provided params with our own

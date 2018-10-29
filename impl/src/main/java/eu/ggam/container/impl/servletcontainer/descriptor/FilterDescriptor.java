@@ -1,9 +1,8 @@
 package eu.ggam.container.impl.servletcontainer.descriptor;
 
-import eu.ggam.container.impl.servletcontainer.com.sun.java.xml.ns.javaee.FilterMappingType;
-import eu.ggam.container.impl.servletcontainer.com.sun.java.xml.ns.javaee.FilterType;
-import eu.ggam.container.impl.servletcontainer.com.sun.java.xml.ns.javaee.ParamValueType;
-import eu.ggam.container.impl.servletcontainer.com.sun.java.xml.ns.javaee.UrlPatternType;
+import eu.ggam.container.impl.servletcontainer.descriptor.metamodel.FilterMappingMetamodel;
+import eu.ggam.container.impl.servletcontainer.descriptor.metamodel.FilterMetamodel;
+import eu.ggam.container.impl.servletcontainer.descriptor.metamodel.InitParamMetamodel;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,27 +24,27 @@ public class FilterDescriptor implements Comparable<FilterDescriptor> {
 
     private final Map<String, String> initParams = new HashMap<>();
 
-    private FilterDescriptor(FilterType filterType, List<FilterMappingType> filterMappingTypes, int position, ClassLoader classLoader) throws ClassNotFoundException {
-        this.filterName = filterType.getFilterName().getValue();
-        this.filterClass = (Class<Filter>) Class.forName(filterType.getFilterClass().getValue(), true, classLoader);
+    private FilterDescriptor(FilterMetamodel filterType, List<FilterMappingMetamodel> filterMappingTypes, int position, ClassLoader classLoader) throws ClassNotFoundException {
+        this.filterName = filterType.getFilterName();
+        this.filterClass = (Class<Filter>) Class.forName(filterType.getFilterClass(), true, classLoader);
         this.position = position;
 
-        for (ParamValueType initParamTypes : filterType.getInitParams()) {
-            initParams.put(initParamTypes.getParamName().getValue(), initParamTypes.getParamValue().getValue());
+        for (InitParamMetamodel initParamTypes : filterType.getInitParams()) {
+            initParams.put(initParamTypes.getParamName(), initParamTypes.getParamValue());
         }
 
-        for (FilterMappingType mapping : filterMappingTypes) {
-            for (UrlPatternType servletNamePattern : mapping.getServletNames()) {
-                matchingMatterns.add(MatchingPattern.createServletNamePattern(servletNamePattern.getValue()));
+        for (FilterMappingMetamodel mapping : filterMappingTypes) {
+            for (String servletNamePattern : mapping.getServletNames()) {
+                matchingMatterns.add(MatchingPattern.createServletNamePattern(servletNamePattern));
             }
 
-            for (UrlPatternType urlPattern : mapping.getUrlPatterns()) {
-                matchingMatterns.add(MatchingPattern.createUrlPattern(urlPattern.getValue()));
+            for (String urlPattern : mapping.getUrlPatterns()) {
+                matchingMatterns.add(MatchingPattern.createUrlPattern(urlPattern));
             }
         }
     }
 
-    public static FilterDescriptor createFromWebXml(FilterType filterType, List<FilterMappingType> filterMappingTypes, int position, ClassLoader classLoader) throws ClassNotFoundException {
+    public static FilterDescriptor createFromWebXml(FilterMetamodel filterType, List<FilterMappingMetamodel> filterMappingTypes, int position, ClassLoader classLoader) throws ClassNotFoundException {
         return new FilterDescriptor(filterType, filterMappingTypes, position, classLoader);
     }
 

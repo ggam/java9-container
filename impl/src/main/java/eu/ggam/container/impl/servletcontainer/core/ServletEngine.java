@@ -42,7 +42,14 @@ public class ServletEngine {
     }
 
     public void stop() {
-        requestExecutor.shutdown();
+        if (requestExecutor != null) {
+            requestExecutor.shutdown();
+        }
+
+        if (servletInitializerExecutor != null) {
+            servletInitializerExecutor.shutdown();
+        }
+
         if (deployment != null) {
             // Deployment might have failed
             deployment.undeploy();
