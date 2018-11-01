@@ -31,7 +31,7 @@ public class ContextParamMetamodel {
                             paramNameTmp = reader.getElementText();
                             break;
                         case ContextParamMetamodel.PARAM_VALUE:
-                            paramNameTmp = reader.getElementText();
+                            paramValueTmp = reader.getElementText();
                             break;
                     }
                 case XMLEvent.END_ELEMENT:

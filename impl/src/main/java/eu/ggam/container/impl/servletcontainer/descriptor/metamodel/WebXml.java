@@ -1,8 +1,10 @@
 package eu.ggam.container.impl.servletcontainer.descriptor.metamodel;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -19,20 +21,21 @@ public class WebXml {
     private final Set<ServletMappingMetamodel> servletMappings;
 
     private final Set<FilterMetamodel> filters;
-    private final Set<FilterMappingMetamodel> filterMappings;
+    private final List<FilterMappingMetamodel> filterMappings;
 
     private final Set<ContextParamMetamodel> contextParams;
-    private final Set<ListenerMetamodel> listeners;
+    private final List<ListenerMetamodel> listeners;
 
     public WebXml(InputStream inputStream) throws XMLStreamException {
         XMLStreamReader reader = XMLInputFactory.newFactory().createXMLStreamReader(inputStream);
 
+        // TODO: check ordering and uniqueness constraints
         Set<ServletMetamodel> servletsTmp = new HashSet<>();
         Set<ServletMappingMetamodel> servletMappingsTmp = new HashSet<>();
         Set<FilterMetamodel> filtersTmp = new HashSet<>();
-        Set<FilterMappingMetamodel> filterMappingsTmp = new HashSet<>();
+        List<FilterMappingMetamodel> filterMappingsTmp = new ArrayList<>();
         Set<ContextParamMetamodel> contextParamsTmp = new HashSet<>();
-        Set<ListenerMetamodel> listenersTmp = new HashSet<>();
+        List<ListenerMetamodel> listenersTmp = new ArrayList<>();
 
         while (reader.hasNext()) {
             if (reader.next() != XMLEvent.START_ELEMENT) {
@@ -64,9 +67,9 @@ public class WebXml {
         servlets = Collections.unmodifiableSet(servletsTmp);
         servletMappings = Collections.unmodifiableSet(servletMappingsTmp);
         filters = Collections.unmodifiableSet(filtersTmp);
-        filterMappings = Collections.unmodifiableSet(filterMappingsTmp);
+        filterMappings = Collections.unmodifiableList(filterMappingsTmp);
         contextParams = Collections.unmodifiableSet(contextParamsTmp);
-        listeners = Collections.unmodifiableSet(listenersTmp);
+        listeners = Collections.unmodifiableList(listenersTmp);
     }
 
     public Set<ServletMetamodel> getServlets() {
@@ -81,7 +84,7 @@ public class WebXml {
         return filters;
     }
 
-    public Set<FilterMappingMetamodel> getFilterMappings() {
+    public List<FilterMappingMetamodel> getFilterMappings() {
         return filterMappings;
     }
 
@@ -89,7 +92,7 @@ public class WebXml {
         return contextParams;
     }
 
-    public Set<ListenerMetamodel> getListeners() {
+    public List<ListenerMetamodel> getListeners() {
         return listeners;
     }
 

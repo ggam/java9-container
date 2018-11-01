@@ -1,6 +1,5 @@
 package eu.ggam.container.impl.servletcontainer.jsr154;
 
-import eu.ggam.container.impl.servletcontainer.descriptor.FilterDescriptor;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -15,20 +14,21 @@ import javax.servlet.ServletContext;
 public class FilterConfigImpl implements FilterConfig {
 
     private final ServletContext servletContext;
-    private final FilterDescriptor filterDescriptor;
+
+    private final String filterName;
     private final Map<String, String> initParams;
     private final Enumeration parameterNames;
 
-    public FilterConfigImpl(ServletContext servletContext, FilterDescriptor filterDescriptor) {
+    public FilterConfigImpl(ServletContext servletContext, String filterName, Map<String, String> initParams) {
         this.servletContext = servletContext;
-        this.filterDescriptor = filterDescriptor;
-        this.initParams = new HashMap<>(filterDescriptor.getInitParams());
+        this.filterName = filterName;
+        this.initParams = new HashMap<>(initParams);
         this.parameterNames = Collections.enumeration(initParams.keySet());
     }
 
     @Override
     public String getFilterName() {
-        return filterDescriptor.getFilterName();
+        return filterName;
     }
 
     @Override
@@ -45,9 +45,4 @@ public class FilterConfigImpl implements FilterConfig {
     public Enumeration getInitParameterNames() {
         return parameterNames;
     }
-
-    public FilterDescriptor getFilterDescriptor() {
-        return filterDescriptor;
-    }
-
 }

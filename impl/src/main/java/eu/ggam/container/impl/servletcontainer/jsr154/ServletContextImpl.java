@@ -1,6 +1,5 @@
 package eu.ggam.container.impl.servletcontainer.jsr154;
 
-import eu.ggam.container.impl.servletcontainer.descriptor.materialized.MaterializedWebApp;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -35,7 +34,6 @@ public class ServletContextImpl implements ServletContext {
         public static final String WEBAPP_MODULE = BASE + "webapp_module";
     }
 
-    private final ClassLoader warClassLoader;
     private final String contextPath;
     private final Map<String, String> initParams;
     private final List<ServletContextAttributeListener> attributeListeners;
@@ -43,12 +41,11 @@ public class ServletContextImpl implements ServletContext {
     private final Map<String, Object> attributes;
     private final Object attributeLock = new Object(); // Object to hold the lock when accessing the attributes
 
-    public ServletContextImpl(MaterializedWebApp webApp) {
-        this.warClassLoader = webApp.getClassLoader();
+    public ServletContextImpl(Map<String, String> contextParams, List<ServletContextAttributeListener> attributeListeners) {
         this.contextPath = null;
-        this.attributeListeners = Collections.unmodifiableList(new ArrayList<>(webApp.getContextListeners().getContextAttributeListeners()));
+        this.attributeListeners = Collections.unmodifiableList(new ArrayList<>(attributeListeners));
         //this.listeners = webApp.getContextListeners().getContextListeners(); // TODO: not supported yet
-        this.initParams = Collections.unmodifiableMap(new HashMap<>(webApp.getContextParams()));
+        this.initParams = Collections.unmodifiableMap(new HashMap<>(contextParams));
 
         this.attributes = new HashMap<>();
     }
@@ -219,10 +216,6 @@ public class ServletContextImpl implements ServletContext {
     @Override
     public String getServletContextName() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public ClassLoader getWarClassLoader() {
-        return warClassLoader;
     }
 
 }

@@ -57,6 +57,12 @@ public class FilterMappingMetamodel {
         this.servletNames = Collections.unmodifiableSet(servletNamesTmp);
     }
 
+    public FilterMappingMetamodel(String filterName, Set<String> urlPatterns, Set<String> servletNames) {
+        this.filterName = filterName;
+        this.urlPatterns = Collections.unmodifiableSet(new HashSet<>(urlPatterns));
+        this.servletNames = Collections.unmodifiableSet(new HashSet<>(servletNames));
+    }
+
     public String getFilterName() {
         return filterName;
     }

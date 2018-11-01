@@ -27,7 +27,8 @@ public class ServletMetamodel {
         String servletClassTmp = null;
         Set<InitParamMetamodel> initParamsTmp = new HashSet<>();
 
-        outer_loop: while (reader.hasNext()) {
+        outer_loop:
+        while (reader.hasNext()) {
             switch (reader.next()) {
                 case XMLEvent.START_ELEMENT:
                     switch (reader.getLocalName()) {
@@ -53,6 +54,12 @@ public class ServletMetamodel {
         this.servletName = servletNameTmp;
         this.servletClass = servletClassTmp;
         this.initParams = Collections.unmodifiableSet(initParamsTmp);
+    }
+
+    public ServletMetamodel(String servletName, String servletClass) {
+        this.servletName = servletName;
+        this.servletClass = servletClass;
+        this.initParams = new HashSet<>();
     }
 
     public String getServletName() {

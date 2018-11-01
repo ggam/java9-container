@@ -50,6 +50,11 @@ public class ServletMappingMetamodel {
         this.urlPatterns = Collections.unmodifiableSet(urlPatternsTmp);
     }
 
+    public ServletMappingMetamodel(String servletName, Set<String> urlPatterns) {
+        this.servletName = servletName;
+        this.urlPatterns = Collections.unmodifiableSet(new HashSet<>(urlPatterns));
+    }
+
     public String getServletName() {
         return servletName;
     }

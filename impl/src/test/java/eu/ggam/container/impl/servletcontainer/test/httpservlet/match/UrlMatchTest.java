@@ -1,19 +1,20 @@
 package eu.ggam.container.impl.servletcontainer.test.httpservlet.match;
 
-import eu.ggam.container.impl.servletcontainer.core.matcher.ServletMatch;
-import eu.ggam.container.impl.servletcontainer.core.matcher.ServletMatcher;
+import eu.ggam.container.impl.servletcontainer.descriptor.WebXmlProcessingException;
 import eu.ggam.container.impl.servletcontainer.descriptor.materialized.MaterializedWebApp;
-import eu.ggam.container.impl.servletcontainer.jsr154.ServletContextImpl;
-import eu.ggam.container.impl.servletcontainer.test.DummyFileServlet;
+import eu.ggam.container.impl.servletcontainer.descriptor.materialized.RequestUriMatch;
+import eu.ggam.container.impl.servletcontainer.descriptor.materialized.UrlPatternsParser;
+import eu.ggam.container.impl.servletcontainer.descriptor.metamodel.WebXml;
 import eu.ggam.container.impl.servletcontainer.test.httpservlet.match.servlets.DefaultServlet;
 import eu.ggam.container.impl.servletcontainer.test.httpservlet.match.servlets.ExactPatternServlet;
 import eu.ggam.container.impl.servletcontainer.test.httpservlet.match.servlets.PrefixPatternServlet;
 import eu.ggam.container.impl.servletcontainer.test.httpservlet.match.servlets.SufixPatternServlet;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.xml.stream.XMLStreamException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -23,66 +24,66 @@ import org.junit.jupiter.api.Test;
  *
  * @author Guillermo González de Agüero
  */
-@Disabled
 public class UrlMatchTest {
 
-    private ServletMatcher servletMatcher;
-    
+    private UrlPatternsParser urlPatternsParser;
+
     @BeforeEach
     public void init() throws URISyntaxException {
-        Path get = Paths.get(getClass().getResource("/httpservlet.match").toURI());
-        
-        MaterializedWebApp webApp = new MaterializedWebApp.Builder(getClass().getModule()).
-                defaultServlet(DummyFileServlet.class.getName()).
-                build();
+        try (InputStream is = getClass().getResourceAsStream("/httpservlet.match/WEB-INF/web.xml");
+                BufferedInputStream bis = new BufferedInputStream(is)) {
 
-        ServletContext sc = new ServletContextImpl(webApp);
-        servletMatcher = new ServletMatcher(sc, webApp.getServletDescriptors());
+            WebXml webXml = new WebXml(bis);
+
+            MaterializedWebApp webApp = new MaterializedWebApp(webXml, getClass().getModule());
+
+            urlPatternsParser = webApp.getUrlPatternsParser();
+        } catch (IOException | XMLStreamException e) {
+            throw new WebXmlProcessingException(e);
+        }
     }
 
     @Test
     public void prefix() throws ServletException {
-        ServletMatch match = servletMatcher.match("/pattern/not-existing-servlet");
+        RequestUriMatch match = urlPatternsParser.match("/pattern/not-existing-servlet");
 
-        assertEquals(PrefixPatternServlet.class, match.getServlet().getClass());
+        assertEquals(PrefixPatternServlet.class.getSimpleName(), match.getServletName());
     }
 
     @Test
     public void prefix_sufixNotCalled() throws ServletException {
-        ServletMatch match = servletMatcher.match("/pattern/index.php");
+        RequestUriMatch match = urlPatternsParser.match("/pattern/index.php");
 
-        assertEquals(PrefixPatternServlet.class, match.getServlet().getClass());
+        assertEquals(PrefixPatternServlet.class.getSimpleName(), match.getServletName());
     }
 
     @Test
     public void sufix() throws ServletException {
-        ServletMatch match = servletMatcher.match("/pattern2/index.php");
+        RequestUriMatch match = urlPatternsParser.match("/pattern2/index.php");
 
-        assertEquals(SufixPatternServlet.class, match.getServlet().getClass());
+        assertEquals(SufixPatternServlet.class.getSimpleName(), match.getServletName());
     }
 
     @Test
     public void exact() throws ServletException {
-        ServletMatch match = servletMatcher.match("/pattern/exact");
+        RequestUriMatch match = urlPatternsParser.match("/pattern/exact");
 
-        assertEquals(ExactPatternServlet.class, match.getServlet().getClass());
+        assertEquals(ExactPatternServlet.class.getSimpleName(), match.getServletName());
     }
 
     @Test
     public void exact_encodingQueryString() throws ServletException {
-        ServletMatch match = servletMatcher.match("/pattern/exact%3Fparam=value");
+        RequestUriMatch match = urlPatternsParser.match("/pattern/exact%3Fparam=value");
 
-        assertEquals(ExactPatternServlet.class, match.getServlet().getClass());
+        assertEquals(ExactPatternServlet.class.getSimpleName(), match.getServletName());
     }
 
     @Test
     public void defaultServlet() throws ServletException {
-        ServletMatch match = servletMatcher.match("/non-existing-url-default-executes");
-        
-        assertEquals(DefaultServlet.class, match.getServlet().getClass());
+        RequestUriMatch match = urlPatternsParser.match("/non-existing-url-default-executes");
+        assertEquals(DefaultServlet.class.getSimpleName(), match.getServletName());
     }
-    
-    
+
     @Disabled
     @Test
     public void exactMatchNotAllowsPrefix() throws ServletException {

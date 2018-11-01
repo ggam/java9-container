@@ -1,6 +1,5 @@
 package eu.ggam.container.impl.servletcontainer.jsr154;
 
-import eu.ggam.container.impl.servletcontainer.descriptor.ServletDescriptor;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -15,20 +14,21 @@ import javax.servlet.ServletContext;
 public class ServletConfigImpl implements ServletConfig {
 
     private final ServletContext servletContext;
-    private final ServletDescriptor servletDescriptor;
+
+    private final String servletName;
     private final Map<String, String> initParams;
     private final Enumeration parameterNames;
 
-    public ServletConfigImpl(ServletContext servletContext, ServletDescriptor servletDescriptor) {
+    public ServletConfigImpl(ServletContext servletContext, String servletName, Map<String, String> initParams) {
         this.servletContext = servletContext;
-        this.servletDescriptor = servletDescriptor;
-        this.initParams = new HashMap<>(servletDescriptor.getInitParams());
+        this.servletName = servletName;
+        this.initParams = new HashMap<>(initParams);
         this.parameterNames = Collections.enumeration(initParams.keySet());
     }
 
     @Override
     public String getServletName() {
-        return servletDescriptor.getServletName();
+        return servletName;
     }
 
     @Override
@@ -44,10 +44,6 @@ public class ServletConfigImpl implements ServletConfig {
     @Override
     public Enumeration getInitParameterNames() {
         return parameterNames;
-    }
-
-    public ServletDescriptor getServletDescriptor() {
-        return servletDescriptor;
     }
 
 }

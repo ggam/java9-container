@@ -1,34 +1,39 @@
 package eu.ggam.container.impl.servletcontainer.test.servletcontext.attributelistener;
 
+import eu.ggam.container.impl.servletcontainer.descriptor.WebXmlProcessingException;
 import eu.ggam.container.impl.servletcontainer.descriptor.materialized.MaterializedWebApp;
-import eu.ggam.container.impl.servletcontainer.jsr154.ServletContextImpl;
-import eu.ggam.container.impl.servletcontainer.test.DummyFileServlet;
+import eu.ggam.container.impl.servletcontainer.descriptor.metamodel.WebXml;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import javax.servlet.ServletContext;
+import javax.xml.stream.XMLStreamException;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
  *
  * @author Guillermo González de Agüero
  */
-@Disabled
 public class ServletContext_ContextAttributeListenerTest {
 
     private ServletContext sc;
 
     @BeforeEach
     public void init() throws URISyntaxException {
-        Path webAppPath = Paths.get(getClass().getResource("/servletcontext.contextattributelistener").toURI());
+        try (InputStream is = getClass().getResourceAsStream("/servletcontext.contextattributelistener/WEB-INF/web.xml");
+                BufferedInputStream bis = new BufferedInputStream(is)) {
 
-        MaterializedWebApp webApp = new MaterializedWebApp.Builder(getClass().getModule()).defaultServlet(DummyFileServlet.class.getName()).
-                build();
+            WebXml webXml = new WebXml(bis);
 
-        sc = new ServletContextImpl(webApp);
+            MaterializedWebApp webApp = new MaterializedWebApp(webXml, getClass().getModule());
+
+            sc = webApp.getServletContext();
+        } catch (IOException | XMLStreamException e) {
+            throw new WebXmlProcessingException(e);
+        }
     }
 
     @Test

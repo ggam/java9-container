@@ -1,6 +1,5 @@
-package eu.ggam.container.impl.servletcontainer.descriptor;
+package eu.ggam.container.impl.servletcontainer.descriptor.materialized;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,27 +11,16 @@ import java.util.regex.Pattern;
 public final class MatchingPattern {
 
     public enum MatchType {
-
-        SERVLET_NAME, // Only for filters
         EXACT,
         PREFIX,
-        EXTENSION
+        EXTENSION,
+        DEFAULT
     }
 
-    private final String servletName;
     private final Pattern pattern;
     private final MatchType matchType;
 
-    private MatchingPattern(String servletName, Pattern pattern, MatchType matchType) {
-        if (matchType == MatchType.SERVLET_NAME && (servletName == null || pattern != null)) {
-            throw new IllegalArgumentException("Cannot create " + matchType + " matching pattern");
-        }
-
-        if (matchType != MatchType.SERVLET_NAME && (servletName != null || pattern == null)) {
-            throw new IllegalArgumentException("Cannot create " + matchType + " matching pattern");
-        }
-
-        this.servletName = servletName;
+    private MatchingPattern(Pattern pattern, MatchType matchType) {
         this.pattern = pattern;
         this.matchType = matchType;
     }
@@ -52,7 +40,9 @@ public final class MatchingPattern {
 
         /* Categorization */
         MatchType matchType;
-        if (!pattern.contains("*")) {
+        if ("/".equals(pattern)) {
+            matchType = MatchType.DEFAULT;
+        } else if (!pattern.contains("*")) {
             // Exact match
             matchType = MatchingPattern.MatchType.EXACT;
         } else {
@@ -74,11 +64,7 @@ public final class MatchingPattern {
             pattern = pattern.replace("*", "(.*)");
         }
 
-        return new MatchingPattern(null, Pattern.compile(pattern), matchType);
-    }
-
-    public static MatchingPattern createServletNamePattern(String servletName) {
-        return new MatchingPattern(servletName, null, MatchType.SERVLET_NAME);
+        return new MatchingPattern(Pattern.compile(pattern), matchType);
     }
 
     public MatchType getMatchType() {
@@ -89,40 +75,32 @@ public final class MatchingPattern {
         return uriMatch(uri).isPresent();
     }
 
-    public Optional<UriMatch> uriMatch(String uri) {
-        if (matchType == MatchType.SERVLET_NAME) {
-            throw new IllegalStateException("This pattern is of type " + matchType);
+    public Optional<ServletUriMatch> uriMatch(String uri) {
+        if("/".equals(pattern.pattern())) {
+            // Default Servlet always matches
+            return Optional.of(new ServletUriMatch("", uri));
         }
-
+        
         Matcher m = pattern.matcher(uri);
         if (m.find()) {
             if (matchType == MatchType.EXTENSION || matchType == MatchType.EXACT) {
-                return Optional.of(new UriMatch(m.group(0), null));
+                return Optional.of(new ServletUriMatch(m.group(0), null));
             }
 
             String servletPath = m.group(1);
             String pathInfo = m.group(2);
-            return Optional.of(new UriMatch(servletPath.substring(0, servletPath.length() - 1), "/" + pathInfo));
+            return Optional.of(new ServletUriMatch(servletPath.substring(0, servletPath.length() - 1), "/" + pathInfo));
         }
 
         return Optional.empty();
     }
 
-    public boolean matchesServletName(String servletName) {
-        Objects.requireNonNull(servletName);
-        if (matchType != MatchType.SERVLET_NAME) {
-            throw new IllegalStateException("This pattern is of type " + matchType);
-        }
-
-        return this.servletName.equals(servletName);
-    }
-
-    public static class UriMatch {
+    public static class ServletUriMatch {
 
         private final String servletInfo;
         private final String pathInfo;
 
-        public UriMatch(String servletInfo, String pathInfo) {
+        public ServletUriMatch(String servletInfo, String pathInfo) {
             this.servletInfo = servletInfo;
             this.pathInfo = pathInfo;
         }
@@ -135,14 +113,5 @@ public final class MatchingPattern {
             return pathInfo;
         }
 
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 97 * hash + Objects.hashCode(this.servletName);
-        hash = 97 * hash + Objects.hashCode(this.pattern);
-        hash = 97 * hash + Objects.hashCode(this.matchType);
-        return hash;
     }
 }

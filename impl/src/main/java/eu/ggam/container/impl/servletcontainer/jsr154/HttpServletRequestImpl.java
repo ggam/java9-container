@@ -1,6 +1,6 @@
 package eu.ggam.container.impl.servletcontainer.jsr154;
 
-import eu.ggam.container.impl.servletcontainer.descriptor.MatchingPattern;
+import eu.ggam.container.impl.servletcontainer.descriptor.materialized.RequestUriMatch;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -56,7 +56,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
     private final int port;
     private final String scheme;
     
-    public HttpServletRequestImpl(ServletContext servletContext, String method, URI uri, MatchingPattern.UriMatch uriMatch, Map<String, List<String>> headers) {
+    public HttpServletRequestImpl(ServletContext servletContext, String method, URI uri, RequestUriMatch uriMatch, Map<String, List<String>> headers) {
         this.servletContext = servletContext;
         this.method = method;
         this.requestURI = uri.getPath();

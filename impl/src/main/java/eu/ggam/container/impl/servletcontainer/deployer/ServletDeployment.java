@@ -6,11 +6,10 @@ import eu.ggam.container.impl.servletcontainer.api.DeploymentState;
 import eu.ggam.container.impl.servletcontainer.container.ContainerHttpResponseImpl;
 import eu.ggam.container.impl.servletcontainer.core.FilterChainFactory;
 import eu.ggam.container.impl.servletcontainer.descriptor.materialized.MaterializedWebApp;
+import eu.ggam.container.impl.servletcontainer.descriptor.metamodel.WebXml;
 import eu.ggam.container.impl.servletcontainer.jsr154.FilterChainImpl;
 import eu.ggam.container.impl.servletcontainer.jsr154.HttpServletRequestImpl;
 import eu.ggam.container.impl.servletcontainer.jsr154.HttpServletResponseImpl;
-import eu.ggam.container.impl.servletcontainer.jsr154.ServletContextImpl;
-import eu.ggam.container.impl.servletcontainer.rootwebapp.FileServlet;
 import eu.ggam.jlink.launcher.spi.WebAppModule;
 import java.io.IOException;
 import java.util.List;
@@ -24,21 +23,6 @@ import javax.servlet.ServletException;
  * @author Guillermo González de Agüero
  */
 public class ServletDeployment {
-
-    public static class ServletDeploymentBuilder {
-
-        private final WebAppModule module;
-
-        public ServletDeploymentBuilder(WebAppModule module) {
-            this.module = module;
-        }
-
-        public ServletDeployment deploy() {
-            ServletDeployment servletDeployment = new ServletDeployment(module);
-            servletDeployment.deploy();
-            return servletDeployment;
-        }
-    }
 
     private static final Logger LOGGER = Logger.getLogger(ServletDeployment.class.getName());
 
@@ -54,8 +38,9 @@ public class ServletDeployment {
 
     private FilterChainFactory filterChainFactory;
 
-    private ServletDeployment(WebAppModule module) {
+    public ServletDeployment(WebAppModule module, WebXml parsedWebXml) {
         this.module = module;
+        this.webApp = new MaterializedWebApp(parsedWebXml, module.getModule());
     }
 
     private synchronized void changeState(DeploymentState newState) {
@@ -63,15 +48,10 @@ public class ServletDeployment {
         this.state = newState;
     }
 
-    private void deploy() {
-        webApp = new MaterializedWebApp.Builder(module.getModule()).
-                contextParam(ServletContextImpl.InitParams.WEBAPP_MODULE, module.getModule().getName()).
-                defaultServlet(FileServlet.class.getName()).
-                build();
+    public void deploy() {
+        servletContext = webApp.getServletContext();
 
-        servletContext = new ServletContextImpl(webApp);
-
-        filterChainFactory = new FilterChainFactory(servletContext, webApp);
+        filterChainFactory = new FilterChainFactory(webApp.getServletFactory(), webApp.getFilterFactory(), webApp.getUrlPatternsParser());
 
         changeState(DeploymentState.DEPLOYED);
     }
@@ -80,9 +60,11 @@ public class ServletDeployment {
         failIfNotDeployed();
         changeState(DeploymentState.UNDEPLOYING);
 
-        filterChainFactory.close();
-
-        changeState(DeploymentState.UNDEPLOYED);
+        try {
+            filterChainFactory.close();
+        } finally {
+            changeState(DeploymentState.UNDEPLOYED);
+        }
     }
 
     public HttpResponse process(HttpRequest containerRequest) throws IOException, ServletException {
