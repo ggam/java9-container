@@ -1,6 +1,6 @@
 language: java
 jdk:
-- openjdk10
+- openjdk11
 install: true
 script:
 - git clone https://github.com/ggam/java9-container-jlink; cd java9-container-jlink; mvn clean install; cd ..
